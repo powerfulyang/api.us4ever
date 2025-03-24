@@ -1,0 +1,21 @@
+{
+  "app_name": "api.us4ever",
+  "app_env": "local",
+  "server": {
+    "port": 8080
+  },
+  "database": {
+    "host": "postgres",
+    "port": 5432,
+    "database": "blueprint",
+    "username": "changeme",
+    "password": "changeme",
+    "schema": "public"
+  },
+  "redis": {
+    "host": "redis",
+    "port": 6379,
+    "password": "",
+    "db": 0
+  }
+}
