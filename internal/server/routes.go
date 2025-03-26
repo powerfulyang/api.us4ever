@@ -19,6 +19,8 @@ func (s *FiberServer) RegisterFiberRoutes() {
 
 	s.App.Get("/health", s.healthHandler)
 
+	s.App.Get("/app-config", s.AppConfigHandler)
+
 }
 
 func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {
@@ -31,4 +33,8 @@ func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {
 
 func (s *FiberServer) healthHandler(c *fiber.Ctx) error {
 	return c.JSON(s.db.Health())
+}
+
+func (s *FiberServer) AppConfigHandler(c *fiber.Ctx) error {
+	return c.JSON(s.cfg)
 }

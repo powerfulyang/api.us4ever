@@ -47,9 +47,9 @@ func main() {
 		log.Printf("初始化配置中心失败: %v, 将使用环境变量配置", err)
 	}
 
-	server := server.New()
+	fiberServer := server.New()
 
-	server.RegisterFiberRoutes()
+	fiberServer.RegisterFiberRoutes()
 
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)
@@ -61,14 +61,14 @@ func main() {
 		} else {
 			port, _ = strconv.Atoi(os.Getenv("PORT"))
 		}
-		err := server.Listen(fmt.Sprintf(":%d", port))
+		err := fiberServer.Listen(fmt.Sprintf(":%d", port))
 		if err != nil {
-			panic(fmt.Sprintf("http server error: %s", err))
+			panic(fmt.Sprintf("http fiberServer error: %s", err))
 		}
 	}()
 
 	// Run graceful shutdown in a separate goroutine
-	go gracefulShutdown(server, done)
+	go gracefulShutdown(fiberServer, done)
 
 	// Wait for the graceful shutdown to complete
 	<-done

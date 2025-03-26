@@ -100,7 +100,7 @@ func loadConfigFromEnv() *AppConfig {
 	return config
 }
 
-// GetConfig 获取配置
+// GetAppConfig GetConfig 获取配置
 func GetAppConfig() *AppConfig {
 	configMux.RLock()
 	defer configMux.RUnlock()
