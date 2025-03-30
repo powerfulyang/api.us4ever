@@ -5,11 +5,11 @@
     "port": 8080
   },
   "database": {
-    "host": "postgres",
+    "host": "op.powerfulyang.com",
     "port": 5432,
-    "database": "blueprint",
-    "username": "changeme",
-    "password": "changeme",
+    "database": "default",
+    "username": "postgres",
+    "password": "postgres",
     "schema": "public"
   },
   "redis": {
