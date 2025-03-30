@@ -18,7 +18,7 @@ func (File) Fields() []ent.Field {
 
 }
 func (File) Edges() []ent.Edge {
-	return []ent.Edge{edge.From("bucket", Bucket.Type).Ref("files").Unique().Field("bucketId"), edge.From("user", User.Type).Ref("files").Unique().Field("uploadedBy"), edge.To("images", Image.Type), edge.To("images", Image.Type), edge.To("images", Image.Type), edge.To("images", Image.Type), edge.To("videos", Video.Type), edge.To("videos", Video.Type)}
+	return []ent.Edge{edge.From("bucket", Bucket.Type).Ref("files").Unique().Field("bucketId"), edge.From("user", User.Type).Ref("files").Unique().Field("uploadedBy"), edge.To("compressed_image", Image.Type), edge.To("original_image", Image.Type), edge.To("thumbnail_320x_image", Image.Type), edge.To("thumbnail_768x_image", Image.Type), edge.To("video_file", Video.Type), edge.To("video_poster", Video.Type)}
 }
 func (File) Annotations() []schema.Annotation {
 	return nil

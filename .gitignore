@@ -32,4 +32,7 @@ main
 # OS X generated file
 .DS_Store
 
-.env
+
+ent
+!ent/generate.go
+!ent/schema
