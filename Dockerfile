@@ -4,6 +4,9 @@ FROM golang:alpine AS builder
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
+# Install make
+RUN apk add --no-cache make
+
 # Copy go.mod and go.sum files
 COPY go.mod go.sum ./
 
@@ -14,7 +17,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN go build -o main cmd/api/main.go
+RUN make build
 
 # Start a new stage from scratch
 FROM alpine:latest
