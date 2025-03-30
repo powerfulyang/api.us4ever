@@ -36,3 +36,6 @@ main
 ent
 !ent/generate.go
 !ent/schema
+
+cache/
+log/

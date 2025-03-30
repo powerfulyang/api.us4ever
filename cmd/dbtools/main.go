@@ -20,15 +20,6 @@ func main() {
 	switch command {
 	case "sync":
 		syncSchema()
-	case "generate":
-		if len(os.Args) < 3 {
-			log.Fatalf("请提供迁移名称，例如: go run ./cmd/dbtools generate add_users")
-		}
-		generateMigration(os.Args[2])
-	case "apply":
-		applyMigration()
-	case "setup":
-		setupDatabase()
 	default:
 		log.Printf("未知命令: %s", command)
 		printUsage()
@@ -49,22 +40,4 @@ func syncSchema() {
 	}
 
 	log.Println("数据库结构同步成功！")
-}
-
-func generateMigration(name string) {
-	log.Printf("正在生成数据库迁移: %s...", name)
-
-	log.Println("数据库迁移生成成功！")
-}
-
-func applyMigration() {
-	log.Println("正在应用数据库迁移...")
-
-	log.Println("数据库迁移应用成功！")
-}
-
-func setupDatabase() {
-	log.Println("正在初始化数据库连接...")
-
-	log.Println("数据库连接初始化成功！")
 }

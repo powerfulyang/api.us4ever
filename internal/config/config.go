@@ -4,8 +4,12 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"strconv"
 	"sync"
 )
+
+// ConfigChangeCallback is a function type for configuration change handlers
+type ConfigChangeCallback func(newConfig *AppConfig)
 
 // AppConfig 应用配置结构体
 type AppConfig struct {
@@ -41,9 +45,18 @@ type RedisConfig struct {
 }
 
 var (
-	appConfig *AppConfig
-	configMux sync.RWMutex
+	appConfig       *AppConfig
+	configMux       sync.RWMutex
+	changeCallbacks []ConfigChangeCallback
+	callbacksMutex  sync.RWMutex
 )
+
+// RegisterChangeCallback registers a callback function to be called when config changes
+func RegisterChangeCallback(callback ConfigChangeCallback) {
+	callbacksMutex.Lock()
+	defer callbacksMutex.Unlock()
+	changeCallbacks = append(changeCallbacks, callback)
+}
 
 // LoadConfig 加载配置
 func LoadConfig() (*AppConfig, error) {
@@ -81,19 +94,29 @@ func LoadConfig() (*AppConfig, error) {
 
 // loadConfigFromEnv 从环境变量加载配置
 func loadConfigFromEnv() *AppConfig {
+	serverPort, err := strconv.Atoi(os.Getenv("SERVER_PORT"))
+	if err != nil {
+		log.Printf("SERVER_PORT 不是有效的整数: %v", err)
+		serverPort = 8080
+	}
+	dbPort, err := strconv.Atoi(os.Getenv("DB_PORT"))
+	if err != nil {
+		log.Printf("DB_PORT 不是有效的整数: %v", err)
+		dbPort = 5432
+	}
 	config := &AppConfig{
 		AppName: "api.us4ever",
 		AppEnv:  os.Getenv("APP_ENV"),
 		Server: ServerConfig{
-			Port: 8080, // 默认值，应该从环境变量获取
+			Port: serverPort, // 默认值，应该从环境变量获取
 		},
 		Database: DBConfig{
-			Host:     os.Getenv("BLUEPRINT_DB_HOST"),
-			Port:     5432, // 应该从环境变量获取
-			Database: os.Getenv("BLUEPRINT_DB_DATABASE"),
-			Username: os.Getenv("BLUEPRINT_DB_USERNAME"),
-			Password: os.Getenv("BLUEPRINT_DB_PASSWORD"),
-			Schema:   os.Getenv("BLUEPRINT_DB_SCHEMA"),
+			Host:     os.Getenv("DB_HOST"),
+			Port:     dbPort, // 应该从环境变量获取
+			Database: os.Getenv("DB_DATABASE"),
+			Username: os.Getenv("DB_USERNAME"),
+			Password: os.Getenv("DB_PASSWORD"),
+			Schema:   os.Getenv("DB_SCHEMA"),
 		},
 	}
 
@@ -132,9 +155,22 @@ func setupConfigListener(dataID, group string) {
 		// 更新配置
 		appConfig = newConfig
 		log.Println("配置已更新")
+
+		// 调用所有注册的回调函数
+		notifyConfigChange(newConfig)
 	})
 
 	if err != nil {
 		log.Printf("设置配置监听失败: %v", err)
+	}
+}
+
+// notifyConfigChange calls all registered callback functions with the new config
+func notifyConfigChange(newConfig *AppConfig) {
+	callbacksMutex.RLock()
+	defer callbacksMutex.RUnlock()
+
+	for _, callback := range changeCallbacks {
+		go callback(newConfig)
 	}
 }

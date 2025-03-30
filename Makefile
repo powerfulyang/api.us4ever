@@ -53,9 +53,6 @@ print-nacos-config:
 help:
 	@echo "数据库管理命令:"
 	@echo "  make sync-schema             - 从现有数据库同步结构到 ENT schema"
-	@echo "  make generate-migration name=迁移名称 - 生成数据库迁移"
-	@echo "  make apply-migration         - 应用待处理的数据库迁移"
-	@echo "  make setup-db                - 初始化数据库连接"
 	@echo ""
 	@echo "Nacos 配置命令:"
 	@echo "  make import-nacos-config           - 导入配置到 Nacos"
@@ -72,22 +69,3 @@ sync-schema:
 	go run ./cmd/dbtools sync
 	@echo "同步完成，生成 ENT 代码..."
 	$(MAKE) generate-ent
-
-# 生成数据库迁移
-generate-migration:
-	@if [ -z "$(name)" ]; then \
-		echo "ERROR: 请提供迁移名称，例如: make generate-migration name=add_users"; \
-		exit 1; \
-	fi
-	@echo "生成数据库迁移: $(name)..."
-	go run ./cmd/dbtools generate $(name)
-
-# 应用数据库迁移
-apply-migration:
-	@echo "应用数据库迁移..."
-	go run ./cmd/dbtools apply
-
-# 初始化数据库
-setup-db:
-	@echo "初始化数据库连接..."
-	go run ./cmd/dbtools setup
