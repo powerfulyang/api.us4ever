@@ -43,11 +43,6 @@ func New() (Service, error) {
 		return nil, fmt.Errorf("failed to connect to database: %v", err)
 	}
 
-	// Run database migrations
-	if err := client.Schema.Create(context.Background()); err != nil {
-		return nil, fmt.Errorf("failed to create schema: %v", err)
-	}
-
 	return &Database{
 		client: client,
 		config: dbConfig,
