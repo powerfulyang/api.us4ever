@@ -3,6 +3,8 @@
 package schema
 
 import (
+	"encoding/json"
+
 	"entgo.io/ent"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
@@ -14,7 +16,7 @@ type Moment struct {
 }
 
 func (Moment) Fields() []ent.Field {
-	return []ent.Field{field.String("id"), field.String("content"), field.Bool("isPublic"), field.JSON("tags", struct{}{}), field.Int32("views"), field.Int32("likes"), field.JSON("extraData", struct{}{}), field.String("category"), field.String("ownerId").Optional(), field.Time("createdAt"), field.Time("updatedAt")}
+	return []ent.Field{field.String("id"), field.String("content"), field.Bool("isPublic"), field.JSON("tags", json.RawMessage{}), field.Int32("views"), field.Int32("likes"), field.JSON("extraData", json.RawMessage{}), field.String("category"), field.String("ownerId").Optional(), field.Time("createdAt"), field.Time("updatedAt")}
 
 }
 func (Moment) Edges() []ent.Edge {

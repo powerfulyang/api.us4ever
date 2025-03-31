@@ -1,4 +1,4 @@
-package database
+package tools
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 
+	"api.us4ever/internal/config"
 	_ "github.com/lib/pq"
 )
 
@@ -13,12 +14,17 @@ import (
 func SyncSchema() error {
 	// 确保目录存在
 	schemaDir := "ent/schema"
+	// 先清空目录
+	if err := os.RemoveAll(schemaDir); err != nil {
+		return fmt.Errorf("failed to remove existing schema directory: %v", err)
+	}
+
 	if err := os.MkdirAll(schemaDir, 0755); err != nil {
 		return fmt.Errorf("failed to create schema directory: %v", err)
 	}
 
 	// 从 config 包获取配置
-	dbConfig, err := LoadConfig()
+	dbConfig, err := config.LoadDatabaseConfig()
 	if err != nil {
 		return fmt.Errorf("无法加载应用配置: %v", err)
 	}
@@ -28,7 +34,7 @@ func SyncSchema() error {
 
 	log.Printf("使用 DSN: %s", dsn)
 
-	cmd := exec.Command("go", "run", "-mod=mod", "ariga.io/entimport/cmd/entimport", "-dsn", dsn)
+	cmd := exec.Command("go", "run", "-mod=mod", "github.com/powerfulyang/entimport/cmd/entimport", "-dsn", dsn)
 	cmd.Dir = "."
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

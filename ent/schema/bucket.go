@@ -3,6 +3,8 @@
 package schema
 
 import (
+	"encoding/json"
+
 	"entgo.io/ent"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
@@ -14,7 +16,7 @@ type Bucket struct {
 }
 
 func (Bucket) Fields() []ent.Field {
-	return []ent.Field{field.String("id"), field.String("name").Unique(), field.String("bucketName"), field.Enum("provider").Values("R2", "TENCENT_COS", "ORACLE_OSS"), field.String("region"), field.String("endpoint"), field.String("publicUrl"), field.String("accessKey"), field.String("secretKey"), field.String("description"), field.JSON("extraData", struct{}{}), field.String("category"), field.String("ownerId").Optional(), field.Time("createdAt"), field.Time("updatedAt")}
+	return []ent.Field{field.String("id"), field.String("name").Unique(), field.String("bucketName"), field.Enum("provider").Values("R2", "TENCENT_COS", "ORACLE_OSS"), field.String("region"), field.String("endpoint"), field.String("publicUrl"), field.String("accessKey"), field.String("secretKey"), field.String("description"), field.JSON("extraData", json.RawMessage{}), field.String("category"), field.String("ownerId").Optional(), field.Time("createdAt"), field.Time("updatedAt")}
 
 }
 func (Bucket) Edges() []ent.Edge {

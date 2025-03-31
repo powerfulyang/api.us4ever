@@ -3,6 +3,8 @@
 package schema
 
 import (
+	"encoding/json"
+
 	"entgo.io/ent"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
@@ -14,7 +16,7 @@ type Todo struct {
 }
 
 func (Todo) Fields() []ent.Field {
-	return []ent.Field{field.String("id"), field.String("title"), field.String("content").Optional(), field.Bool("status"), field.Int32("priority"), field.Time("dueDate").Optional(), field.Bool("isPublic"), field.Bool("pinned"), field.JSON("extraData", struct{}{}), field.String("category"), field.String("ownerId").Optional(), field.Time("createdAt"), field.Time("updatedAt")}
+	return []ent.Field{field.String("id"), field.String("title"), field.String("content").Optional(), field.Bool("status"), field.Int32("priority"), field.Time("dueDate").Optional(), field.Bool("isPublic"), field.Bool("pinned"), field.JSON("extraData", json.RawMessage{}), field.String("category"), field.String("ownerId").Optional(), field.Time("createdAt"), field.Time("updatedAt")}
 
 }
 func (Todo) Edges() []ent.Edge {

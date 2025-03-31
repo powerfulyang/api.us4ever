@@ -3,6 +3,8 @@
 package schema
 
 import (
+	"encoding/json"
+
 	"entgo.io/ent"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
@@ -14,12 +16,12 @@ type Video struct {
 }
 
 func (Video) Fields() []ent.Field {
-	return []ent.Field{field.String("id"), field.String("name"), field.String("type"), field.Int("size"), field.String("hash"), field.Int32("duration"), field.Bool("isPublic"), field.JSON("extraData", struct{}{}), field.String("category"), field.String("posterId").Optional(), field.String("fileId").Optional(), field.String("uploadedBy").Optional(), field.Time("createdAt"), field.Time("updatedAt")}
+	return []ent.Field{field.String("id"), field.String("name"), field.String("type"), field.Int("size"), field.String("hash"), field.Int32("duration"), field.Bool("isPublic"), field.JSON("extraData", json.RawMessage{}), field.String("category"), field.String("posterId").Optional(), field.String("fileId").Optional(), field.String("uploadedBy").Optional(), field.Time("createdAt"), field.Time("updatedAt")}
 
+}
+func (Video) Edges() []ent.Edge {
+	return []ent.Edge{edge.To("moment_videos", MomentVideo.Type), edge.From("file", File.Type).Ref("Video_file").Unique().Field("fileId"), edge.From("poster", File.Type).Ref("Video_poster").Unique().Field("posterId"), edge.From("user", User.Type).Ref("videos").Unique().Field("uploadedBy")}
 }
 func (Video) Annotations() []schema.Annotation {
 	return nil
-}
-func (Video) Edges() []ent.Edge {
-	return []ent.Edge{edge.To("moment_videos", MomentVideo.Type), edge.From("video_file", File.Type).Ref("video_file").Unique().Field("fileId"), edge.From("video_poster", File.Type).Ref("video_poster").Unique().Field("posterId"), edge.From("user", User.Type).Ref("videos").Unique().Field("uploadedBy")}
 }

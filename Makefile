@@ -1,5 +1,22 @@
 # Simple Makefile for a Go project
 
+# --- OS Detection ---
+# Default to non-Windows
+IS_WINDOWS := false
+# Try detecting Windows using the 'OS' environment variable (Common in native cmd/powershell)
+ifeq ($(OS), Windows_NT)
+    IS_WINDOWS := true
+endif
+# --- End OS Detection ---
+
+# 前置命令：设置编码以避免中文乱码
+.PHONY: pre-check
+pre-check:
+ifeq ($(IS_WINDOWS),true)
+	@powershell -Command "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8"
+endif
+
+.PHONY: all build run test itest clean watch import-nacos-config print-nacos-config help sync-schema generate-ent
 # Build the application
 all: build test
 
@@ -47,16 +64,15 @@ print-nacos-config:
 	@echo "打印 Nacos 配置..."
 	@go run ./cmd/nacos-tools/print-config/main.go
 
-.PHONY: all build run test clean watch docker-run docker-down itest build-import-config import-config sync-schema generate-migration apply-migration setup-db print-nacos-config help
 
 # 默认帮助命令
-help:
-	@echo "数据库管理命令:"
-	@echo "  make sync-schema             - 从现有数据库同步结构到 ENT schema"
-	@echo ""
-	@echo "Nacos 配置命令:"
-	@echo "  make import-nacos-config           - 导入配置到 Nacos"
-	@echo "  make print-nacos-config      - 打印 Nacos 配置"
+help: pre-check
+	@echo 数据库管理命令:
+	@echo   make sync-schema             - 从现有数据库同步结构到 ENT schema
+	@echo 
+	@echo Nacos 配置命令:
+	@echo   make import-nacos-config     - 导入配置到 Nacos
+	@echo   make print-nacos-config      - 打印 Nacos 配置
 
 # 生成 ENT 代码
 generate-ent:
@@ -64,8 +80,8 @@ generate-ent:
 	go generate ./ent
 
 # 从数据库同步结构
-sync-schema:
+sync-schema: pre-check
 	@echo "从数据库同步结构..."
-	go run ./cmd/dbtools sync
+	go run ./cmd/db-tools sync
 	@echo "同步完成，生成 ENT 代码..."
 	$(MAKE) generate-ent

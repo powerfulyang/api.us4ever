@@ -2,14 +2,14 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
 	"sync"
 )
 
-// ConfigChangeCallback is a function type for configuration change handlers
-type ConfigChangeCallback func(newConfig *AppConfig)
+type ChangeCallback func(newConfig *AppConfig)
 
 // AppConfig 应用配置结构体
 type AppConfig struct {
@@ -47,12 +47,12 @@ type RedisConfig struct {
 var (
 	appConfig       *AppConfig
 	configMux       sync.RWMutex
-	changeCallbacks []ConfigChangeCallback
+	changeCallbacks []ChangeCallback
 	callbacksMutex  sync.RWMutex
 )
 
 // RegisterChangeCallback registers a callback function to be called when config changes
-func RegisterChangeCallback(callback ConfigChangeCallback) {
+func RegisterChangeCallback(callback ChangeCallback) {
 	callbacksMutex.Lock()
 	defer callbacksMutex.Unlock()
 	changeCallbacks = append(changeCallbacks, callback)
@@ -173,4 +173,27 @@ func notifyConfigChange(newConfig *AppConfig) {
 	for _, callback := range changeCallbacks {
 		go callback(newConfig)
 	}
+}
+
+// Validate 验证数据库配置
+func (c *DBConfig) Validate() error {
+	if c.Database == "" {
+		return fmt.Errorf("database name is required")
+	}
+	if c.Password == "" {
+		return fmt.Errorf("database password is required")
+	}
+	if c.Username == "" {
+		return fmt.Errorf("database username is required")
+	}
+	if c.Port == 0 {
+		return fmt.Errorf("database port is required")
+	}
+	if c.Host == "" {
+		return fmt.Errorf("database host is required")
+	}
+	if c.Schema == "" {
+		return fmt.Errorf("database schema is required")
+	}
+	return nil
 }
