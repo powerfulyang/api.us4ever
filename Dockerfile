@@ -5,7 +5,7 @@ FROM golang:alpine AS builder
 WORKDIR /app
 
 # Install make
-RUN apk add --no-cache make
+RUN apk add --no-cache just
 
 # Copy go.mod and go.sum files
 COPY go.mod go.sum ./
@@ -17,7 +17,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN make build
+RUN just build
 
 # Start a new stage from scratch
 FROM alpine:latest

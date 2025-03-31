@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"api.us4ever/ent"
+	"api.us4ever/internal/config"
 
 	_ "github.com/lib/pq"
 )
@@ -26,13 +27,13 @@ type Service interface {
 // Database implements the Service interface
 type Database struct {
 	client *ent.Client
-	config *DBConfig
+	config *config.DBConfig
 }
 
 // New creates a new database service
 func New() (Service, error) {
 	// Load database configuration
-	dbConfig, err := LoadConfig()
+	dbConfig, err := config.LoadDatabaseConfig()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load database config: %v", err)
 	}
