@@ -13,7 +13,7 @@ import (
 // SyncSchema 从数据库同步结构到 ENT schema
 func SyncSchema() error {
 	// 确保目录存在
-	schemaDir := "ent/schema"
+	schemaDir := "internal/ent/schema"
 	// 先清空目录
 	if err := os.RemoveAll(schemaDir); err != nil {
 		return fmt.Errorf("failed to remove existing schema directory: %v", err)
@@ -34,7 +34,7 @@ func SyncSchema() error {
 
 	log.Printf("使用 DSN: %s", dsn)
 
-	cmd := exec.Command("go", "run", "-mod=mod", "github.com/powerfulyang/entimport/cmd/entimport", "-dsn", dsn)
+	cmd := exec.Command("go", "run", "-mod=mod", "github.com/powerfulyang/entimport/cmd/entimport", "-dsn", dsn, "-schema-path", "./internal/ent/schema")
 	cmd.Dir = "."
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

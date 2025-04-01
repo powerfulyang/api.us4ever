@@ -9,7 +9,7 @@ default: help
 all: build test
 
 # 构建应用
-build: generate-ent
+build:
     @echo "Building..."
     go build -o main cmd/api/main.go
 
@@ -58,7 +58,7 @@ print-nacos-config:
 # 生成 ENT 代码
 generate-ent:
     @echo "生成 ENT 代码..."
-    go generate ./ent
+    go generate ./internal/ent
 
 # 从数据库同步结构
 sync-schema: 

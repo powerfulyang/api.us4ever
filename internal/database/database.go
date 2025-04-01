@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	"api.us4ever/ent"
 	"api.us4ever/internal/config"
+	"api.us4ever/internal/ent"
 
 	_ "github.com/lib/pq"
 )

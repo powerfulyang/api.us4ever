@@ -314,6 +314,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/powerfulyang/entimport v0.0.0-20250331090817-bb26d80ac991 h1:nJdyjIrTVJeoqijIANBoA3q9lLjwsp3a08zPfABN/OM=
 github.com/powerfulyang/entimport v0.0.0-20250331090817-bb26d80ac991/go.mod h1:yJwk8kvNI6AHx+NFh1X1sTcfB1sfxseBE3myYeZtCeE=
+github.com/powerfulyang/entimport v1.0.0 h1:n9J3vekrBiLULVgeQjZxcGrmz4KQZ7Ijhvx4hzF7/cE=
+github.com/powerfulyang/entimport v1.0.0/go.mod h1:yJwk8kvNI6AHx+NFh1X1sTcfB1sfxseBE3myYeZtCeE=
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v1.0.0/go.mod h1:db9x61etRT2tGnBNRi70OPL5FsnadC4Ky3P0J6CfImo=
 github.com/prometheus/client_golang v1.7.1/go.mod h1:PY5Wy2awLA44sXw4AOSfFBetzPP4j5+D6mVACh+pe2M=
