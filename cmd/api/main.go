@@ -12,11 +12,12 @@ import (
 
 	"api.us4ever/internal/config"
 	"api.us4ever/internal/server"
+	"api.us4ever/internal/task"
 
 	_ "github.com/joho/godotenv/autoload"
 )
 
-func gracefulShutdown(fiberServer *server.FiberServer, done chan bool) {
+func gracefulShutdown(fiberServer *server.FiberServer, scheduler *task.Scheduler, done chan bool) {
 	// Create context that listens for the interrupt signal from the OS.
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -34,6 +35,9 @@ func gracefulShutdown(fiberServer *server.FiberServer, done chan bool) {
 		log.Printf("Server forced to shutdown with error: %v", err)
 	}
 
+	// 停止定时任务调度器
+	scheduler.Stop()
+
 	log.Println("Server exiting")
 
 	// Notify the main goroutine that the shutdown is complete
@@ -47,8 +51,21 @@ func main() {
 		log.Printf("初始化配置中心失败: %v, 将使用环境变量配置", err)
 	}
 
-	fiberServer := server.New()
+	// 初始化定时任务调度器
+	scheduler, err := task.NewScheduler()
+	if err != nil {
+		log.Printf("初始化定时任务调度器失败: %v", err)
+	} else {
+		// 注册定时任务
+		if err := task.RegisterTasks(scheduler); err != nil {
+			log.Printf("注册定时任务失败: %v", err)
+		} else {
+			// 启动定时任务调度器
+			scheduler.Start()
+		}
+	}
 
+	fiberServer := server.New()
 	fiberServer.RegisterFiberRoutes()
 
 	// Create a done channel to signal when the shutdown is complete
@@ -68,7 +85,7 @@ func main() {
 	}()
 
 	// Run graceful shutdown in a separate goroutine
-	go gracefulShutdown(fiberServer, done)
+	go gracefulShutdown(fiberServer, scheduler, done)
 
 	// Wait for the graceful shutdown to complete
 	<-done
