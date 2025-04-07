@@ -12,10 +12,7 @@ func (c *DBConfig) GetDSN() string {
 
 func LoadDatabaseConfig() (*DBConfig, error) {
 	// 使用现有的配置包
-	appConfig, err := LoadConfig()
-	if err != nil {
-		return nil, fmt.Errorf("failed to load app config: %v", err)
-	}
+	appConfig := GetAppConfig()
 
 	// 转换配置结构
 	dbConfig := appConfig.Database

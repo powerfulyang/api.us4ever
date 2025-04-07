@@ -13,8 +13,6 @@ import (
 	"api.us4ever/internal/config"
 	"api.us4ever/internal/server"
 	"api.us4ever/internal/task"
-
-	_ "github.com/joho/godotenv/autoload"
 )
 
 func gracefulShutdown(fiberServer *server.FiberServer, scheduler *task.Scheduler, done chan bool) {
@@ -46,10 +44,7 @@ func gracefulShutdown(fiberServer *server.FiberServer, scheduler *task.Scheduler
 
 func main() {
 	// 初始化配置中心
-	appConfig, err := config.LoadConfig()
-	if err != nil {
-		log.Printf("初始化配置中心失败: %v, 将使用环境变量配置", err)
-	}
+	appConfig := config.GetAppConfig()
 
 	// 初始化定时任务调度器
 	scheduler, err := task.NewScheduler()
@@ -78,7 +73,7 @@ func main() {
 		} else {
 			port, _ = strconv.Atoi(os.Getenv("PORT"))
 		}
-		err := fiberServer.Listen(fmt.Sprintf(":%d", port))
+		err := fiberServer.Listen(fmt.Sprintf("localhost:%d", port))
 		if err != nil {
 			panic(fmt.Sprintf("http fiberServer error: %s", err))
 		}

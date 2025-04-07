@@ -8,8 +8,6 @@ import (
 	"os"
 
 	"api.us4ever/internal/config"
-
-	_ "github.com/joho/godotenv/autoload"
 )
 
 func main() {

@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"sync"
+
+	"github.com/joho/godotenv"
 )
 
 type ChangeCallback func(newConfig *AppConfig)
@@ -18,6 +19,7 @@ type AppConfig struct {
 	Server   ServerConfig `json:"server"`
 	Database DBConfig     `json:"database"`
 	Redis    RedisConfig  `json:"redis,omitempty"`
+	Dify     DifyConfig   `json:"dify,omitempty"`
 	// 添加其他配置项...
 }
 
@@ -44,6 +46,12 @@ type RedisConfig struct {
 	DB       int    `json:"db"`
 }
 
+// DifyConfig Dify配置
+type DifyConfig struct {
+	Endpoint string `json:"endpoint"`
+	ApiKey   string `json:"api_key"`
+}
+
 var (
 	appConfig       *AppConfig
 	configMux       sync.RWMutex
@@ -67,21 +75,28 @@ func LoadConfig() (*AppConfig, error) {
 		return appConfig, nil
 	}
 
+	nacosServerAddr := os.Getenv("NACOS_SERVER_ADDR")
+
+	if nacosServerAddr == "" {
+		err := godotenv.Load("../../.env")
+		if err != nil {
+			log.Fatal("⚠️ 加载 .env 文件失败，程序即将退出")
+		}
+	}
+
 	// 从Nacos加载配置
 	nacosConfig := LoadNacosConfig()
 	configContent, err := GetConfig(nacosConfig.DataID, nacosConfig.Group)
 
-	// 如果无法从Nacos加载，则使用环境变量
+	// 如果无法从Nacos加载，则报错
 	if err != nil {
-		log.Printf("从Nacos加载配置失败，使用环境变量。")
-		return loadConfigFromEnv(), nil
+		return nil, fmt.Errorf("无法加载Nacos配置: %v", err)
 	}
 
 	// 解析Nacos配置
 	config := &AppConfig{}
 	if err := json.Unmarshal([]byte(configContent), config); err != nil {
-		log.Printf("解析Nacos配置失败，使用环境变量: %v", err)
-		return loadConfigFromEnv(), nil
+		return nil, fmt.Errorf("解析Nacos配置失败: %v", err)
 	}
 
 	appConfig = config
@@ -92,52 +107,10 @@ func LoadConfig() (*AppConfig, error) {
 	return appConfig, nil
 }
 
-// loadConfigFromEnv 从环境变量加载配置
-func loadConfigFromEnv() *AppConfig {
-	serverPort, err := strconv.Atoi(os.Getenv("SERVER_PORT"))
-	if err != nil {
-		log.Printf("SERVER_PORT 不是有效的整数: %v", err)
-		serverPort = 8080
-	}
-	dbPort, err := strconv.Atoi(os.Getenv("DB_PORT"))
-	if err != nil {
-		log.Printf("DB_PORT 不是有效的整数: %v", err)
-		dbPort = 5432
-	}
-	config := &AppConfig{
-		AppName: "api.us4ever",
-		AppEnv:  os.Getenv("APP_ENV"),
-		Server: ServerConfig{
-			Port: serverPort, // 默认值，应该从环境变量获取
-		},
-		Database: DBConfig{
-			Host:     os.Getenv("DB_HOST"),
-			Port:     dbPort, // 应该从环境变量获取
-			Database: os.Getenv("DB_DATABASE"),
-			Username: os.Getenv("DB_USERNAME"),
-			Password: os.Getenv("DB_PASSWORD"),
-			Schema:   os.Getenv("DB_SCHEMA"),
-		},
-	}
-
-	return config
-}
-
 // GetAppConfig GetConfig 获取配置
 func GetAppConfig() *AppConfig {
-	configMux.RLock()
-	defer configMux.RUnlock()
-
-	if appConfig == nil {
-		configMux.RUnlock()
-		_, err := LoadConfig()
-		if err != nil {
-			log.Printf("加载配置失败: %v", err)
-		}
-		configMux.RLock()
-	}
-
-	return appConfig
+	config, _ := LoadConfig()
+	return config
 }
 
 // setupConfigListener 设置配置变更监听
