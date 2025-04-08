@@ -46,21 +46,20 @@ func main() {
 	// 初始化配置中心
 	appConfig := config.GetAppConfig()
 
+	fiberServer := server.New()
 	// 初始化定时任务调度器
 	scheduler, err := task.NewScheduler()
 	if err != nil {
 		log.Printf("初始化定时任务调度器失败: %v", err)
 	} else {
 		// 注册定时任务
-		if err := task.RegisterTasks(scheduler); err != nil {
+		if err := task.RegisterTasks(scheduler, fiberServer.GetDB); err != nil {
 			log.Printf("注册定时任务失败: %v", err)
 		} else {
 			// 启动定时任务调度器
 			scheduler.Start()
 		}
 	}
-
-	fiberServer := server.New()
 	fiberServer.RegisterFiberRoutes()
 
 	// Create a done channel to signal when the shutdown is complete

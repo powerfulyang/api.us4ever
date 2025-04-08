@@ -75,3 +75,9 @@ func (s *FiberServer) RefreshDatabase() error {
 	s.db = newDb
 	return nil
 }
+
+// GetDB 返回数据库服务实例
+func (s *FiberServer) GetDB() database.Service {
+
+	return s.db
+}

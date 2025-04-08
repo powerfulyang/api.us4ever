@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"api.us4ever/internal/database"
 	"github.com/panjf2000/ants/v2"
 	"github.com/robfig/cron/v3"
 )
@@ -60,6 +61,38 @@ func (s *Scheduler) AddTask(name, spec string, task func()) error {
 		err := s.pool.Submit(func() {
 			startTime := time.Now()
 			task()
+			log.Printf("任务 %s 执行完成，耗时: %v", name, time.Since(startTime))
+		})
+		if err != nil {
+			log.Printf("提交任务 %s 失败: %v", name, err)
+		}
+	})
+	if err != nil {
+		return err
+	}
+	s.tasks[name] = id
+	return nil
+}
+
+// AddTaskWithDB 添加需要数据库连接的定时任务
+func (s *Scheduler) AddTaskWithDB(name, spec string, task func(db database.Service), getDB func() database.Service) error {
+	// 为每个任务创建一个锁
+	s.locks[name] = &sync.Mutex{}
+
+	id, err := s.cron.AddFunc(spec, func() {
+		// 尝试获取锁，如果任务正在执行则跳过本次执行
+		if !s.locks[name].TryLock() {
+			log.Printf("任务 %s 正在执行中，跳过本次执行", name)
+			return
+		}
+		defer s.locks[name].Unlock()
+
+		// 提交任务到协程池
+		err := s.pool.Submit(func() {
+			startTime := time.Now()
+			// 获取最新的数据库连接
+			db := getDB()
+			task(db)
 			log.Printf("任务 %s 执行完成，耗时: %v", name, time.Since(startTime))
 		})
 		if err != nil {
