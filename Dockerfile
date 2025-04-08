@@ -4,8 +4,8 @@ FROM golang:alpine AS builder
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
-# Install make
-RUN apk add --no-cache just
+# Install just
+RUN apk add --no-cache just upx
 
 # Copy go.mod and go.sum files
 COPY go.mod go.sum ./
@@ -19,13 +19,15 @@ COPY . .
 # Build the Go app
 RUN just build
 
-# Start a new stage from scratch
-FROM scratch AS runner
+# Compress the binary with UPX
+RUN upx --ultra-brute main
 
-# Set the Current Working Directory inside the container
-WORKDIR /app
+# Start a new stage from scratch
+FROM gcr.io/distroless/static:nonroot AS runner
 
 # Copy the Pre-built binary file from the previous stage
-COPY --from=builder /app/main .
+COPY --from=builder /app/main /
 
-ENTRYPOINT ["/app/main"]
+USER nonroot
+
+ENTRYPOINT ["/main"]

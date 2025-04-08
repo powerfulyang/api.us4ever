@@ -11,7 +11,7 @@ all: build test
 # 构建应用
 build:
     @echo "Building..."
-    go build -o main cmd/api/main.go
+    go build -ldflags="-s -w" -o main cmd/api/main.go
 
 # 运行应用
 run:
