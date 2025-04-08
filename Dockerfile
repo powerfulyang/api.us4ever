@@ -20,14 +20,15 @@ COPY . .
 RUN just build
 
 # Compress the binary with UPX
-RUN upx --ultra-brute main
+RUN upx --lzma main
 
 # Start a new stage from scratch
-FROM gcr.io/distroless/static:nonroot AS runner
+FROM scratch AS runner
+
+# Set the Current Working Directory inside the container
+WORKDIR /app
 
 # Copy the Pre-built binary file from the previous stage
-COPY --from=builder /app/main /
+COPY --from=builder /app/main .
 
-USER nonroot
-
-ENTRYPOINT ["/main"]
+ENTRYPOINT ["/app/main"]
