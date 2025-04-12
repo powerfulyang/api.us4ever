@@ -40,18 +40,15 @@ func (s *FiberServer) RegisterFiberRoutes() {
 	s.App.Use(requestTimerMiddleware)
 
 	s.App.Get("/", s.HelloWorldHandler)
-
-	s.App.Get("/health", s.healthHandler)
-
-	s.App.Get("/app-config", s.AppConfigHandler)
-
-	s.App.Get("/user/list", s.UserListHandler)
-
 	// Add the route for searching keeps
 	s.App.Get("/keeps/search", s.SearchKeepsHandler)
 
-	// Add the route for triggering re-indexing
-	s.App.Post("/keeps/reindex", s.ReindexKeepsHandler)
+	internal := s.Group("/internal")
+
+	internal.Get("/health", s.healthHandler)
+	internal.Get("/app-config", s.AppConfigHandler)
+	internal.Get("/user/list", s.UserListHandler)
+	internal.Post("/keeps/reindex", s.ReindexKeepsHandler)
 }
 
 func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {

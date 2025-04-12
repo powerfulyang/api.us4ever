@@ -1,6 +1,7 @@
 package database
 
 import (
+	"api.us4ever/internal/ent/keep"
 	"context"
 	"fmt"
 	"log"
@@ -76,7 +77,7 @@ func (db *Database) Client() *ent.Client {
 
 // GetAllKeeps retrieves all Keep entities.
 func (db *Database) GetAllKeeps(ctx context.Context) ([]*ent.Keep, error) {
-	keeps, err := db.client.Keep.Query().All(ctx)
+	keeps, err := db.client.Keep.Query().Where(keep.IsPublic(true)).All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed getting all keeps: %w", err)
 	}
