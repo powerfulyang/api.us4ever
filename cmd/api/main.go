@@ -72,7 +72,16 @@ func main() {
 		} else {
 			port, _ = strconv.Atoi(os.Getenv("PORT"))
 		}
-		err := fiberServer.Listen(fmt.Sprintf("localhost:%d", port))
+
+		var listenAddr string
+		if appConfig.AppEnv == "local" {
+			// 本地开发环境监听 localhost
+			listenAddr = fmt.Sprintf("localhost:%d", port)
+		} else {
+			// 其他环境监听 0.0.0.0，适合部署在容器或服务器上
+			listenAddr = fmt.Sprintf("0.0.0.0:%d", port)
+		}
+		err := fiberServer.Listen(listenAddr)
 		if err != nil {
 			panic(fmt.Sprintf("http fiberServer error: %s", err))
 		}
