@@ -20,6 +20,7 @@ type AppConfig struct {
 	Database DBConfig     `json:"database"`
 	Redis    RedisConfig  `json:"redis,omitempty"`
 	Dify     DifyConfig   `json:"dify,omitempty"`
+	ES       ESConfig     `json:"es,omitempty"`
 	// 添加其他配置项...
 }
 
@@ -50,6 +51,13 @@ type RedisConfig struct {
 type DifyConfig struct {
 	Endpoint string `json:"endpoint"`
 	ApiKey   string `json:"api_key"`
+}
+
+// ESConfig Elasticsearch 配置
+type ESConfig struct {
+	Addresses []string `json:"addresses"`
+	Username  string   `json:"username,omitempty"`
+	Password  string   `json:"password,omitempty"`
 }
 
 var (

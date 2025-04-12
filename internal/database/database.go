@@ -20,6 +20,9 @@ type Service interface {
 	// Client returns the ent client
 	Client() *ent.Client
 
+	// GetAllKeeps retrieves all Keep entities from the database.
+	GetAllKeeps(ctx context.Context) ([]*ent.Keep, error)
+
 	// Close closes the database connection
 	Close() error
 }
@@ -69,6 +72,15 @@ func (db *Database) Health(ctx context.Context) error {
 // Client returns the ent client
 func (db *Database) Client() *ent.Client {
 	return db.client
+}
+
+// GetAllKeeps retrieves all Keep entities.
+func (db *Database) GetAllKeeps(ctx context.Context) ([]*ent.Keep, error) {
+	keeps, err := db.client.Keep.Query().All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed getting all keeps: %w", err)
+	}
+	return keeps, nil
 }
 
 // Close closes the database connection

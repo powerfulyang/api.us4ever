@@ -3,6 +3,8 @@ package server
 import (
 	"net/http"
 
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -24,6 +26,12 @@ func (s *FiberServer) RegisterFiberRoutes() {
 	s.App.Get("/app-config", s.AppConfigHandler)
 
 	s.App.Get("/user/list", s.UserListHandler)
+
+	// Add the route for searching keeps
+	s.App.Get("/keeps/search", s.SearchKeepsHandler)
+
+	// Add the route for triggering re-indexing
+	s.App.Post("/keeps/reindex", s.ReindexKeepsHandler)
 }
 
 func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {
@@ -35,18 +43,47 @@ func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {
 }
 
 func (s *FiberServer) healthHandler(c *fiber.Ctx) error {
-	// 检查数据库连接
+	// Check database connection
 	if err := s.db.Health(c.Context()); err != nil {
+		log.Printf("Health check failed: Database connection error: %v", err)
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Database connection error",
-			"error":   err.Error(),
+			"details": err.Error(),
 		})
 	}
 
+	// Check Elasticsearch connection
+	if s.esClient == nil {
+		log.Printf("Health check failed: Elasticsearch client is not initialized.")
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Elasticsearch client not initialized",
+		})
+	}
+	pingResp, err := s.esClient.Ping(s.esClient.Ping.WithContext(c.Context()))
+	if err != nil {
+		log.Printf("Health check failed: Elasticsearch ping error: %v", err)
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Elasticsearch connection error",
+			"details": err.Error(),
+		})
+	}
+	defer pingResp.Body.Close()
+	if pingResp.IsError() {
+		log.Printf("Health check failed: Elasticsearch ping returned error status: %s", pingResp.String())
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Elasticsearch service unavailable",
+			"details": pingResp.String(), // Include ES response string for details
+		})
+	}
+
+	// If both checks pass
 	return c.JSON(fiber.Map{
 		"status":  "success",
-		"message": "Health check passed",
+		"message": "Health check passed (Database & Elasticsearch OK)",
 	})
 }
 
