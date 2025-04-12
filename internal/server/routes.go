@@ -2,12 +2,29 @@ package server
 
 import (
 	"net/http"
+	"time"
 
 	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
+
+// requestTimerMiddleware logs the time taken for each request.
+func requestTimerMiddleware(c *fiber.Ctx) error {
+	start := time.Now()
+
+	// Process request
+	err := c.Next()
+
+	duration := time.Since(start)
+
+	// Log details
+	// Use c.Response().StatusCode() which is available after c.Next()
+	log.Printf("[%s] %s %d - %s", c.Method(), c.Path(), c.Response().StatusCode(), duration)
+
+	return err // Return the error reported by handlers
+}
 
 func (s *FiberServer) RegisterFiberRoutes() {
 	// Apply CORS middleware
@@ -18,6 +35,9 @@ func (s *FiberServer) RegisterFiberRoutes() {
 		AllowCredentials: false, // credentials require explicit origins
 		MaxAge:           300,
 	}))
+
+	// Apply Request Timer middleware
+	s.App.Use(requestTimerMiddleware)
 
 	s.App.Get("/", s.HelloWorldHandler)
 
