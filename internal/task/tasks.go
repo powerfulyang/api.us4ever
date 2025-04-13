@@ -2,6 +2,7 @@ package task
 
 import (
 	"api.us4ever/internal/database"
+	"api.us4ever/internal/task/image"
 	"api.us4ever/internal/task/keep"
 	"api.us4ever/internal/task/telegram"
 )
@@ -16,6 +17,12 @@ func RegisterTasks(scheduler *Scheduler, getDB func() database.Service) error {
 
 	// 每个整点执行一次 TriggerSyncTelegram
 	err = scheduler.AddTask("trigger_sync_telegram", "0 0 * * * *", telegram.TriggerSyncTelegram)
+	if err != nil {
+		return err
+	}
+
+	// Add the image OCR task (runs every 5 seconds)
+	err = scheduler.AddTaskWithDB("process_image_ocr", "*/5 * * * * *", image.ProcessImageOCR, getDB)
 	if err != nil {
 		return err
 	}
