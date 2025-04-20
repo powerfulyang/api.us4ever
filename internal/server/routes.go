@@ -6,6 +6,9 @@ import (
 
 	"log"
 
+	"strings"
+
+	"api.us4ever/internal/task/image"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -49,6 +52,8 @@ func (s *FiberServer) RegisterFiberRoutes() {
 	internal.Get("/app-config", s.AppConfigHandler)
 	internal.Get("/user/list", s.UserListHandler)
 	internal.Post("/keeps/reindex", s.ReindexKeepsHandler)
+	// OCR
+	internal.Post("/ocr/:id", s.OCRHandler)
 }
 
 func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {
@@ -116,4 +121,32 @@ func (s *FiberServer) UserListHandler(c *fiber.Ctx) error {
 		})
 	}
 	return c.JSON(users)
+}
+
+func (s *FiberServer) OCRHandler(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Image ID is required",
+		})
+	}
+
+	err := image.ProcessSingleImageOCR(c.Context(), s.db, id)
+	if err != nil {
+		// Check for specific error types and return appropriate status codes
+		if strings.Contains(err.Error(), "image not found") {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		}
+		// For other errors, return 500
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"message": "OCR processing completed successfully",
+		"id":      id,
+	})
 }

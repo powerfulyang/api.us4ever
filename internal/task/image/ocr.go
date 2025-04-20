@@ -9,6 +9,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"api.us4ever/internal/database"
@@ -22,18 +25,20 @@ const (
 )
 
 type OCRResponse struct {
-	Errcode     int    `json:"errcode"`
-	Height      int    `json:"height"`
-	Width       int    `json:"width"`
-	Imgpath     string `json:"imgpath"`
-	OCRResponse []struct {
-		Text   string  `json:"text"`
-		Left   float64 `json:"left"`
-		Top    float64 `json:"top"`
-		Right  float64 `json:"right"`
-		Bottom float64 `json:"bottom"`
-		Rate   float64 `json:"rate"`
-	} `json:"ocr_response"`
+	Result struct {
+		Errcode     int    `json:"errcode"`
+		Height      int    `json:"height"`
+		Width       int    `json:"width"`
+		Imgpath     string `json:"imgpath"`
+		OCRResponse []struct {
+			Text   string  `json:"text"`
+			Left   float64 `json:"left"`
+			Top    float64 `json:"top"`
+			Right  float64 `json:"right"`
+			Bottom float64 `json:"bottom"`
+			Rate   float64 `json:"rate"`
+		} `json:"ocr_response"`
+	} `json:"result"`
 }
 
 type OCRRequest struct {
@@ -78,70 +83,21 @@ func ProcessImageOCR(db database.Service) {
 		return
 	}
 
-	var imagesToProcess []*ent.Image
+	// 遍历检查的图片
 	for _, img := range imagesToCheck {
-		if needsOCRProcessing(img) {
-			imagesToProcess = append(imagesToProcess, img)
-			if len(imagesToProcess) >= taskLimit {
-				break // Limit the number of images processed per run
-			}
-		}
-	}
-
-	if len(imagesToProcess) == 0 {
-		// log.Println("No images found requiring OCR processing in the checked batch.")
-		return
-	}
-
-	log.Printf("Found %d image(s) to process for OCR.", len(imagesToProcess))
-
-	for _, img := range imagesToProcess {
-		if img.Edges.Original == nil || img.Edges.Original.Edges.Bucket == nil {
-			log.Printf("Image ID %s: Missing original file or bucket information, skipping.", img.ID)
+		if !needsOCRProcessing(img) {
 			continue
 		}
 
-		originalFile := img.Edges.Original
-		bucketInfo := originalFile.Edges.Bucket
-
-		if bucketInfo.PublicUrl == "" || originalFile.Path == "" {
-			log.Printf("Image ID %s: Missing PublicUrl or Path for original file %s, skipping.", img.ID, originalFile.ID)
-			continue
-		}
-
-		imageURL := fmt.Sprintf("%s/%s", bucketInfo.PublicUrl, originalFile.Path)
-		log.Printf("Image ID %s: Processing image from URL: %s", img.ID, imageURL)
-
-		// Download image
-		imageData, err := downloadImage(imageURL)
+		log.Printf("Processing OCR for image ID: %s", img.ID)
+		err := ProcessSingleImageOCR(ctx, db, img.ID)
 		if err != nil {
-			log.Printf("Image ID %s: Failed to download image: %v", img.ID, err)
+			log.Printf("Failed to process image %s: %v", img.ID, err)
 			continue
 		}
 
-		// Base64 encode
-		base64Image := base64.StdEncoding.EncodeToString(imageData)
-
-		// Call OCR API
-		ocrResult, err := callOCRAPI(base64Image)
-		if err != nil {
-			log.Printf("Image ID %s: Failed to call OCR API: %v", img.ID, err)
-			continue
-		}
-
-		if ocrResult.Errcode != 0 {
-			log.Printf("Image ID %s: OCR API returned error code %d", img.ID, ocrResult.Errcode)
-			continue // Or handle specific error codes if needed
-		}
-
-		// Update Image ExtraData
-		err = updateImageExtraData(ctx, db, img, ocrResult.OCRResponse)
-		if err != nil {
-			log.Printf("Image ID %s: Failed to update ExtraData: %v", img.ID, err)
-			continue
-		}
-
-		log.Printf("Image ID %s: Successfully processed OCR and updated ExtraData.", img.ID)
+		// 达到处理限制后退出
+		break
 	}
 
 	log.Println("ProcessImageOCR task finished.")
@@ -149,7 +105,7 @@ func ProcessImageOCR(db database.Service) {
 
 // needsOCRProcessing checks if the image's ExtraData indicates OCR is needed.
 func needsOCRProcessing(img *ent.Image) bool {
-	if img.ExtraData == nil || len(img.ExtraData) == 0 || string(img.ExtraData) == "null" {
+	if img.Description == "" {
 		return true // ExtraData is nil or empty, needs processing
 	}
 
@@ -164,6 +120,27 @@ func needsOCRProcessing(img *ent.Image) bool {
 }
 
 func downloadImage(url string) ([]byte, error) {
+	// 确保 media 目录存在
+	mediaDir := "media"
+	if err := os.MkdirAll(mediaDir, 0755); err != nil {
+		return nil, fmt.Errorf("failed to create media directory: %w", err)
+	}
+
+	// 从 URL 中提取文件名
+	urlParts := strings.Split(url, "/")
+	fileName := urlParts[len(urlParts)-1]
+	if fileName == "" {
+		fileName = fmt.Sprintf("image_%d%s", time.Now().Unix(), filepath.Ext(url))
+	}
+	filePath := filepath.Join(mediaDir, fileName)
+
+	// 检查文件是否已存在
+	if _, err := os.Stat(filePath); err == nil {
+		// 文件已存在，直接读取
+		return os.ReadFile(filePath)
+	}
+
+	// 下载文件
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("HTTP GET request failed: %w", err)
@@ -174,11 +151,21 @@ func downloadImage(url string) ([]byte, error) {
 		return nil, fmt.Errorf("failed to download image, status code: %d", resp.StatusCode)
 	}
 
-	imageData, err := io.ReadAll(resp.Body)
+	// 创建目标文件
+	out, err := os.Create(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read image data: %w", err)
+		return nil, fmt.Errorf("failed to create file: %w", err)
 	}
-	return imageData, nil
+	defer out.Close()
+
+	// 将响应内容写入文件
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to save image: %w", err)
+	}
+
+	// 读取保存的文件
+	return os.ReadFile(filePath)
 }
 
 func callOCRAPI(base64Image string) (*OCRResponse, error) {
@@ -225,7 +212,7 @@ func updateImageExtraData(ctx context.Context, db database.Service, img *ent.Ima
 	var currentExtraData map[string]interface{}
 
 	// Check if ExtraData is nil or empty before trying to unmarshal
-	if img.ExtraData != nil && len(img.ExtraData) > 0 && string(img.ExtraData) != "null" {
+	if len(img.ExtraData) > 0 {
 		if err := json.Unmarshal(img.ExtraData, &currentExtraData); err != nil {
 			// If unmarshalling fails, log it but proceed with a new map
 			log.Printf("Image ID %s: Failed to unmarshal existing ExtraData '%s': %v. Overwriting with new data.", img.ID, string(img.ExtraData), err)
@@ -238,38 +225,89 @@ func updateImageExtraData(ctx context.Context, db database.Service, img *ent.Ima
 	// Add or update the ocr_response field
 	currentExtraData["ocr_response"] = ocrData
 
+	// 合并所有OCR文本到description
+	var textParts []string
+	for _, item := range ocrData {
+		if item.Text != "" && item.Rate >= 0.7 { // 只使用置信度大于70%的文本
+			textParts = append(textParts, item.Text)
+		}
+	}
+	description := strings.Join(textParts, " ")
+
 	// Marshal the updated map back to json.RawMessage
 	updatedExtraDataBytes, err := json.Marshal(currentExtraData)
 	if err != nil {
 		return fmt.Errorf("failed to marshal updated ExtraData: %w", err)
 	}
 
-	// Save the updated image record
+	// Save the updated image record with both ExtraData and Description
 	_, err = db.Client().Image.UpdateOne(img).
 		SetExtraData(updatedExtraDataBytes).
+		SetDescription(description).
 		SetUpdatedAt(time.Now()). // Update the timestamp
 		Save(ctx)
 
 	if err != nil {
-		return fmt.Errorf("failed to save updated image ExtraData: %w", err)
+		return fmt.Errorf("failed to save updated image data: %w", err)
 	}
 
 	return nil
 }
 
-// Helper predicate for checking if JSON field has a key (requires DB specific functions or raw SQL)
-// ent doesn't directly support HasKey for JSONB out of the box for all drivers in a portable way.
-// We use a placeholder here. The query above uses a simplified check.
-// For PostgreSQL, you might use raw SQL like: `WHERE "extraData" ? 'ocr_response'`
-// For simplicity in this example, we query for NULL or check after fetching.
-// The current implementation fetches records where ExtraData IS NULL OR OriginalID is not empty,
-// then checks the ExtraData content after fetching, which might be less efficient.
-// A more robust solution might involve adding a dedicated 'ocr_status' field.
-//
-// The query `image.Not(image.ExtraDataHasKey("ocr_response"))` relies on ent generated code which might not exist
-// or work as expected depending on ent version and DB driver features for JSON.
-// Let's adjust the query logic slightly to be safer. We'll query for images
-// where ExtraData is NULL *or* where ExtraData does *not* contain the key.
-// Direct key checking in WHERE might need custom predicates or raw SQL depending on the DB.
-// The provided `image.ExtraDataHasKey` predicate assumes ent generated it based on schema/db features.
-// Let's assume it works for now.
+// ProcessSingleImageOCR processes OCR for a specific image ID
+func ProcessSingleImageOCR(ctx context.Context, db database.Service, imageID string) error {
+	img, err := db.Client().Image.Query().
+		Where(image.ID(imageID)).
+		WithOriginal(func(q *ent.FileQuery) {
+			q.WithBucket()
+		}).
+		Only(ctx)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return fmt.Errorf("image not found: %s", imageID)
+		}
+		return fmt.Errorf("failed to query image: %v", err)
+	}
+
+	if img.Edges.Original == nil || img.Edges.Original.Edges.Bucket == nil {
+		return fmt.Errorf("image %s: missing original file or bucket information", imageID)
+	}
+
+	originalFile := img.Edges.Original
+	bucketInfo := originalFile.Edges.Bucket
+
+	if bucketInfo.PublicUrl == "" || originalFile.Path == "" {
+		return fmt.Errorf("image %s: missing PublicUrl or Path for original file %s", imageID, originalFile.ID)
+	}
+
+	imageURL := fmt.Sprintf("%s/%s", bucketInfo.PublicUrl, originalFile.Path)
+
+	// Download image
+	imageData, err := downloadImage(imageURL)
+	if err != nil {
+		return fmt.Errorf("failed to download image: %v", err)
+	}
+
+	// Detect content type and create base64 image with proper MIME type
+	contentType := http.DetectContentType(imageData)
+	base64Image := "data:" + contentType + ";base64," + base64.StdEncoding.EncodeToString(imageData)
+
+	// Call OCR API
+	ocrResult, err := callOCRAPI(base64Image)
+	if err != nil {
+		return fmt.Errorf("failed to call OCR API: %v", err)
+	}
+
+	if ocrResult.Result.Errcode != 0 {
+		return fmt.Errorf("OCR API returned error code %d", ocrResult.Result.Errcode)
+	}
+
+	// Update Image ExtraData
+	err = updateImageExtraData(ctx, db, img, ocrResult.Result.OCRResponse)
+	if err != nil {
+		return fmt.Errorf("failed to update ExtraData: %v", err)
+	}
+
+	return nil
+}
