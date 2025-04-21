@@ -67,26 +67,19 @@ func ProcessImageOCR(db database.Service) {
 
 	// Find images that have an original file ID.
 	// We will filter based on ExtraData content after fetching.
-	imagesToCheck, err := db.Client().Debug().Image.Query().
+	imagesToCheck, err := db.Client().Image.Query().
 		Where(
 			image.OriginalIDNEQ(""),
 			image.DescriptionEQ(""),
 		).
 		// 统一放进一个 Selector，用 OR 连接
 		Where(func(s *sql.Selector) {
-			s.Where(sql.Or(
-				// 条件 1：ocr_response 数组为空
-				sqljson.LenEQ(
-					image.FieldExtraData,
-					0,
-					sqljson.Path("ocr_response"),
-				),
-				// 条件 2：extraData 本身为空对象 {}
+			s.Where(
 				sqljson.ValueEQ(
 					image.FieldExtraData,
 					json.RawMessage(`{}`),
 				),
-			))
+			)
 		}).
 		WithOriginal(func(q *ent.FileQuery) { // Eager load the original file
 			q.WithBucket() // Eager load the bucket associated with the file
