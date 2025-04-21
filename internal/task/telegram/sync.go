@@ -1,14 +1,20 @@
 package telegram
 
 import (
+	"api.us4ever/internal/config"
 	"io"
 	"log"
 	"net/http"
 )
 
 func TriggerSyncTelegram() {
-	// 向 https://us4ever.com/api/internal/sync/telegram/emt_channel发送 GET 请求
-	url := "http://us4ever.com:3000/api/internal/sync/telegram/emt_channel"
+	// 向 https://us4ever.com/api/internal/sync/telegram/emt_channel 发送 GET 请求
+	appConfig := config.GetAppConfig()
+	url := appConfig.Telegram.SyncURL
+	if url == "" {
+		log.Println("Telegram 同步 URL 未配置")
+		return
+	}
 
 	// 发送 GET 请求
 	resp, err := http.Get(url)

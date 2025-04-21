@@ -14,14 +14,24 @@ type ChangeCallback func(newConfig *AppConfig)
 
 // AppConfig 应用配置结构体
 type AppConfig struct {
-	AppName  string       `json:"app_name"`
-	AppEnv   string       `json:"app_env"`
-	Server   ServerConfig `json:"server"`
-	Database DBConfig     `json:"database"`
-	Redis    RedisConfig  `json:"redis,omitempty"`
-	Dify     DifyConfig   `json:"dify,omitempty"`
-	ES       ESConfig     `json:"es,omitempty"`
+	AppName  string         `json:"app_name"`
+	AppEnv   string         `json:"app_env"`
+	Server   ServerConfig   `json:"server"`
+	Database DBConfig       `json:"database"`
+	Redis    RedisConfig    `json:"redis,omitempty"`
+	Dify     DifyConfig     `json:"dify,omitempty"`
+	ES       ESConfig       `json:"es,omitempty"`
+	OCR      OCRConfig      `json:"ocr,omitempty"`
+	Telegram TelegramConfig `json:"telegram,omitempty"`
 	// 添加其他配置项...
+}
+
+type TelegramConfig struct {
+	SyncURL string `json:"sync_url"`
+}
+
+type OCRConfig struct {
+	Endpoint string `json:"endpoint"`
 }
 
 // ServerConfig 服务器配置

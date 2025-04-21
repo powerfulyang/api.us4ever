@@ -53,7 +53,7 @@ func (s *FiberServer) RegisterFiberRoutes() {
 	internal.Get("/user/list", s.UserListHandler)
 	internal.Post("/keeps/reindex", s.ReindexKeepsHandler)
 	// OCR
-	internal.Post("/ocr/:id", s.OCRHandler)
+	internal.Get("/ocr/:id", s.OCRHandler)
 }
 
 func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {

@@ -1,16 +1,20 @@
 package image
 
 import (
+	"api.us4ever/internal/config"
 	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -20,7 +24,6 @@ import (
 )
 
 const (
-	ocrAPIURL = "http://localhost:5000/ocr"
 	taskLimit = 1 // Process one image per task run
 )
 
@@ -65,12 +68,18 @@ func ProcessImageOCR(db database.Service) {
 	// Find images that have an original file ID.
 	// We will filter based on ExtraData content after fetching.
 	imagesToCheck, err := db.Client().Image.Query().
-		Where(image.OriginalIDNEQ("")).       // Ensure there is an original file reference
+		Where(
+			image.OriginalIDNEQ(""),
+			image.DescriptionEQ(""),
+		).
+		Where(func(s *sql.Selector) {
+			s.Where(sqljson.LenEQ(image.FieldExtraData, 0, sqljson.Path("ocr_response")))
+		}).
 		WithOriginal(func(q *ent.FileQuery) { // Eager load the original file
 			q.WithBucket() // Eager load the bucket associated with the file
 		}).
 		Order(ent.Desc(image.FieldUpdatedAt)). // Process recently updated first, or choose another order
-		Limit(taskLimit * 5).                  // Fetch a slightly larger batch to filter
+		Limit(taskLimit).                      // Fetch a slightly larger batch to filter
 		All(ctx)
 
 	if err != nil {
@@ -79,13 +88,14 @@ func ProcessImageOCR(db database.Service) {
 	}
 
 	if len(imagesToCheck) == 0 {
-		// log.Println("No images with original files found.")
+		log.Println("No images with original files found.")
 		return
 	}
 
 	// 遍历检查的图片
 	for _, img := range imagesToCheck {
 		if !needsOCRProcessing(img) {
+			log.Println("Image ID:", img.ID, "does not need OCR processing.")
 			continue
 		}
 
@@ -95,9 +105,6 @@ func ProcessImageOCR(db database.Service) {
 			log.Printf("Failed to process image %s: %v", img.ID, err)
 			continue
 		}
-
-		// 达到处理限制后退出
-		break
 	}
 
 	log.Println("ProcessImageOCR task finished.")
@@ -105,10 +112,6 @@ func ProcessImageOCR(db database.Service) {
 
 // needsOCRProcessing checks if the image's ExtraData indicates OCR is needed.
 func needsOCRProcessing(img *ent.Image) bool {
-	if img.Description == "" {
-		return true // ExtraData is nil or empty, needs processing
-	}
-
 	var currentExtraData map[string]interface{}
 	if err := json.Unmarshal(img.ExtraData, &currentExtraData); err != nil {
 		log.Printf("Image ID %s: Failed to unmarshal existing ExtraData for checking: %v. Assuming needs processing.", img.ID, err)
@@ -175,7 +178,13 @@ func callOCRAPI(base64Image string) (*OCRResponse, error) {
 		return nil, fmt.Errorf("failed to marshal OCR request: %w", err)
 	}
 
-	req, err := http.NewRequest("POST", ocrAPIURL, bytes.NewBuffer(jsonData))
+	// 从配置中获取 endpoint 和 apiKey
+	appConfig := config.GetAppConfig()
+	if appConfig == nil {
+		return nil, fmt.Errorf("failed to get application configuration")
+	}
+
+	req, err := http.NewRequest("POST", appConfig.OCR.Endpoint, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create OCR API request: %w", err)
 	}
@@ -199,6 +208,17 @@ func callOCRAPI(base64Image string) (*OCRResponse, error) {
 	}
 
 	return &ocrResponse, nil
+}
+
+func cleanDescription(description string) string {
+	reNewline := regexp.MustCompile(`[\r\n]+`)
+	description = reNewline.ReplaceAllString(description, "")
+
+	reSpaces := regexp.MustCompile(`\s+`)
+	description = reSpaces.ReplaceAllString(description, " ")
+
+	// 3. 去除首尾空格
+	return strings.TrimSpace(description)
 }
 
 func updateImageExtraData(ctx context.Context, db database.Service, img *ent.Image, ocrData []struct {
@@ -233,6 +253,9 @@ func updateImageExtraData(ctx context.Context, db database.Service, img *ent.Ima
 		}
 	}
 	description := strings.Join(textParts, " ")
+	// 去除\r\n和多余空格
+	description = cleanDescription(description)
+	log.Println("Combined OCR text for image ID:", img.ID, ":", description)
 
 	// Marshal the updated map back to json.RawMessage
 	updatedExtraDataBytes, err := json.Marshal(currentExtraData)
@@ -300,7 +323,7 @@ func ProcessSingleImageOCR(ctx context.Context, db database.Service, imageID str
 	}
 
 	if ocrResult.Result.Errcode != 0 {
-		return fmt.Errorf("OCR API returned error code %d", ocrResult.Result.Errcode)
+		log.Println("OCR API returned error code:", ocrResult.Result.Errcode)
 	}
 
 	// Update Image ExtraData
