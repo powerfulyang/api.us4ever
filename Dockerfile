@@ -22,8 +22,8 @@ RUN just build
 # Compress the binary with UPX
 RUN upx --lzma main
 
-# Start a new stage from scratch
-FROM scratch AS runner
+# Start a new stage from distroless
+FROM gcr.io/distroless/static AS runner
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
