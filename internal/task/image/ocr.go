@@ -12,8 +12,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -129,26 +127,6 @@ func needsOCRProcessing(img *ent.Image) bool {
 }
 
 func downloadImage(url string) ([]byte, error) {
-	// 确保 media 目录存在
-	mediaDir := "media"
-	if err := os.MkdirAll(mediaDir, 0755); err != nil {
-		return nil, fmt.Errorf("failed to create media directory: %w", err)
-	}
-
-	// 从 URL 中提取文件名
-	urlParts := strings.Split(url, "/")
-	fileName := urlParts[len(urlParts)-1]
-	if fileName == "" {
-		fileName = fmt.Sprintf("image_%d%s", time.Now().Unix(), filepath.Ext(url))
-	}
-	filePath := filepath.Join(mediaDir, fileName)
-
-	// 检查文件是否已存在
-	if _, err := os.Stat(filePath); err == nil {
-		// 文件已存在，直接读取
-		return os.ReadFile(filePath)
-	}
-
 	// 下载文件
 	resp, err := http.Get(url)
 	if err != nil {
@@ -156,25 +134,13 @@ func downloadImage(url string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
+	// 检查状态码
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed to download image, status code: %d", resp.StatusCode)
 	}
 
-	// 创建目标文件
-	out, err := os.Create(filePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create file: %w", err)
-	}
-	defer out.Close()
-
-	// 将响应内容写入文件
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to save image: %w", err)
-	}
-
-	// 读取保存的文件
-	return os.ReadFile(filePath)
+	// 读取响应体
+	return io.ReadAll(resp.Body)
 }
 
 func callOCRAPI(base64Image string) (*OCRResponse, error) {
