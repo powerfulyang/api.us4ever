@@ -69,6 +69,7 @@ func ProcessImageOCR(db database.Service) {
 		Where(
 			image.OriginalIDNEQ(""),
 			image.DescriptionEQ(""),
+			image.SizeLTE(1_000_000),
 		).
 		// 统一放进一个 Selector，用 OR 连接
 		Where(func(s *sql.Selector) {
