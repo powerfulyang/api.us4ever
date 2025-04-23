@@ -18,10 +18,11 @@ import (
 type FiberServer struct {
 	*fiber.App
 
-	db           database.Service
-	esClient     *elasticsearch.Client
-	esIndexAlias string
-	cfg          *config.AppConfig
+	db                 database.Service
+	esClient           *elasticsearch.Client
+	keepEsIndexAlias   string
+	momentEsIndexAlias string
+	cfg                *config.AppConfig
 }
 
 func New() *FiberServer {
@@ -44,7 +45,8 @@ func New() *FiberServer {
 
 	// Define a unique index alias (e.g., appname-keeps)
 	// Ensure AppName is sanitized if it can contain special characters
-	indexAlias := fmt.Sprintf("%s-keeps", strings.ToLower(strings.ReplaceAll(appConfig.AppName, " ", "-")))
+	keepIndexAlias := fmt.Sprintf("%s-keeps", strings.ToLower(strings.ReplaceAll(appConfig.AppName, " ", "-")))
+	momentIndexAlias := fmt.Sprintf("%s-moments", strings.ToLower(strings.ReplaceAll(appConfig.AppName, " ", "-")))
 
 	server := &FiberServer{
 		App: fiber.New(fiber.Config{
@@ -52,10 +54,11 @@ func New() *FiberServer {
 			AppName:      "api.us4ever",
 		}),
 
-		db:           db,
-		esClient:     esClient,
-		esIndexAlias: indexAlias,
-		cfg:          appConfig,
+		db:                 db,
+		esClient:           esClient,
+		keepEsIndexAlias:   keepIndexAlias,
+		momentEsIndexAlias: momentIndexAlias,
+		cfg:                appConfig,
 	}
 
 	// 注册配置变更回调
@@ -67,11 +70,23 @@ func New() *FiberServer {
 			// Create a background context for the initial indexing
 			// Use context.Background() as this is not tied to a specific request
 			ctx := context.Background()
-			log.Println("Starting initial Elasticsearch indexing...")
-			if err := es.IndexKeeps(ctx, server.esClient, server.db, server.esIndexAlias); err != nil {
-				log.Printf("Initial Elasticsearch indexing failed: %v", err)
+			log.Println("Starting initial Elasticsearch indexing for keeps...")
+			if err := es.IndexKeeps(ctx, server.esClient, server.db, server.keepEsIndexAlias); err != nil {
+				log.Printf("Initial Elasticsearch indexing for keeps failed: %v", err)
 			} else {
-				log.Println("Initial Elasticsearch indexing completed successfully.")
+				log.Println("Initial Elasticsearch indexing for keeps completed successfully.")
+			}
+		}()
+
+		// Start a separate goroutine for indexing moments
+		go func() {
+			// Create a background context for the initial indexing
+			ctx := context.Background()
+			log.Println("Starting initial Elasticsearch indexing for moments...")
+			if err := es.IndexMoments(ctx, server.esClient, server.db, server.momentEsIndexAlias); err != nil {
+				log.Printf("Initial Elasticsearch indexing for moments failed: %v", err)
+			} else {
+				log.Println("Initial Elasticsearch indexing for moments completed successfully.")
 			}
 		}()
 	} else {
@@ -181,7 +196,7 @@ func (s *FiberServer) ReindexKeepsHandler(c *fiber.Ctx) error {
 		// Use a background context detached from the HTTP request
 		ctx := context.Background()
 		log.Println("Starting background re-indexing process...")
-		if err := es.IndexKeeps(ctx, s.esClient, s.db, s.esIndexAlias); err != nil {
+		if err := es.IndexKeeps(ctx, s.esClient, s.db, s.keepEsIndexAlias); err != nil {
 			log.Printf("Background re-indexing failed: %v", err)
 			// Consider adding monitoring/alerting here
 		} else {
@@ -215,7 +230,7 @@ func (s *FiberServer) SearchKeepsHandler(c *fiber.Ctx) error {
 
 	// Perform the search using the es package, passing the server's client and alias
 	// The function now returns []es.KeepSearchResult
-	keeps, err := es.SearchKeeps(c.Context(), s.esClient, s.esIndexAlias, query)
+	keeps, err := es.SearchKeeps(c.Context(), s.esClient, s.keepEsIndexAlias, query)
 	if err != nil {
 		log.Printf("Error searching keeps in Elasticsearch: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -224,4 +239,63 @@ func (s *FiberServer) SearchKeepsHandler(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(keeps) // Return the results (including score)
+}
+
+// SearchMomentsHandler handles requests to search moments in Elasticsearch
+func (s *FiberServer) SearchMomentsHandler(c *fiber.Ctx) error {
+	// Get the search query from the query parameter 'q'
+	query := c.Query("q")
+	if query == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Missing search query parameter 'q'",
+		})
+	}
+
+	// Check if the ES client is available
+	if s.esClient == nil {
+		log.Printf("SearchMomentsHandler: Elasticsearch client is not available.")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Search service is temporarily unavailable",
+		})
+	}
+
+	// Perform the search using the es package, passing the server's client and alias
+	moments, err := es.SearchMoments(c.Context(), s.esClient, s.momentEsIndexAlias, query)
+	if err != nil {
+		log.Printf("Error searching moments in Elasticsearch: %v", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to search moments",
+		})
+	}
+
+	return c.JSON(moments) // Return the results (including score)
+}
+
+// ReindexMomentsHandler handles requests to re-index moments in Elasticsearch
+func (s *FiberServer) ReindexMomentsHandler(c *fiber.Ctx) error {
+	log.Println("Received request to re-index moments.")
+	if s.esClient == nil {
+		log.Println("ReindexMomentsHandler: Elasticsearch client is not available.")
+		return c.Status(http.StatusServiceUnavailable).JSON(fiber.Map{
+			"error": "Elasticsearch service is not available to perform re-indexing",
+		})
+	}
+
+	// Run indexing in a goroutine to avoid blocking the request
+	go func() {
+		// Use a background context detached from the HTTP request
+		ctx := context.Background()
+		log.Println("Starting background re-indexing process for moments...")
+		if err := es.IndexMoments(ctx, s.esClient, s.db, s.momentEsIndexAlias); err != nil {
+			log.Printf("Background re-indexing for moments failed: %v", err)
+			// Consider adding monitoring/alerting here
+		} else {
+			log.Println("Background re-indexing for moments completed successfully.")
+		}
+	}()
+
+	// Immediately return success, indicating the process has started
+	return c.Status(http.StatusAccepted).JSON(fiber.Map{
+		"message": "Re-indexing process for moments started in the background.",
+	})
 }

@@ -283,7 +283,7 @@ func deleteOldIndices(ctx context.Context, client *elasticsearch.Client, aliasNa
 		return fmt.Errorf("failed to read indices list response body: %w", readErr)
 	}
 
-	indicesToDelete := []string{}
+	var indicesToDelete []string
 	lines := strings.Split(strings.TrimSpace(string(bodyBytes)), "\n")
 	for _, line := range lines {
 		indexName := strings.TrimSpace(line)
@@ -314,5 +314,161 @@ func deleteOldIndices(ctx context.Context, client *elasticsearch.Client, aliasNa
 	}
 
 	log.Printf("Successfully deleted %d old indices.", len(indicesToDelete))
+	return nil
+}
+
+// IndexMoments fetches all Moment records from the database and indexes them into a new
+// Elasticsearch index, then atomically switches the alias to point to the new index.
+func IndexMoments(ctx context.Context, client *elasticsearch.Client, dbService database.Service, aliasName string) error {
+	if client == nil {
+		return fmt.Errorf("elasticsearch client is not initialized")
+	}
+	if dbService == nil {
+		return fmt.Errorf("database service is not initialized")
+	}
+	if aliasName == "" {
+		return fmt.Errorf("index alias name is required")
+	}
+
+	log.Printf("Starting re-indexing process for moments with alias: %s", aliasName)
+
+	// 1. Create a new index with a timestamp
+	newIndexName := fmt.Sprintf("%s_%s", aliasName, time.Now().Format("20060102150405"))
+	log.Printf("Creating new index: %s", newIndexName)
+	res, err := client.Indices.Create(newIndexName)
+	if err != nil {
+		return fmt.Errorf("cannot create index %s: %w", newIndexName, err)
+	}
+	if res.IsError() {
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			if err != nil {
+				log.Printf("Error closing response body: %v", err)
+			}
+		}(res.Body)
+		bodyBytes, _ := io.ReadAll(res.Body)
+		return fmt.Errorf("cannot create index %s: [%s] %s", newIndexName, res.Status(), string(bodyBytes))
+	}
+	log.Printf("Index %s created successfully", newIndexName)
+	err = res.Body.Close()
+	if err != nil {
+		return err
+	} // Close successful response body
+
+	// 2. Fetch data from the database with eager loading of images and their descriptions
+	log.Printf("Fetching moments from the database")
+	moments, err := dbService.Client().Moment.Query().
+		WithMomentImages(func(q *ent.MomentImageQuery) {
+			q.WithImage() // Eager load images
+		}).
+		All(ctx)
+	if err != nil {
+		// 如果获取失败，删除刚创建的索引
+		_, delErr := client.Indices.Delete([]string{newIndexName}, client.Indices.Delete.WithContext(ctx))
+		if delErr != nil {
+			log.Printf("Failed to delete temporary index %s after DB error: %v", newIndexName, delErr)
+		}
+		return fmt.Errorf("failed to fetch moments from database: %w", err)
+	}
+	log.Printf("Fetched %d moments from the database", len(moments))
+
+	// 3. Index the data
+	log.Printf("Indexing moments into the new index")
+	if err := bulkIndexMoments(ctx, client, newIndexName, moments); err != nil {
+		// 如果批量索引失败，删除刚创建的索引
+		_, delErr := client.Indices.Delete([]string{newIndexName}, client.Indices.Delete.WithContext(ctx))
+		if delErr != nil {
+			log.Printf("Failed to delete temporary index %s after bulk index error: %v", newIndexName, delErr)
+		}
+		return fmt.Errorf("failed to index moments: %w", err)
+	}
+
+	// 4. Update alias to point to new index
+	log.Printf("Updating alias %s to point to new index %s", aliasName, newIndexName)
+	// 使用封装的 updateAlias 函数替代自定义实现
+	if err := updateAlias(ctx, client, aliasName, newIndexName); err != nil {
+		return fmt.Errorf("failed to update alias %s: %w", aliasName, err)
+	}
+	log.Printf("Alias %s updated successfully", aliasName)
+
+	// 5. Delete old indices (run in background, log errors)
+	go func() {
+		if err := deleteOldIndices(context.Background(), client, aliasName, newIndexName); err != nil {
+			log.Printf("Background deletion of old moment indices encountered an issue: %v", err)
+		}
+	}()
+
+	log.Printf("Re-indexing process for moments with alias %s completed successfully", aliasName)
+	return nil
+}
+
+// bulkIndexMoments performs bulk indexing of Moment documents.
+func bulkIndexMoments(ctx context.Context, client *elasticsearch.Client, indexName string, moments []*ent.Moment) error {
+	var ( // Bulk buffer and counters
+		buf    bytes.Buffer
+		numOps int
+	)
+
+	for _, moment := range moments {
+		// Prepare meta line (action and metadata)
+		meta := fmt.Sprintf(bulkIndexAction, indexName, moment.ID)
+		buf.WriteString(meta)
+		buf.WriteByte('\n')
+
+		// Collect image data if available
+		var images []map[string]interface{}
+		if moment.Edges.MomentImages != nil {
+			for _, mi := range moment.Edges.MomentImages {
+				if mi.Edges.Image != nil {
+					img := map[string]interface{}{
+						"id":          mi.Edges.Image.ID,
+						"description": mi.Edges.Image.Description,
+					}
+					images = append(images, img)
+				}
+			}
+		}
+
+		// Prepare data line (document source)
+		doc := map[string]interface{}{
+			"id":      moment.ID,
+			"content": moment.Content,
+			"images":  images,
+			// Add other fields if needed for search or display
+		}
+		data, err := json.Marshal(doc)
+		if err != nil {
+			log.Printf("Error marshalling moment %s: %v. Skipping.", moment.ID, err)
+			buf.Reset() // Clear the buffer for this item
+			continue
+		}
+		buf.Write(data)
+		buf.WriteByte('\n')
+
+		numOps++
+
+		// Flush buffer if thresholds reached
+		if buf.Len() > bulkFlushBytes || numOps >= bulkFlushItems {
+			if err := flushBulkBuffer(ctx, client, &buf); err != nil {
+				return err // Propagate error up
+			}
+			numOps = 0 // Reset counter
+		}
+	}
+
+	// Flush any remaining items in the buffer
+	if buf.Len() > 0 {
+		if err := flushBulkBuffer(ctx, client, &buf); err != nil {
+			return err
+		}
+	}
+
+	// Refresh the index to make changes searchable immediately
+	_, err := client.Indices.Refresh(client.Indices.Refresh.WithIndex(indexName))
+	if err != nil {
+		log.Printf("Warning: Failed to refresh index %s after bulk indexing: %v", indexName, err)
+		// Don't fail the whole process, but log the warning
+	}
+
 	return nil
 }
