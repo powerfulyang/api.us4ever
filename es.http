@@ -1,0 +1,35 @@
+### 
+GET http://tools.us4ever.com:9200/_cat/indices?v
+
+###
+GET http://tools.us4ever.com:9200/_aliases
+
+###
+GET http://tools.us4ever.com:9200/api.us4ever-keeps/_search
+Content-Type: application/json
+
+
+{
+  "query": {
+    "multi_match": {
+      "query": "nginx",
+      "fields": [
+        "title",
+        "summary",
+        "content"
+      ]
+    }
+  },
+  "highlight": {
+    "pre_tags": ["<mark>"],
+    "post_tags": ["</mark>"],
+    "fields": {
+      "*": {}
+    }
+  }
+}
+
+###
+
+
+
