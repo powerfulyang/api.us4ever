@@ -3,6 +3,8 @@ package es
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/textquerytype"
+	"unicode"
 
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
@@ -14,13 +16,33 @@ type SearchParams struct {
 	Index   string
 }
 
+func containsChinese(s string) bool {
+	for _, r := range s {
+		if unicode.Is(unicode.Han, r) {
+			return true
+		}
+	}
+	return false
+}
+
 func BuildBody(p SearchParams) *bytes.Buffer {
 	requireMatch := false
+
+	// 判断 keyword 是否为中文
+	var queryType *textquerytype.TextQueryType
+	if containsChinese(p.Keyword) {
+		t := textquerytype.Phrase
+		queryType = &t
+	} else {
+		queryType = nil // 英文不设置 type，使用默认
+	}
+
 	req := search.Request{
 		Query: &types.Query{
 			MultiMatch: &types.MultiMatchQuery{
 				Query:  p.Keyword,
 				Fields: p.Fields,
+				Type:   queryType,
 			},
 		},
 		Highlight: &types.Highlight{
@@ -32,6 +54,7 @@ func BuildBody(p SearchParams) *bytes.Buffer {
 			RequireFieldMatch: &requireMatch,
 		},
 	}
+
 	var buf bytes.Buffer
 	_ = json.NewEncoder(&buf).Encode(req)
 	return &buf
