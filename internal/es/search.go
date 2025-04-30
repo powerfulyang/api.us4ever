@@ -44,19 +44,60 @@ func SearchKeeps(ctx context.Context, client *elasticsearch.Client, indexAlias s
 	cv, _ := Embed(ctx, query)
 
 	body := map[string]any{
+		// 语义召回（保持不变）
 		"knn": []any{
-			map[string]any{"field": "title_vector", "query_vector": tv, "k": 20, "num_candidates": 60, "boost": 3},
-			map[string]any{"field": "summary_vector", "query_vector": sv, "k": 20, "num_candidates": 60, "boost": 2},
-			map[string]any{"field": "content_vector", "query_vector": cv, "k": 30, "num_candidates": 100, "boost": 1},
-		},
-		"query": map[string]any{
-			"multi_match": map[string]any{
-				"query":  query,
-				"fields": []string{"title^3", "summary^2", "content"},
-				"type":   "best_fields",
-				"slop":   1,
+			map[string]any{
+				"field":          "title_vector",
+				"query_vector":   tv,
+				"k":              20,
+				"num_candidates": 60,
+				"boost":          7,
+			},
+			map[string]any{
+				"field":          "summary_vector",
+				"query_vector":   sv,
+				"k":              20,
+				"num_candidates": 60,
+				"boost":          6,
+			},
+			map[string]any{
+				"field":          "content_vector",
+				"query_vector":   cv,
+				"k":              30,
+				"num_candidates": 100,
+				"boost":          5,
 			},
 		},
+		// 关键词 + 短语两路并行
+		"query": map[string]any{
+			"bool": map[string]any{
+				"should": []any{
+					// ① 两个词都得出现
+					map[string]any{
+						"multi_match": map[string]any{
+							"query":    query,
+							"fields":   []string{"title^3", "summary^2", "content"},
+							"type":     "best_fields",
+							"operator": "and", // 两词必须都在
+							"boost":    3,     // 关键词 boost
+						},
+					},
+					// ② 强力短语 boost
+					map[string]any{
+						"multi_match": map[string]any{
+							"query":  query,
+							"fields": []string{"title^3", "summary^2", "content"},
+							"type":   "phrase",
+							"slop":   2, // 允许错位
+							"boost":  5, // 短语 boost
+						},
+					},
+				},
+				// should 至少命中一条即可
+				"minimum_should_match": 1,
+			},
+		},
+		// ③ 高亮：跟短语完全一致
 		"highlight": map[string]any{
 			"pre_tags":  []string{"<mark>"},
 			"post_tags": []string{"</mark>"},
@@ -68,7 +109,6 @@ func SearchKeeps(ctx context.Context, client *elasticsearch.Client, indexAlias s
 					"number_of_fragments": 0,
 				},
 				"content": map[string]any{
-					"type": "unified",
 					"highlight_query": map[string]any{
 						"match_phrase": map[string]any{
 							"content": map[string]any{
@@ -81,6 +121,7 @@ func SearchKeeps(ctx context.Context, client *elasticsearch.Client, indexAlias s
 				},
 			},
 		},
+
 		"size": 10,
 	}
 
@@ -94,7 +135,6 @@ func SearchKeeps(ctx context.Context, client *elasticsearch.Client, indexAlias s
 		client.Search.WithContext(ctx),
 		client.Search.WithIndex(indexAlias), // Use the provided index alias
 		client.Search.WithBody(&buf),
-		client.Search.WithTrackTotalHits(true),
 		client.Search.WithPretty(),
 	)
 	if err != nil {
@@ -151,28 +191,58 @@ func SearchMoments(ctx context.Context, client *elasticsearch.Client, indexAlias
 	cv, _ := Embed(ctx, query)
 
 	body := map[string]any{
+		// 语义召回（保持不变）
 		"knn": []any{
-			map[string]any{"field": "content_vector", "query_vector": cv, "k": 30, "num_candidates": 100, "boost": 1},
-		},
-		"query": map[string]any{
-			"multi_match": map[string]any{
-				"query":  query,
-				"fields": []string{"content", "images.description"},
-				"type":   "best_fields",
-				"slop":   1,
+			map[string]any{
+				"field":          "content_vector",
+				"query_vector":   cv,
+				"k":              30,
+				"num_candidates": 100,
+				"boost":          5, // 语义召回权重
 			},
 		},
+
+		// 关键词 + 短语两路并行
+		"query": map[string]any{
+			"bool": map[string]any{
+				"should": []any{
+					// ① 两个词都得出现
+					map[string]any{
+						"multi_match": map[string]any{
+							"query":    query,
+							"fields":   []string{"content", "images.description"},
+							"type":     "best_fields",
+							"operator": "and", // 两词必须都在
+							"boost":    3,     // 关键词 boost
+						},
+					},
+					// ② 强力短语 boost
+					map[string]any{
+						"multi_match": map[string]any{
+							"query":  query,
+							"fields": []string{"content", "images.description"},
+							"type":   "phrase",
+							"slop":   2, // 允许错位
+							"boost":  5, // 短语 boost
+						},
+					},
+				},
+				// should 至少命中一条即可
+				"minimum_should_match": 1,
+			},
+		},
+
+		// ③ 高亮：跟短语完全一致
 		"highlight": map[string]any{
 			"pre_tags":  []string{"<mark>"},
 			"post_tags": []string{"</mark>"},
 			"fields": map[string]any{
 				"content": map[string]any{
-					"type": "unified",
 					"highlight_query": map[string]any{
 						"match_phrase": map[string]any{
 							"content": map[string]any{
 								"query": query,
-								"slop":  2,
+								"slop":  2, // 允许错位
 							},
 						},
 					},
@@ -180,6 +250,7 @@ func SearchMoments(ctx context.Context, client *elasticsearch.Client, indexAlias
 				},
 			},
 		},
+
 		"size": 10,
 	}
 
@@ -193,7 +264,6 @@ func SearchMoments(ctx context.Context, client *elasticsearch.Client, indexAlias
 		client.Search.WithContext(ctx),
 		client.Search.WithIndex(indexAlias), // Use the provided index alias
 		client.Search.WithBody(&buf),
-		client.Search.WithTrackTotalHits(true),
 		client.Search.WithPretty(),
 	)
 	if err != nil {

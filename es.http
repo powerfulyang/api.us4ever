@@ -21,21 +21,103 @@ Content-Type: application/json
     }
   },
   "highlight": {
-    "pre_tags": ["<mark>"],
-    "post_tags": ["</mark>"],
+    "pre_tags": [
+      "<mark>"
+    ],
+    "post_tags": [
+      "</mark>"
+    ],
     "fields": {
       "*": {}
     }
   }
 }
 
+
 ### embedding
 POST http://tools.us4ever.com:8001/embedding
 Content-Type: application/json
 
 {
-  "text": "123"
+  "text": "{{query}}"
 }
 
+> {%
+    const data = response.body;
 
+    // 如果接口返回形如 { "embedding": [0.12, 0.34, ...] }
+    if (data.embedding) {
+        // IDEA HTTP Client 只能存字符串，所以先 JSON.stringify
+        client.global.set("embed_vec", JSON.stringify(data.embedding));
+    } else {
+        // 万一返回结构变化，可在运行窗口里抛出错误方便排查
+        throw new Error("未找到 embedding 字段，请检查接口返回格式");
+    }
+%}
 
+### search
+POST http://tools.us4ever.com:9200/api.us4ever-moments/_search?pretty
+Content-Type: application/json
+
+{
+  "knn": {
+    "field": "content_vector",
+    "query_vector": {{embed_vec}},
+    "k": 30,
+    "num_candidates": 100,
+    "boost": 5
+  },
+  "query": {
+      "bool": {
+        "should": [
+          {
+            "multi_match": {
+			  "query":    "{{query}}", 
+			  "fields":   ["content", "images.description"],
+			  "type":     "best_fields",
+			  "operator": "and", 
+			  "boost":    3
+			}
+         },
+         {
+             "multi_match": {
+                "query":  "{{query}}",
+                "fields": ["content", "images.description"],
+                "type":   "phrase",            
+                "slop":   2,
+                "boost":  5
+              }
+         }
+        ],
+        "minimum_should_match": 1
+      }
+  },
+  "highlight": {
+    "pre_tags": [
+      "<mark>"
+    ],
+    "post_tags": [
+      "</mark>"
+    ],
+    "fields": {
+      "title": {
+        "number_of_fragments": 0
+      },
+      "summary": {
+        "number_of_fragments": 0
+      },
+      "content": {
+        "highlight_query": {
+          "match_phrase": {
+            "content": {
+              "query": "{{query}}",
+              "slop": 2
+            }
+          }
+        },
+        "number_of_fragments": 0
+      }
+    }
+  },
+  "size": 10
+}
