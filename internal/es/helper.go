@@ -1,19 +1,36 @@
 package es
 
 import (
+	"api.us4ever/internal/config"
 	"bytes"
+	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/textquerytype"
+	"io"
+	"net/http"
+	"time"
 	"unicode"
 
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 )
 
+const (
+	vectorDims = 1024
+)
+
 type SearchParams struct {
 	Keyword string
 	Fields  []string
 	Index   string
+}
+
+type EmbeddingReq struct {
+	Text string `json:"text"`
+}
+type EmbeddingResp struct {
+	Vector []float32 `json:"embedding"`
 }
 
 func containsChinese(s string) bool {
@@ -58,4 +75,60 @@ func BuildBody(p SearchParams) *bytes.Buffer {
 	var buf bytes.Buffer
 	_ = json.NewEncoder(&buf).Encode(req)
 	return &buf
+}
+
+func Embed(ctx context.Context, text string) ([]float32, error) {
+	// 超时 30 秒
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+	appConfig := config.GetAppConfig()
+	embedServiceURL := appConfig.Embedding.Endpoint
+
+	reqBody, _ := json.Marshal(EmbeddingReq{Text: text})
+	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, embedServiceURL, bytes.NewReader(reqBody))
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			fmt.Printf("Error closing response body: %v", err)
+		}
+	}(resp.Body)
+	if resp.StatusCode != 200 {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("embed service %d: %s", resp.StatusCode, body)
+	}
+	var er EmbeddingResp
+	if err := json.NewDecoder(resp.Body).Decode(&er); err != nil {
+		return nil, err
+	}
+	// 简单校验维度
+	if len(er.Vector) != vectorDims {
+		return nil, fmt.Errorf("expect %d dims, got %d", vectorDims, len(er.Vector))
+	}
+	return er.Vector, nil
+}
+
+// MergeTextFields -------- 把多个字段拼出同一套 mapping --------
+func MergeTextFields(names []string) map[string]any {
+	out := make(map[string]any)
+	for _, f := range names {
+		out[f] = map[string]any{
+			"type":            "text",
+			"analyzer":        "ik_cjk",
+			"search_analyzer": "ik_cjk",
+			"fields": map[string]any{
+				"ngram": map[string]any{
+					"type":            "text",
+					"analyzer":        "cjk_ngram_analyzer",
+					"search_analyzer": "ik_cjk",
+				},
+			},
+		}
+	}
+	return out
 }

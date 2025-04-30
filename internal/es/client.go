@@ -3,6 +3,7 @@ package es
 import (
 	"fmt"
 	"log"
+	"net/http"
 
 	"api.us4ever/internal/config"
 	"github.com/elastic/go-elasticsearch/v8"
@@ -15,6 +16,10 @@ func NewClient(cfg config.ESConfig) (*elasticsearch.Client, error) {
 		Addresses: cfg.Addresses,
 		Username:  cfg.Username,
 		Password:  cfg.Password,
+		Transport: &http.Transport{
+			// 调大连接池，方便批量写入
+			MaxIdleConnsPerHost: 10,
+		},
 	}
 
 	// Create the Elasticsearch client

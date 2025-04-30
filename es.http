@@ -29,7 +29,13 @@ Content-Type: application/json
   }
 }
 
-###
+### embedding
+POST http://tools.us4ever.com:8001/embedding
+Content-Type: application/json
+
+{
+  "text": "123"
+}
 
 
 

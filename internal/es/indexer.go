@@ -40,7 +40,59 @@ func IndexKeeps(ctx context.Context, client *elasticsearch.Client, dbService dat
 	// 1. Create a new index with a timestamp
 	newIndexName := fmt.Sprintf("%s_%s", aliasName, time.Now().Format("20060102150405"))
 	log.Printf("Creating new index: %s", newIndexName)
-	res, err := client.Indices.Create(newIndexName)
+
+	mapping := map[string]any{
+		"settings": map[string]any{
+			"number_of_shards":   3,
+			"number_of_replicas": 0,
+			"max_ngram_diff":     2,
+			"analysis": map[string]any{
+				"tokenizer": map[string]any{
+					"cjk_ngram": map[string]any{
+						"type":     "ngram",
+						"min_gram": 2,
+						"max_gram": 4,
+					},
+				},
+				"analyzer": map[string]any{
+					"ik_cjk": map[string]any{
+						"tokenizer": "ik_max_word",
+					},
+					"cjk_ngram_analyzer": map[string]any{
+						"tokenizer": "cjk_ngram",
+						"filter":    []string{"lowercase"},
+					},
+				},
+			},
+		},
+		"mappings": map[string]any{
+			"properties": MergeTextFields([]string{"title", "summary", "content"}),
+		},
+	}
+
+	// 向量字段统一追加
+	vecFields := map[string]string{
+		"title_vector":   "title_vector",
+		"summary_vector": "summary_vector",
+		"content_vector": "content_vector",
+	}
+	props := mapping["mappings"].(map[string]any)["properties"].(map[string]any)
+	for name := range vecFields {
+		props[name] = map[string]any{
+			"type":       "dense_vector",
+			"dims":       vectorDims,
+			"index":      true,
+			"similarity": "cosine",
+		}
+	}
+
+	body, _ := json.Marshal(mapping)
+
+	res, err := client.Indices.Create(
+		newIndexName,
+		client.Indices.Create.WithContext(ctx),
+		client.Indices.Create.WithBody(bytes.NewReader(body)),
+	)
 	if err != nil {
 		return fmt.Errorf("cannot create index %s: %w", newIndexName, err)
 	}
@@ -119,6 +171,13 @@ func bulkIndexKeeps(ctx context.Context, client *elasticsearch.Client, indexName
 		buf.WriteString(meta)
 		buf.WriteByte('\n')
 
+		title := keep.Title
+		summary := keep.Summary
+		content := keep.Content
+		titleVector, _ := Embed(ctx, title)
+		summaryVector, _ := Embed(ctx, summary)
+		contentVector, _ := Embed(ctx, content)
+
 		// Prepare data line (document source)
 		// Convert ent.Keep to a suitable map/struct for JSON marshalling
 		// Only include fields relevant for search (title, summary, content)
@@ -127,6 +186,9 @@ func bulkIndexKeeps(ctx context.Context, client *elasticsearch.Client, indexName
 			"summary": keep.Summary, // Adjust field names as necessary
 			"content": keep.Content,
 			// Add other fields if needed for search or display
+			"title_vector":   titleVector,
+			"summary_vector": summaryVector,
+			"content_vector": contentVector,
 		}
 		data, err := json.Marshal(doc)
 		if err != nil {
@@ -156,7 +218,7 @@ func bulkIndexKeeps(ctx context.Context, client *elasticsearch.Client, indexName
 	}
 
 	// Refresh the index to make changes searchable immediately
-	_, err := client.Indices.Refresh(client.Indices.Refresh.WithIndex(indexName))
+	_, err := client.Indices.Refresh(client.Indices.Refresh.WithContext(ctx), client.Indices.Refresh.WithIndex(indexName))
 	if err != nil {
 		log.Printf("Warning: Failed to refresh index %s after bulk indexing: %v", indexName, err)
 		// Don't fail the whole process, but log the warning
@@ -334,8 +396,58 @@ func IndexMoments(ctx context.Context, client *elasticsearch.Client, dbService d
 
 	// 1. Create a new index with a timestamp
 	newIndexName := fmt.Sprintf("%s_%s", aliasName, time.Now().Format("20060102150405"))
+
+	mapping := map[string]any{
+		"settings": map[string]any{
+			"number_of_shards":   3,
+			"number_of_replicas": 0,
+			"max_ngram_diff":     2,
+			"analysis": map[string]any{
+				"tokenizer": map[string]any{
+					"cjk_ngram": map[string]any{
+						"type":     "ngram",
+						"min_gram": 2,
+						"max_gram": 4,
+					},
+				},
+				"analyzer": map[string]any{
+					"ik_cjk": map[string]any{
+						"tokenizer": "ik_max_word",
+					},
+					"cjk_ngram_analyzer": map[string]any{
+						"tokenizer": "cjk_ngram",
+						"filter":    []string{"lowercase"},
+					},
+				},
+			},
+		},
+		"mappings": map[string]any{
+			"properties": MergeTextFields([]string{"content"}),
+		},
+	}
+
+	// 向量字段统一追加
+	vecFields := map[string]string{
+		"content_vector": "content_vector",
+	}
+	props := mapping["mappings"].(map[string]any)["properties"].(map[string]any)
+	for name := range vecFields {
+		props[name] = map[string]any{
+			"type":       "dense_vector",
+			"dims":       vectorDims,
+			"index":      true,
+			"similarity": "cosine",
+		}
+	}
+
+	body, _ := json.Marshal(mapping)
+
 	log.Printf("Creating new index: %s", newIndexName)
-	res, err := client.Indices.Create(newIndexName)
+	res, err := client.Indices.Create(
+		newIndexName,
+		client.Indices.Create.WithContext(ctx),
+		client.Indices.Create.WithBody(bytes.NewReader(body)),
+	)
 	if err != nil {
 		return fmt.Errorf("cannot create index %s: %w", newIndexName, err)
 	}
@@ -429,12 +541,16 @@ func bulkIndexMoments(ctx context.Context, client *elasticsearch.Client, indexNa
 			}
 		}
 
+		content := moment.Content
+		contentVector, _ := Embed(ctx, content)
+
 		// Prepare data line (document source)
 		doc := map[string]interface{}{
 			"id":      moment.ID,
-			"content": moment.Content,
+			"content": content,
 			"images":  images,
 			// Add other fields if needed for search or display
+			"content_vector": contentVector,
 		}
 		data, err := json.Marshal(doc)
 		if err != nil {
