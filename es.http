@@ -67,6 +67,9 @@ Content-Type: application/json
     "num_candidates": 100,
     "boost": 5
   },
+  "_source": {
+	"excludes": ["content_vector"]
+  },
   "query": {
       "bool": {
         "should": [

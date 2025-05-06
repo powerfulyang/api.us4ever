@@ -174,17 +174,17 @@ func bulkIndexKeeps(ctx context.Context, client *elasticsearch.Client, indexName
 		title := keep.Title
 		summary := keep.Summary
 		content := keep.Content
-		titleVector, _ := Embed(ctx, title)
-		summaryVector, _ := Embed(ctx, summary)
-		contentVector, _ := Embed(ctx, content)
+		titleVector := keep.TitleVector
+		summaryVector := keep.SummaryVector
+		contentVector := keep.ContentVector
 
 		// Prepare data line (document source)
 		// Convert ent.Keep to a suitable map/struct for JSON marshalling
 		// Only include fields relevant for search (title, summary, content)
 		doc := map[string]interface{}{
-			"title":   keep.Title,   // Assuming ent.Keep has these fields
-			"summary": keep.Summary, // Adjust field names as necessary
-			"content": keep.Content,
+			"title":   title,   // Assuming ent.Keep has these fields
+			"summary": summary, // Adjust field names as necessary
+			"content": content,
 			// Add other fields if needed for search or display
 			"title_vector":   titleVector,
 			"summary_vector": summaryVector,
@@ -542,7 +542,7 @@ func bulkIndexMoments(ctx context.Context, client *elasticsearch.Client, indexNa
 		}
 
 		content := moment.Content
-		contentVector, _ := Embed(ctx, content)
+		contentVector := moment.ContentVector
 
 		// Prepare data line (document source)
 		doc := map[string]interface{}{

@@ -39,9 +39,18 @@ func SearchKeeps(ctx context.Context, client *elasticsearch.Client, indexAlias s
 		return nilResult, fmt.Errorf("elasticsearch index alias is not provided")
 	}
 
-	tv, _ := Embed(ctx, query)
-	sv, _ := Embed(ctx, query)
-	cv, _ := Embed(ctx, query)
+	tv, err := Embed(ctx, query)
+	if err != nil {
+		return nilResult, fmt.Errorf("embedding error: %w", err)
+	}
+	sv, err := Embed(ctx, query)
+	if err != nil {
+		return nilResult, fmt.Errorf("embedding error: %w", err)
+	}
+	cv, err := Embed(ctx, query)
+	if err != nil {
+		return nilResult, fmt.Errorf("embedding error: %w", err)
+	}
 
 	body := map[string]any{
 		// 语义召回（保持不变）
@@ -67,6 +76,9 @@ func SearchKeeps(ctx context.Context, client *elasticsearch.Client, indexAlias s
 				"num_candidates": 100,
 				"boost":          5,
 			},
+		},
+		"_source": map[string]any{
+			"excludes": []string{"title_vector", "summary_vector", "content_vector"},
 		},
 		// 关键词 + 短语两路并行
 		"query": map[string]any{
@@ -121,12 +133,11 @@ func SearchKeeps(ctx context.Context, client *elasticsearch.Client, indexAlias s
 				},
 			},
 		},
-
 		"size": 10,
 	}
 
 	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(body)
+	err = json.NewEncoder(&buf).Encode(body)
 	if err != nil {
 		return SearchResult{}, err
 	}
@@ -188,7 +199,10 @@ func SearchMoments(ctx context.Context, client *elasticsearch.Client, indexAlias
 		return nilResult, fmt.Errorf("elasticsearch index alias is not provided")
 	}
 
-	cv, _ := Embed(ctx, query)
+	cv, err := Embed(ctx, query)
+	if err != nil {
+		return nilResult, fmt.Errorf("embedding error: %w", err)
+	}
 
 	body := map[string]any{
 		// 语义召回（保持不变）
@@ -201,7 +215,9 @@ func SearchMoments(ctx context.Context, client *elasticsearch.Client, indexAlias
 				"boost":          5, // 语义召回权重
 			},
 		},
-
+		"_source": map[string]any{
+			"excludes": []string{"content_vector"},
+		},
 		// 关键词 + 短语两路并行
 		"query": map[string]any{
 			"bool": map[string]any{
@@ -231,7 +247,6 @@ func SearchMoments(ctx context.Context, client *elasticsearch.Client, indexAlias
 				"minimum_should_match": 1,
 			},
 		},
-
 		// ③ 高亮：跟短语完全一致
 		"highlight": map[string]any{
 			"pre_tags":  []string{"<mark>"},
@@ -250,14 +265,13 @@ func SearchMoments(ctx context.Context, client *elasticsearch.Client, indexAlias
 				},
 			},
 		},
-
 		"size": 10,
 	}
 
 	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(body)
+	err = json.NewEncoder(&buf).Encode(body)
 	if err != nil {
-		return SearchResult{}, err
+		return nilResult, err
 	}
 
 	res, err := client.Search(
