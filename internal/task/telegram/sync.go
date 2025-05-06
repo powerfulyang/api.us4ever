@@ -2,25 +2,24 @@ package telegram
 
 import (
 	"api.us4ever/internal/config"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 )
 
-func TriggerSyncTelegram() {
+func TriggerSyncTelegram() (int, error) {
 	// 向 https://us4ever.com/api/internal/sync/telegram/emt_channel 发送 GET 请求
 	appConfig := config.GetAppConfig()
 	url := appConfig.Telegram.SyncURL
 	if url == "" {
-		log.Println("Telegram 同步 URL 未配置")
-		return
+		return 0, fmt.Errorf("telegram Sync URL is not configured")
 	}
 
 	// 发送 GET 请求
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Printf("请求失败: %v", err)
-		return
+		return 0, err
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -31,9 +30,8 @@ func TriggerSyncTelegram() {
 
 	// 检查响应状态码
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("请求失败，状态码: %d", resp.StatusCode)
-		return
+		return 0, fmt.Errorf("请求失败，状态码: %d", resp.StatusCode)
 	}
 
-	log.Println("请求成功，已触发 Telegram 同步")
+	return 1, nil
 }

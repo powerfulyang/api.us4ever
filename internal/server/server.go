@@ -18,10 +18,10 @@ import (
 type FiberServer struct {
 	*fiber.App
 
-	db                 database.Service
-	esClient           *elasticsearch.Client
-	keepEsIndexAlias   string
-	momentEsIndexAlias string
+	DbClient           database.Service
+	EsClient           *elasticsearch.Client
+	KeepEsIndexAlias   string
+	MomentEsIndexAlias string
 	cfg                *config.AppConfig
 }
 
@@ -30,7 +30,7 @@ func New() *FiberServer {
 	appConfig := config.GetAppConfig()
 
 	// 初始化数据库服务
-	db, err := database.New()
+	dbClient, err := database.New()
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
@@ -40,7 +40,7 @@ func New() *FiberServer {
 	if err != nil {
 		// Log the error but allow the server to start without ES if needed
 		log.Printf("Failed to initialize Elasticsearch client: %v. Search functionality might be unavailable.", err)
-		esClient = nil // Ensure esClient is nil if initialization fails
+		esClient = nil // Ensure EsClient is nil if initialization fails
 	}
 
 	// Define a unique index alias (e.g., appname-keeps)
@@ -50,14 +50,14 @@ func New() *FiberServer {
 
 	server := &FiberServer{
 		App: fiber.New(fiber.Config{
-			ServerHeader: "api.us4ever",
-			AppName:      "api.us4ever",
+			ServerHeader: appConfig.AppName,
+			AppName:      appConfig.AppName,
 		}),
 
-		db:                 db,
-		esClient:           esClient,
-		keepEsIndexAlias:   keepIndexAlias,
-		momentEsIndexAlias: momentIndexAlias,
+		DbClient:           dbClient,
+		EsClient:           esClient,
+		KeepEsIndexAlias:   keepIndexAlias,
+		MomentEsIndexAlias: momentIndexAlias,
 		cfg:                appConfig,
 	}
 
@@ -65,13 +65,13 @@ func New() *FiberServer {
 	config.RegisterChangeCallback(server.handleConfigChange)
 
 	// Trigger initial indexing in the background if ES client is available
-	if server.esClient != nil {
+	if server.EsClient != nil {
 		go func() {
 			// Create a background context for the initial indexing
 			// Use context.Background() as this is not tied to a specific request
 			ctx := context.Background()
 			log.Println("Starting initial Elasticsearch indexing for keeps...")
-			if err := es.IndexKeeps(ctx, server.esClient, server.db, server.keepEsIndexAlias); err != nil {
+			if err := es.IndexKeeps(ctx, server.EsClient, server.DbClient, server.KeepEsIndexAlias); err != nil {
 				log.Printf("Initial Elasticsearch indexing for keeps failed: %v", err)
 			} else {
 				log.Println("Initial Elasticsearch indexing for keeps completed successfully.")
@@ -83,7 +83,7 @@ func New() *FiberServer {
 			// Create a background context for the initial indexing
 			ctx := context.Background()
 			log.Println("Starting initial Elasticsearch indexing for moments...")
-			if err := es.IndexMoments(ctx, server.esClient, server.db, server.momentEsIndexAlias); err != nil {
+			if err := es.IndexMoments(ctx, server.EsClient, server.DbClient, server.MomentEsIndexAlias); err != nil {
 				log.Printf("Initial Elasticsearch indexing for moments failed: %v", err)
 			} else {
 				log.Println("Initial Elasticsearch indexing for moments completed successfully.")
@@ -117,7 +117,7 @@ func (s *FiberServer) handleConfigChange(newConfig *config.AppConfig) {
 	// Only refresh the database connection if the DB config actually changed
 	if dbConfigChanged {
 		log.Println("数据库配置变更，正在更新数据库连接...")
-		if err := s.RefreshDatabase(); err != nil {
+		if err := s.refreshDatabase(); err != nil {
 			log.Printf("更新数据库连接失败: %v", err)
 		} else {
 			log.Println("数据库连接已更新")
@@ -129,7 +129,7 @@ func (s *FiberServer) handleConfigChange(newConfig *config.AppConfig) {
 	// Only refresh the ES client if the ES config actually changed
 	if esConfigChanged {
 		log.Println("Elasticsearch 配置变更，正在更新 ES 客户端...")
-		if err := s.RefreshESClient(); err != nil {
+		if err := s.refreshESClient(); err != nil {
 			log.Printf("更新 Elasticsearch 客户端失败: %v", err)
 		} else {
 			log.Println("Elasticsearch 客户端已更新")
@@ -139,8 +139,8 @@ func (s *FiberServer) handleConfigChange(newConfig *config.AppConfig) {
 	}
 }
 
-// RefreshDatabase 重新创建数据库连接
-func (s *FiberServer) RefreshDatabase() error {
+// refreshDatabase 重新创建数据库连接
+func (s *FiberServer) refreshDatabase() error {
 	// 不使用类型断言，直接创建新连接
 	newDb, err := database.New()
 	if err != nil {
@@ -148,44 +148,39 @@ func (s *FiberServer) RefreshDatabase() error {
 	}
 
 	// 如果有旧连接，尝试关闭
-	if s.db != nil {
-		if err := s.db.Close(); err != nil {
+	if s.DbClient != nil {
+		if err := s.DbClient.Close(); err != nil {
 			log.Printf("Warning: error closing previous database connection: %v", err)
 		}
 	}
 
 	// 更新连接
-	s.db = newDb
+	s.DbClient = newDb
 	return nil
 }
 
-// RefreshESClient 重新创建 Elasticsearch 客户端连接
-func (s *FiberServer) RefreshESClient() error {
+// refreshESClient 重新创建 Elasticsearch 客户端连接
+func (s *FiberServer) refreshESClient() error {
 	newESClient, err := es.NewClient(s.cfg.ES)
 	if err != nil {
 		// Log the error but keep the old client if creation fails?
 		// Or set to nil to indicate failure?
 		// Setting to nil for now to indicate unavailability.
-		s.esClient = nil
+		s.EsClient = nil
 		return fmt.Errorf("failed to create new Elasticsearch client: %w", err)
 	}
 
 	// No explicit close needed for the standard http transport used by default.
 	// If a custom transport needing cleanup is used later, add close logic here.
-	s.esClient = newESClient
+	s.EsClient = newESClient
 	return nil
 }
 
-// GetDB 返回数据库服务实例
-func (s *FiberServer) GetDB() database.Service {
-	return s.db
-}
-
-// ReindexKeepsHandler triggers the re-indexing process for keeps.
-func (s *FiberServer) ReindexKeepsHandler(c *fiber.Ctx) error {
+// reindexKeepsHandler triggers the re-indexing process for keeps.
+func (s *FiberServer) reindexKeepsHandler(c *fiber.Ctx) error {
 	log.Println("Received request to re-index keeps.")
-	if s.esClient == nil {
-		log.Println("ReindexKeepsHandler: Elasticsearch client is not available.")
+	if s.EsClient == nil {
+		log.Println("reindexKeepsHandler: Elasticsearch client is not available.")
 		return c.Status(http.StatusServiceUnavailable).JSON(fiber.Map{
 			"error": "Elasticsearch service is not available to perform re-indexing",
 		})
@@ -196,7 +191,7 @@ func (s *FiberServer) ReindexKeepsHandler(c *fiber.Ctx) error {
 		// Use a background context detached from the HTTP request
 		ctx := context.Background()
 		log.Println("Starting background re-indexing process...")
-		if err := es.IndexKeeps(ctx, s.esClient, s.db, s.keepEsIndexAlias); err != nil {
+		if err := es.IndexKeeps(ctx, s.EsClient, s.DbClient, s.KeepEsIndexAlias); err != nil {
 			log.Printf("Background re-indexing failed: %v", err)
 			// Consider adding monitoring/alerting here
 		} else {
@@ -210,8 +205,8 @@ func (s *FiberServer) ReindexKeepsHandler(c *fiber.Ctx) error {
 	})
 }
 
-// SearchKeepsHandler handles requests to search keeps in Elasticsearch
-func (s *FiberServer) SearchKeepsHandler(c *fiber.Ctx) error {
+// searchKeepsHandler handles requests to search keeps in Elasticsearch
+func (s *FiberServer) searchKeepsHandler(c *fiber.Ctx) error {
 	// Get the search query from the query parameter 'q'
 	query := c.Query("q")
 	if query == "" {
@@ -221,8 +216,8 @@ func (s *FiberServer) SearchKeepsHandler(c *fiber.Ctx) error {
 	}
 
 	// Check if the ES client is available
-	if s.esClient == nil {
-		log.Printf("SearchKeepsHandler: Elasticsearch client is not available.")
+	if s.EsClient == nil {
+		log.Printf("searchKeepsHandler: Elasticsearch client is not available.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Search service is temporarily unavailable",
 		})
@@ -230,7 +225,7 @@ func (s *FiberServer) SearchKeepsHandler(c *fiber.Ctx) error {
 
 	// Perform the search using the es package, passing the server's client and alias
 	// The function now returns []es.KeepSearchResult
-	keeps, err := es.SearchKeeps(c.Context(), s.esClient, s.keepEsIndexAlias, query)
+	keeps, err := es.SearchKeeps(c.Context(), s.EsClient, s.KeepEsIndexAlias, query)
 	if err != nil {
 		log.Printf("Error searching keeps in Elasticsearch: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -241,8 +236,8 @@ func (s *FiberServer) SearchKeepsHandler(c *fiber.Ctx) error {
 	return c.JSON(keeps) // Return the results (including score)
 }
 
-// SearchMomentsHandler handles requests to search moments in Elasticsearch
-func (s *FiberServer) SearchMomentsHandler(c *fiber.Ctx) error {
+// searchMomentsHandler handles requests to search moments in Elasticsearch
+func (s *FiberServer) searchMomentsHandler(c *fiber.Ctx) error {
 	// Get the search query from the query parameter 'q'
 	query := c.Query("q")
 	if query == "" {
@@ -252,15 +247,15 @@ func (s *FiberServer) SearchMomentsHandler(c *fiber.Ctx) error {
 	}
 
 	// Check if the ES client is available
-	if s.esClient == nil {
-		log.Printf("SearchMomentsHandler: Elasticsearch client is not available.")
+	if s.EsClient == nil {
+		log.Printf("searchMomentsHandler: Elasticsearch client is not available.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Search service is temporarily unavailable",
 		})
 	}
 
 	// Perform the search using the es package, passing the server's client and alias
-	moments, err := es.SearchMoments(c.Context(), s.esClient, s.momentEsIndexAlias, query)
+	moments, err := es.SearchMoments(c.Context(), s.EsClient, s.MomentEsIndexAlias, query)
 	if err != nil {
 		log.Printf("Error searching moments in Elasticsearch: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -271,11 +266,11 @@ func (s *FiberServer) SearchMomentsHandler(c *fiber.Ctx) error {
 	return c.JSON(moments) // Return the results (including score)
 }
 
-// ReindexMomentsHandler handles requests to re-index moments in Elasticsearch
-func (s *FiberServer) ReindexMomentsHandler(c *fiber.Ctx) error {
+// reindexMomentsHandler handles requests to re-index moments in Elasticsearch
+func (s *FiberServer) reindexMomentsHandler(c *fiber.Ctx) error {
 	log.Println("Received request to re-index moments.")
-	if s.esClient == nil {
-		log.Println("ReindexMomentsHandler: Elasticsearch client is not available.")
+	if s.EsClient == nil {
+		log.Println("reindexMomentsHandler: Elasticsearch client is not available.")
 		return c.Status(http.StatusServiceUnavailable).JSON(fiber.Map{
 			"error": "Elasticsearch service is not available to perform re-indexing",
 		})
@@ -286,7 +281,7 @@ func (s *FiberServer) ReindexMomentsHandler(c *fiber.Ctx) error {
 		// Use a background context detached from the HTTP request
 		ctx := context.Background()
 		log.Println("Starting background re-indexing process for moments...")
-		if err := es.IndexMoments(ctx, s.esClient, s.db, s.momentEsIndexAlias); err != nil {
+		if err := es.IndexMoments(ctx, s.EsClient, s.DbClient, s.MomentEsIndexAlias); err != nil {
 			log.Printf("Background re-indexing for moments failed: %v", err)
 			// Consider adding monitoring/alerting here
 		} else {

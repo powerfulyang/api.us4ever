@@ -2,6 +2,7 @@ package image
 
 import (
 	"api.us4ever/internal/config"
+	"api.us4ever/internal/server"
 	"bytes"
 	"context"
 	"encoding/base64"
@@ -59,10 +60,11 @@ type ExtraData struct {
 }
 
 // ProcessImageOCR finds images needing OCR, processes them, and updates the database.
-func ProcessImageOCR(db database.Service) {
-	log.Println("Starting ProcessImageOCR task...")
-	ctx := context.Background()
+func ProcessImageOCR(fiberServer *server.FiberServer) (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 
+	db := fiberServer.DbClient
 	// Find images that have an original file ID.
 	// We will filter based on ExtraData content after fetching.
 	imagesToCheck, err := db.Client().Image.Query().
@@ -89,22 +91,19 @@ func ProcessImageOCR(db database.Service) {
 
 	if err != nil {
 		log.Printf("Error querying images for OCR check: %v", err)
-		return
+		return 0, err
 	}
 
-	if len(imagesToCheck) == 0 {
-		log.Println("No images with original files found.")
-		return
+	if len(imagesToCheck) > 0 {
+		log.Printf("OCR: found %d images to process", len(imagesToCheck))
 	}
 
 	// 遍历检查的图片
 	for _, img := range imagesToCheck {
 		if !needsOCRProcessing(img) {
-			log.Println("Image ID:", img.ID, "does not need OCR processing.")
 			continue
 		}
 
-		log.Printf("Processing OCR for image ID: %s", img.ID)
 		err := ProcessSingleImageOCR(ctx, db, img.ID)
 		if err != nil {
 			log.Printf("Failed to process image %s: %v", img.ID, err)
@@ -112,7 +111,7 @@ func ProcessImageOCR(db database.Service) {
 		}
 	}
 
-	log.Println("ProcessImageOCR task finished.")
+	return len(imagesToCheck), nil
 }
 
 // needsOCRProcessing checks if the image's ExtraData indicates OCR is needed.
@@ -239,7 +238,6 @@ func updateImageExtraData(ctx context.Context, db database.Service, img *ent.Ima
 	description := strings.Join(textParts, " ")
 	// 去除\r\n和多余空格
 	description = cleanDescription(description)
-	log.Println("Combined OCR text for image ID:", img.ID, ":", description)
 
 	// Marshal the updated map back to json.RawMessage
 	updatedExtraDataBytes, err := json.Marshal(currentExtraData)
@@ -307,7 +305,7 @@ func ProcessSingleImageOCR(ctx context.Context, db database.Service, imageID str
 	}
 
 	if ocrResult.Result.Errcode != 0 {
-		log.Println("OCR API returned error code:", ocrResult.Result.Errcode)
+		return fmt.Errorf("OCR API returned error code: %d", ocrResult.Result.Errcode)
 	}
 
 	// Update Image ExtraData

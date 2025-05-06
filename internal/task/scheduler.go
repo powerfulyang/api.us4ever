@@ -1,11 +1,11 @@
 package task
 
 import (
+	"api.us4ever/internal/server"
 	"log"
 	"sync"
 	"time"
 
-	"api.us4ever/internal/database"
 	"github.com/panjf2000/ants/v2"
 	"github.com/robfig/cron/v3"
 )
@@ -44,24 +44,31 @@ func (s *Scheduler) Stop() {
 	s.pool.Release()
 }
 
+type FuncWithServer func(fiberServer *server.FiberServer) (int, error)
+type FuncWithoutServer func() (int, error)
+
 // AddTask 添加定时任务
-func (s *Scheduler) AddTask(name, spec string, task func()) error {
+func (s *Scheduler) AddTask(name, spec string, task FuncWithoutServer) error {
 	// 为每个任务创建一个锁
 	s.locks[name] = &sync.Mutex{}
 
 	id, err := s.cron.AddFunc(spec, func() {
-		// 尝试获取锁，如果任务正在执行则跳过本次执行
-		if !s.locks[name].TryLock() {
-			log.Printf("任务 %s 正在执行中，跳过本次执行", name)
-			return
-		}
-		defer s.locks[name].Unlock()
 
 		// 提交任务到协程池
 		err := s.pool.Submit(func() {
+			// 尝试获取锁，如果任务正在执行则跳过本次执行
+			if !s.locks[name].TryLock() {
+				log.Printf("任务 %s 正在执行中，跳过本次执行", name)
+				return
+			}
+			defer s.locks[name].Unlock()
 			startTime := time.Now()
-			task()
-			log.Printf("任务 %s 执行完成，耗时: %v", name, time.Since(startTime))
+			count, err := task()
+			if err != nil {
+				log.Printf("任务 %s 执行出错: %v", name, err)
+			} else if count > 0 {
+				log.Printf("任务 %s 执行完成，耗时: %v，共处理: %v 条数据", name, time.Since(startTime), count)
+			}
 		})
 		if err != nil {
 			log.Printf("提交任务 %s 失败: %v", name, err)
@@ -74,26 +81,27 @@ func (s *Scheduler) AddTask(name, spec string, task func()) error {
 	return nil
 }
 
-// AddTaskWithDB 添加需要数据库连接的定时任务
-func (s *Scheduler) AddTaskWithDB(name, spec string, task func(db database.Service), getDB func() database.Service) error {
+// AddTaskWithServer 添加需要数据库连接的定时任务
+func (s *Scheduler) AddTaskWithServer(name, spec string, task FuncWithServer, fiberServer *server.FiberServer) error {
 	// 为每个任务创建一个锁
 	s.locks[name] = &sync.Mutex{}
 
 	id, err := s.cron.AddFunc(spec, func() {
-		// 尝试获取锁，如果任务正在执行则跳过本次执行
-		if !s.locks[name].TryLock() {
-			log.Printf("任务 %s 正在执行中，跳过本次执行", name)
-			return
-		}
-		defer s.locks[name].Unlock()
-
 		// 提交任务到协程池
 		err := s.pool.Submit(func() {
+			// 尝试获取锁，如果任务正在执行则跳过本次执行
+			if !s.locks[name].TryLock() {
+				log.Printf("任务 %s 正在执行中，跳过本次执行", name)
+				return
+			}
+			defer s.locks[name].Unlock()
 			startTime := time.Now()
-			// 获取最新的数据库连接
-			db := getDB()
-			task(db)
-			log.Printf("任务 %s 执行完成，耗时: %v", name, time.Since(startTime))
+			count, err := task(fiberServer)
+			if err != nil {
+				log.Printf("任务 %s 执行出错: %v", name, err)
+			} else if count > 0 {
+				log.Printf("任务 %s 执行完成，耗时: %v，共处理: %v 条数据", name, time.Since(startTime), count)
+			}
 		})
 		if err != nil {
 			log.Printf("提交任务 %s 失败: %v", name, err)

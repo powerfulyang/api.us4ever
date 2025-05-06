@@ -469,11 +469,7 @@ func IndexMoments(ctx context.Context, client *elasticsearch.Client, dbService d
 
 	// 2. Fetch data from the database with eager loading of images and their descriptions
 	log.Printf("Fetching moments from the database")
-	moments, err := dbService.Client().Moment.Query().
-		WithMomentImages(func(q *ent.MomentImageQuery) {
-			q.WithImage() // Eager load images
-		}).
-		All(ctx)
+	moments, err := dbService.GetAllMoments(ctx)
 	if err != nil {
 		// 如果获取失败，删除刚创建的索引
 		_, delErr := client.Indices.Delete([]string{newIndexName}, client.Indices.Delete.WithContext(ctx))

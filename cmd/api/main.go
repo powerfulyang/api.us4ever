@@ -53,7 +53,7 @@ func main() {
 		log.Printf("初始化定时任务调度器失败: %v", err)
 	} else {
 		// 注册定时任务
-		if err := task.RegisterTasks(scheduler, fiberServer.GetDB); err != nil {
+		if err := task.RegisterTasks(scheduler, fiberServer); err != nil {
 			log.Printf("注册定时任务失败: %v", err)
 		} else {
 			// 启动定时任务调度器
