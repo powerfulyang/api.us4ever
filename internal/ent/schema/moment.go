@@ -16,7 +16,7 @@ type Moment struct {
 }
 
 func (Moment) Fields() []ent.Field {
-	return []ent.Field{field.String("id").StorageKey("id"), field.String("content").StorageKey("content"), field.Bool("isPublic").StorageKey("isPublic"), field.JSON("tags", json.RawMessage{}).StorageKey("tags"), field.Int32("views").StorageKey("views"), field.Int32("likes").StorageKey("likes"), field.JSON("extraData", json.RawMessage{}).StorageKey("extraData"), field.String("category").StorageKey("category"), field.String("ownerId").Optional().StorageKey("ownerId"), field.Time("createdAt").StorageKey("createdAt"), field.Time("updatedAt").StorageKey("updatedAt")}
+	return []ent.Field{field.String("id").StorageKey("id"), field.String("content").StorageKey("content"), field.String("category").StorageKey("category"), field.Time("createdAt").StorageKey("createdAt"), field.Time("updatedAt").StorageKey("updatedAt"), field.String("ownerId").Optional().StorageKey("ownerId"), field.Bool("isPublic").StorageKey("isPublic"), field.Int32("likes").StorageKey("likes"), field.JSON("tags", json.RawMessage{}).StorageKey("tags"), field.Int32("views").StorageKey("views"), field.JSON("extraData", json.RawMessage{}).StorageKey("extraData"), field.JSON("content_vector", json.RawMessage{}).Optional().StorageKey("content_vector")}
 
 }
 func (Moment) Edges() []ent.Edge {

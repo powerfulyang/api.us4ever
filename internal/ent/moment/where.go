@@ -70,29 +70,9 @@ func Content(v string) predicate.Moment {
 	return predicate.Moment(sql.FieldEQ(FieldContent, v))
 }
 
-// IsPublic applies equality check predicate on the "isPublic" field. It's identical to IsPublicEQ.
-func IsPublic(v bool) predicate.Moment {
-	return predicate.Moment(sql.FieldEQ(FieldIsPublic, v))
-}
-
-// Views applies equality check predicate on the "views" field. It's identical to ViewsEQ.
-func Views(v int32) predicate.Moment {
-	return predicate.Moment(sql.FieldEQ(FieldViews, v))
-}
-
-// Likes applies equality check predicate on the "likes" field. It's identical to LikesEQ.
-func Likes(v int32) predicate.Moment {
-	return predicate.Moment(sql.FieldEQ(FieldLikes, v))
-}
-
 // Category applies equality check predicate on the "category" field. It's identical to CategoryEQ.
 func Category(v string) predicate.Moment {
 	return predicate.Moment(sql.FieldEQ(FieldCategory, v))
-}
-
-// OwnerId applies equality check predicate on the "ownerId" field. It's identical to OwnerIdEQ.
-func OwnerId(v string) predicate.Moment {
-	return predicate.Moment(sql.FieldEQ(FieldOwnerId, v))
 }
 
 // CreatedAt applies equality check predicate on the "createdAt" field. It's identical to CreatedAtEQ.
@@ -103,6 +83,26 @@ func CreatedAt(v time.Time) predicate.Moment {
 // UpdatedAt applies equality check predicate on the "updatedAt" field. It's identical to UpdatedAtEQ.
 func UpdatedAt(v time.Time) predicate.Moment {
 	return predicate.Moment(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// OwnerId applies equality check predicate on the "ownerId" field. It's identical to OwnerIdEQ.
+func OwnerId(v string) predicate.Moment {
+	return predicate.Moment(sql.FieldEQ(FieldOwnerId, v))
+}
+
+// IsPublic applies equality check predicate on the "isPublic" field. It's identical to IsPublicEQ.
+func IsPublic(v bool) predicate.Moment {
+	return predicate.Moment(sql.FieldEQ(FieldIsPublic, v))
+}
+
+// Likes applies equality check predicate on the "likes" field. It's identical to LikesEQ.
+func Likes(v int32) predicate.Moment {
+	return predicate.Moment(sql.FieldEQ(FieldLikes, v))
+}
+
+// Views applies equality check predicate on the "views" field. It's identical to ViewsEQ.
+func Views(v int32) predicate.Moment {
+	return predicate.Moment(sql.FieldEQ(FieldViews, v))
 }
 
 // ContentEQ applies the EQ predicate on the "content" field.
@@ -170,96 +170,6 @@ func ContentContainsFold(v string) predicate.Moment {
 	return predicate.Moment(sql.FieldContainsFold(FieldContent, v))
 }
 
-// IsPublicEQ applies the EQ predicate on the "isPublic" field.
-func IsPublicEQ(v bool) predicate.Moment {
-	return predicate.Moment(sql.FieldEQ(FieldIsPublic, v))
-}
-
-// IsPublicNEQ applies the NEQ predicate on the "isPublic" field.
-func IsPublicNEQ(v bool) predicate.Moment {
-	return predicate.Moment(sql.FieldNEQ(FieldIsPublic, v))
-}
-
-// ViewsEQ applies the EQ predicate on the "views" field.
-func ViewsEQ(v int32) predicate.Moment {
-	return predicate.Moment(sql.FieldEQ(FieldViews, v))
-}
-
-// ViewsNEQ applies the NEQ predicate on the "views" field.
-func ViewsNEQ(v int32) predicate.Moment {
-	return predicate.Moment(sql.FieldNEQ(FieldViews, v))
-}
-
-// ViewsIn applies the In predicate on the "views" field.
-func ViewsIn(vs ...int32) predicate.Moment {
-	return predicate.Moment(sql.FieldIn(FieldViews, vs...))
-}
-
-// ViewsNotIn applies the NotIn predicate on the "views" field.
-func ViewsNotIn(vs ...int32) predicate.Moment {
-	return predicate.Moment(sql.FieldNotIn(FieldViews, vs...))
-}
-
-// ViewsGT applies the GT predicate on the "views" field.
-func ViewsGT(v int32) predicate.Moment {
-	return predicate.Moment(sql.FieldGT(FieldViews, v))
-}
-
-// ViewsGTE applies the GTE predicate on the "views" field.
-func ViewsGTE(v int32) predicate.Moment {
-	return predicate.Moment(sql.FieldGTE(FieldViews, v))
-}
-
-// ViewsLT applies the LT predicate on the "views" field.
-func ViewsLT(v int32) predicate.Moment {
-	return predicate.Moment(sql.FieldLT(FieldViews, v))
-}
-
-// ViewsLTE applies the LTE predicate on the "views" field.
-func ViewsLTE(v int32) predicate.Moment {
-	return predicate.Moment(sql.FieldLTE(FieldViews, v))
-}
-
-// LikesEQ applies the EQ predicate on the "likes" field.
-func LikesEQ(v int32) predicate.Moment {
-	return predicate.Moment(sql.FieldEQ(FieldLikes, v))
-}
-
-// LikesNEQ applies the NEQ predicate on the "likes" field.
-func LikesNEQ(v int32) predicate.Moment {
-	return predicate.Moment(sql.FieldNEQ(FieldLikes, v))
-}
-
-// LikesIn applies the In predicate on the "likes" field.
-func LikesIn(vs ...int32) predicate.Moment {
-	return predicate.Moment(sql.FieldIn(FieldLikes, vs...))
-}
-
-// LikesNotIn applies the NotIn predicate on the "likes" field.
-func LikesNotIn(vs ...int32) predicate.Moment {
-	return predicate.Moment(sql.FieldNotIn(FieldLikes, vs...))
-}
-
-// LikesGT applies the GT predicate on the "likes" field.
-func LikesGT(v int32) predicate.Moment {
-	return predicate.Moment(sql.FieldGT(FieldLikes, v))
-}
-
-// LikesGTE applies the GTE predicate on the "likes" field.
-func LikesGTE(v int32) predicate.Moment {
-	return predicate.Moment(sql.FieldGTE(FieldLikes, v))
-}
-
-// LikesLT applies the LT predicate on the "likes" field.
-func LikesLT(v int32) predicate.Moment {
-	return predicate.Moment(sql.FieldLT(FieldLikes, v))
-}
-
-// LikesLTE applies the LTE predicate on the "likes" field.
-func LikesLTE(v int32) predicate.Moment {
-	return predicate.Moment(sql.FieldLTE(FieldLikes, v))
-}
-
 // CategoryEQ applies the EQ predicate on the "category" field.
 func CategoryEQ(v string) predicate.Moment {
 	return predicate.Moment(sql.FieldEQ(FieldCategory, v))
@@ -323,81 +233,6 @@ func CategoryEqualFold(v string) predicate.Moment {
 // CategoryContainsFold applies the ContainsFold predicate on the "category" field.
 func CategoryContainsFold(v string) predicate.Moment {
 	return predicate.Moment(sql.FieldContainsFold(FieldCategory, v))
-}
-
-// OwnerIdEQ applies the EQ predicate on the "ownerId" field.
-func OwnerIdEQ(v string) predicate.Moment {
-	return predicate.Moment(sql.FieldEQ(FieldOwnerId, v))
-}
-
-// OwnerIdNEQ applies the NEQ predicate on the "ownerId" field.
-func OwnerIdNEQ(v string) predicate.Moment {
-	return predicate.Moment(sql.FieldNEQ(FieldOwnerId, v))
-}
-
-// OwnerIdIn applies the In predicate on the "ownerId" field.
-func OwnerIdIn(vs ...string) predicate.Moment {
-	return predicate.Moment(sql.FieldIn(FieldOwnerId, vs...))
-}
-
-// OwnerIdNotIn applies the NotIn predicate on the "ownerId" field.
-func OwnerIdNotIn(vs ...string) predicate.Moment {
-	return predicate.Moment(sql.FieldNotIn(FieldOwnerId, vs...))
-}
-
-// OwnerIdGT applies the GT predicate on the "ownerId" field.
-func OwnerIdGT(v string) predicate.Moment {
-	return predicate.Moment(sql.FieldGT(FieldOwnerId, v))
-}
-
-// OwnerIdGTE applies the GTE predicate on the "ownerId" field.
-func OwnerIdGTE(v string) predicate.Moment {
-	return predicate.Moment(sql.FieldGTE(FieldOwnerId, v))
-}
-
-// OwnerIdLT applies the LT predicate on the "ownerId" field.
-func OwnerIdLT(v string) predicate.Moment {
-	return predicate.Moment(sql.FieldLT(FieldOwnerId, v))
-}
-
-// OwnerIdLTE applies the LTE predicate on the "ownerId" field.
-func OwnerIdLTE(v string) predicate.Moment {
-	return predicate.Moment(sql.FieldLTE(FieldOwnerId, v))
-}
-
-// OwnerIdContains applies the Contains predicate on the "ownerId" field.
-func OwnerIdContains(v string) predicate.Moment {
-	return predicate.Moment(sql.FieldContains(FieldOwnerId, v))
-}
-
-// OwnerIdHasPrefix applies the HasPrefix predicate on the "ownerId" field.
-func OwnerIdHasPrefix(v string) predicate.Moment {
-	return predicate.Moment(sql.FieldHasPrefix(FieldOwnerId, v))
-}
-
-// OwnerIdHasSuffix applies the HasSuffix predicate on the "ownerId" field.
-func OwnerIdHasSuffix(v string) predicate.Moment {
-	return predicate.Moment(sql.FieldHasSuffix(FieldOwnerId, v))
-}
-
-// OwnerIdIsNil applies the IsNil predicate on the "ownerId" field.
-func OwnerIdIsNil() predicate.Moment {
-	return predicate.Moment(sql.FieldIsNull(FieldOwnerId))
-}
-
-// OwnerIdNotNil applies the NotNil predicate on the "ownerId" field.
-func OwnerIdNotNil() predicate.Moment {
-	return predicate.Moment(sql.FieldNotNull(FieldOwnerId))
-}
-
-// OwnerIdEqualFold applies the EqualFold predicate on the "ownerId" field.
-func OwnerIdEqualFold(v string) predicate.Moment {
-	return predicate.Moment(sql.FieldEqualFold(FieldOwnerId, v))
-}
-
-// OwnerIdContainsFold applies the ContainsFold predicate on the "ownerId" field.
-func OwnerIdContainsFold(v string) predicate.Moment {
-	return predicate.Moment(sql.FieldContainsFold(FieldOwnerId, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "createdAt" field.
@@ -478,6 +313,181 @@ func UpdatedAtLT(v time.Time) predicate.Moment {
 // UpdatedAtLTE applies the LTE predicate on the "updatedAt" field.
 func UpdatedAtLTE(v time.Time) predicate.Moment {
 	return predicate.Moment(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// OwnerIdEQ applies the EQ predicate on the "ownerId" field.
+func OwnerIdEQ(v string) predicate.Moment {
+	return predicate.Moment(sql.FieldEQ(FieldOwnerId, v))
+}
+
+// OwnerIdNEQ applies the NEQ predicate on the "ownerId" field.
+func OwnerIdNEQ(v string) predicate.Moment {
+	return predicate.Moment(sql.FieldNEQ(FieldOwnerId, v))
+}
+
+// OwnerIdIn applies the In predicate on the "ownerId" field.
+func OwnerIdIn(vs ...string) predicate.Moment {
+	return predicate.Moment(sql.FieldIn(FieldOwnerId, vs...))
+}
+
+// OwnerIdNotIn applies the NotIn predicate on the "ownerId" field.
+func OwnerIdNotIn(vs ...string) predicate.Moment {
+	return predicate.Moment(sql.FieldNotIn(FieldOwnerId, vs...))
+}
+
+// OwnerIdGT applies the GT predicate on the "ownerId" field.
+func OwnerIdGT(v string) predicate.Moment {
+	return predicate.Moment(sql.FieldGT(FieldOwnerId, v))
+}
+
+// OwnerIdGTE applies the GTE predicate on the "ownerId" field.
+func OwnerIdGTE(v string) predicate.Moment {
+	return predicate.Moment(sql.FieldGTE(FieldOwnerId, v))
+}
+
+// OwnerIdLT applies the LT predicate on the "ownerId" field.
+func OwnerIdLT(v string) predicate.Moment {
+	return predicate.Moment(sql.FieldLT(FieldOwnerId, v))
+}
+
+// OwnerIdLTE applies the LTE predicate on the "ownerId" field.
+func OwnerIdLTE(v string) predicate.Moment {
+	return predicate.Moment(sql.FieldLTE(FieldOwnerId, v))
+}
+
+// OwnerIdContains applies the Contains predicate on the "ownerId" field.
+func OwnerIdContains(v string) predicate.Moment {
+	return predicate.Moment(sql.FieldContains(FieldOwnerId, v))
+}
+
+// OwnerIdHasPrefix applies the HasPrefix predicate on the "ownerId" field.
+func OwnerIdHasPrefix(v string) predicate.Moment {
+	return predicate.Moment(sql.FieldHasPrefix(FieldOwnerId, v))
+}
+
+// OwnerIdHasSuffix applies the HasSuffix predicate on the "ownerId" field.
+func OwnerIdHasSuffix(v string) predicate.Moment {
+	return predicate.Moment(sql.FieldHasSuffix(FieldOwnerId, v))
+}
+
+// OwnerIdIsNil applies the IsNil predicate on the "ownerId" field.
+func OwnerIdIsNil() predicate.Moment {
+	return predicate.Moment(sql.FieldIsNull(FieldOwnerId))
+}
+
+// OwnerIdNotNil applies the NotNil predicate on the "ownerId" field.
+func OwnerIdNotNil() predicate.Moment {
+	return predicate.Moment(sql.FieldNotNull(FieldOwnerId))
+}
+
+// OwnerIdEqualFold applies the EqualFold predicate on the "ownerId" field.
+func OwnerIdEqualFold(v string) predicate.Moment {
+	return predicate.Moment(sql.FieldEqualFold(FieldOwnerId, v))
+}
+
+// OwnerIdContainsFold applies the ContainsFold predicate on the "ownerId" field.
+func OwnerIdContainsFold(v string) predicate.Moment {
+	return predicate.Moment(sql.FieldContainsFold(FieldOwnerId, v))
+}
+
+// IsPublicEQ applies the EQ predicate on the "isPublic" field.
+func IsPublicEQ(v bool) predicate.Moment {
+	return predicate.Moment(sql.FieldEQ(FieldIsPublic, v))
+}
+
+// IsPublicNEQ applies the NEQ predicate on the "isPublic" field.
+func IsPublicNEQ(v bool) predicate.Moment {
+	return predicate.Moment(sql.FieldNEQ(FieldIsPublic, v))
+}
+
+// LikesEQ applies the EQ predicate on the "likes" field.
+func LikesEQ(v int32) predicate.Moment {
+	return predicate.Moment(sql.FieldEQ(FieldLikes, v))
+}
+
+// LikesNEQ applies the NEQ predicate on the "likes" field.
+func LikesNEQ(v int32) predicate.Moment {
+	return predicate.Moment(sql.FieldNEQ(FieldLikes, v))
+}
+
+// LikesIn applies the In predicate on the "likes" field.
+func LikesIn(vs ...int32) predicate.Moment {
+	return predicate.Moment(sql.FieldIn(FieldLikes, vs...))
+}
+
+// LikesNotIn applies the NotIn predicate on the "likes" field.
+func LikesNotIn(vs ...int32) predicate.Moment {
+	return predicate.Moment(sql.FieldNotIn(FieldLikes, vs...))
+}
+
+// LikesGT applies the GT predicate on the "likes" field.
+func LikesGT(v int32) predicate.Moment {
+	return predicate.Moment(sql.FieldGT(FieldLikes, v))
+}
+
+// LikesGTE applies the GTE predicate on the "likes" field.
+func LikesGTE(v int32) predicate.Moment {
+	return predicate.Moment(sql.FieldGTE(FieldLikes, v))
+}
+
+// LikesLT applies the LT predicate on the "likes" field.
+func LikesLT(v int32) predicate.Moment {
+	return predicate.Moment(sql.FieldLT(FieldLikes, v))
+}
+
+// LikesLTE applies the LTE predicate on the "likes" field.
+func LikesLTE(v int32) predicate.Moment {
+	return predicate.Moment(sql.FieldLTE(FieldLikes, v))
+}
+
+// ViewsEQ applies the EQ predicate on the "views" field.
+func ViewsEQ(v int32) predicate.Moment {
+	return predicate.Moment(sql.FieldEQ(FieldViews, v))
+}
+
+// ViewsNEQ applies the NEQ predicate on the "views" field.
+func ViewsNEQ(v int32) predicate.Moment {
+	return predicate.Moment(sql.FieldNEQ(FieldViews, v))
+}
+
+// ViewsIn applies the In predicate on the "views" field.
+func ViewsIn(vs ...int32) predicate.Moment {
+	return predicate.Moment(sql.FieldIn(FieldViews, vs...))
+}
+
+// ViewsNotIn applies the NotIn predicate on the "views" field.
+func ViewsNotIn(vs ...int32) predicate.Moment {
+	return predicate.Moment(sql.FieldNotIn(FieldViews, vs...))
+}
+
+// ViewsGT applies the GT predicate on the "views" field.
+func ViewsGT(v int32) predicate.Moment {
+	return predicate.Moment(sql.FieldGT(FieldViews, v))
+}
+
+// ViewsGTE applies the GTE predicate on the "views" field.
+func ViewsGTE(v int32) predicate.Moment {
+	return predicate.Moment(sql.FieldGTE(FieldViews, v))
+}
+
+// ViewsLT applies the LT predicate on the "views" field.
+func ViewsLT(v int32) predicate.Moment {
+	return predicate.Moment(sql.FieldLT(FieldViews, v))
+}
+
+// ViewsLTE applies the LTE predicate on the "views" field.
+func ViewsLTE(v int32) predicate.Moment {
+	return predicate.Moment(sql.FieldLTE(FieldViews, v))
+}
+
+// ContentVectorIsNil applies the IsNil predicate on the "content_vector" field.
+func ContentVectorIsNil() predicate.Moment {
+	return predicate.Moment(sql.FieldIsNull(FieldContentVector))
+}
+
+// ContentVectorNotNil applies the NotNil predicate on the "content_vector" field.
+func ContentVectorNotNil() predicate.Moment {
+	return predicate.Moment(sql.FieldNotNull(FieldContentVector))
 }
 
 // HasMomentImages applies the HasEdge predicate on the "moment_images" edge.

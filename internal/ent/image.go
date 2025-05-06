@@ -42,10 +42,6 @@ type Image struct {
 	Description string `json:"description,omitempty"`
 	// Tags holds the value of the "tags" field.
 	Tags json.RawMessage `json:"tags,omitempty"`
-	// ExtraData holds the value of the "extraData" field.
-	ExtraData json.RawMessage `json:"extraData,omitempty"`
-	// Category holds the value of the "category" field.
-	Category string `json:"category,omitempty"`
 	// Thumbnail10x holds the value of the "thumbnail_10x" field.
 	Thumbnail10x []byte `json:"thumbnail_10x,omitempty"`
 	// Thumbnail320xID holds the value of the "thumbnail_320x_id" field.
@@ -56,12 +52,18 @@ type Image struct {
 	CompressedID string `json:"compressed_id,omitempty"`
 	// OriginalID holds the value of the "original_id" field.
 	OriginalID string `json:"original_id,omitempty"`
-	// UploadedBy holds the value of the "uploadedBy" field.
-	UploadedBy string `json:"uploadedBy,omitempty"`
 	// CreatedAt holds the value of the "createdAt" field.
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 	// UpdatedAt holds the value of the "updatedAt" field.
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
+	// UploadedBy holds the value of the "uploadedBy" field.
+	UploadedBy string `json:"uploadedBy,omitempty"`
+	// Category holds the value of the "category" field.
+	Category string `json:"category,omitempty"`
+	// ExtraData holds the value of the "extraData" field.
+	ExtraData json.RawMessage `json:"extraData,omitempty"`
+	// DescriptionVector holds the value of the "description_vector" field.
+	DescriptionVector json.RawMessage `json:"description_vector,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ImageQuery when eager-loading is set.
 	Edges        ImageEdges `json:"edges"`
@@ -156,13 +158,13 @@ func (*Image) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case image.FieldExif, image.FieldTags, image.FieldExtraData, image.FieldThumbnail10x:
+		case image.FieldExif, image.FieldTags, image.FieldThumbnail10x, image.FieldExtraData, image.FieldDescriptionVector:
 			values[i] = new([]byte)
 		case image.FieldIsPublic:
 			values[i] = new(sql.NullBool)
 		case image.FieldSize, image.FieldWidth, image.FieldHeight:
 			values[i] = new(sql.NullInt64)
-		case image.FieldID, image.FieldName, image.FieldType, image.FieldHash, image.FieldAddress, image.FieldDescription, image.FieldCategory, image.FieldThumbnail320xID, image.FieldThumbnail768xID, image.FieldCompressedID, image.FieldOriginalID, image.FieldUploadedBy:
+		case image.FieldID, image.FieldName, image.FieldType, image.FieldHash, image.FieldAddress, image.FieldDescription, image.FieldThumbnail320xID, image.FieldThumbnail768xID, image.FieldCompressedID, image.FieldOriginalID, image.FieldUploadedBy, image.FieldCategory:
 			values[i] = new(sql.NullString)
 		case image.FieldCreatedAt, image.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -257,20 +259,6 @@ func (i *Image) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field tags: %w", err)
 				}
 			}
-		case image.FieldExtraData:
-			if value, ok := values[j].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field extraData", values[j])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &i.ExtraData); err != nil {
-					return fmt.Errorf("unmarshal field extraData: %w", err)
-				}
-			}
-		case image.FieldCategory:
-			if value, ok := values[j].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field category", values[j])
-			} else if value.Valid {
-				i.Category = value.String
-			}
 		case image.FieldThumbnail10x:
 			if value, ok := values[j].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field thumbnail_10x", values[j])
@@ -301,12 +289,6 @@ func (i *Image) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				i.OriginalID = value.String
 			}
-		case image.FieldUploadedBy:
-			if value, ok := values[j].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field uploadedBy", values[j])
-			} else if value.Valid {
-				i.UploadedBy = value.String
-			}
 		case image.FieldCreatedAt:
 			if value, ok := values[j].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field createdAt", values[j])
@@ -318,6 +300,34 @@ func (i *Image) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updatedAt", values[j])
 			} else if value.Valid {
 				i.UpdatedAt = value.Time
+			}
+		case image.FieldUploadedBy:
+			if value, ok := values[j].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field uploadedBy", values[j])
+			} else if value.Valid {
+				i.UploadedBy = value.String
+			}
+		case image.FieldCategory:
+			if value, ok := values[j].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field category", values[j])
+			} else if value.Valid {
+				i.Category = value.String
+			}
+		case image.FieldExtraData:
+			if value, ok := values[j].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field extraData", values[j])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &i.ExtraData); err != nil {
+					return fmt.Errorf("unmarshal field extraData: %w", err)
+				}
+			}
+		case image.FieldDescriptionVector:
+			if value, ok := values[j].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field description_vector", values[j])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &i.DescriptionVector); err != nil {
+					return fmt.Errorf("unmarshal field description_vector: %w", err)
+				}
 			}
 		default:
 			i.selectValues.Set(columns[j], values[j])
@@ -418,12 +428,6 @@ func (i *Image) String() string {
 	builder.WriteString("tags=")
 	builder.WriteString(fmt.Sprintf("%v", i.Tags))
 	builder.WriteString(", ")
-	builder.WriteString("extraData=")
-	builder.WriteString(fmt.Sprintf("%v", i.ExtraData))
-	builder.WriteString(", ")
-	builder.WriteString("category=")
-	builder.WriteString(i.Category)
-	builder.WriteString(", ")
 	builder.WriteString("thumbnail_10x=")
 	builder.WriteString(fmt.Sprintf("%v", i.Thumbnail10x))
 	builder.WriteString(", ")
@@ -439,14 +443,23 @@ func (i *Image) String() string {
 	builder.WriteString("original_id=")
 	builder.WriteString(i.OriginalID)
 	builder.WriteString(", ")
-	builder.WriteString("uploadedBy=")
-	builder.WriteString(i.UploadedBy)
-	builder.WriteString(", ")
 	builder.WriteString("createdAt=")
 	builder.WriteString(i.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updatedAt=")
 	builder.WriteString(i.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("uploadedBy=")
+	builder.WriteString(i.UploadedBy)
+	builder.WriteString(", ")
+	builder.WriteString("category=")
+	builder.WriteString(i.Category)
+	builder.WriteString(", ")
+	builder.WriteString("extraData=")
+	builder.WriteString(fmt.Sprintf("%v", i.ExtraData))
+	builder.WriteString(", ")
+	builder.WriteString("description_vector=")
+	builder.WriteString(fmt.Sprintf("%v", i.DescriptionVector))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -20,6 +20,11 @@ func main() {
 	switch command {
 	case "sync":
 		syncSchema()
+	case "import-moments":
+		if len(os.Args) < 3 {
+			log.Fatal("请指定 CSV 文件路径")
+		}
+		importMoments(os.Args[2])
 	default:
 		log.Printf("未知命令: %s", command)
 		printUsage()
@@ -30,6 +35,7 @@ func main() {
 func printUsage() {
 	fmt.Println("使用方法:")
 	fmt.Println("  go run ./cmd/db-tools sync               # 从数据库同步结构")
+	fmt.Println("  go run ./cmd/db-tools import-moments <csv文件路径>  # 从 CSV 导入数据到 moment 表")
 }
 
 func syncSchema() {
@@ -40,4 +46,14 @@ func syncSchema() {
 	}
 
 	log.Println("数据库结构同步成功！")
+}
+
+func importMoments(csvPath string) {
+	log.Println("正在从 CSV 导入数据到 moment 表...")
+
+	if err := tools.ImportMomentsFromCSV(csvPath); err != nil {
+		log.Fatalf("导入数据失败: %v", err)
+	}
+
+	log.Println("数据导入成功！")
 }

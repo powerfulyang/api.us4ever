@@ -34,12 +34,6 @@ func (mc *MindmapCreate) SetContent(jm json.RawMessage) *MindmapCreate {
 	return mc
 }
 
-// SetSummary sets the "summary" field.
-func (mc *MindmapCreate) SetSummary(s string) *MindmapCreate {
-	mc.mutation.SetSummary(s)
-	return mc
-}
-
 // SetIsPublic sets the "isPublic" field.
 func (mc *MindmapCreate) SetIsPublic(b bool) *MindmapCreate {
 	mc.mutation.SetIsPublic(b)
@@ -52,27 +46,15 @@ func (mc *MindmapCreate) SetTags(jm json.RawMessage) *MindmapCreate {
 	return mc
 }
 
-// SetViews sets the "views" field.
-func (mc *MindmapCreate) SetViews(i int32) *MindmapCreate {
-	mc.mutation.SetViews(i)
+// SetCreatedAt sets the "createdAt" field.
+func (mc *MindmapCreate) SetCreatedAt(t time.Time) *MindmapCreate {
+	mc.mutation.SetCreatedAt(t)
 	return mc
 }
 
-// SetLikes sets the "likes" field.
-func (mc *MindmapCreate) SetLikes(i int32) *MindmapCreate {
-	mc.mutation.SetLikes(i)
-	return mc
-}
-
-// SetExtraData sets the "extraData" field.
-func (mc *MindmapCreate) SetExtraData(jm json.RawMessage) *MindmapCreate {
-	mc.mutation.SetExtraData(jm)
-	return mc
-}
-
-// SetCategory sets the "category" field.
-func (mc *MindmapCreate) SetCategory(s string) *MindmapCreate {
-	mc.mutation.SetCategory(s)
+// SetUpdatedAt sets the "updatedAt" field.
+func (mc *MindmapCreate) SetUpdatedAt(t time.Time) *MindmapCreate {
+	mc.mutation.SetUpdatedAt(t)
 	return mc
 }
 
@@ -90,15 +72,33 @@ func (mc *MindmapCreate) SetNillableOwnerId(s *string) *MindmapCreate {
 	return mc
 }
 
-// SetCreatedAt sets the "createdAt" field.
-func (mc *MindmapCreate) SetCreatedAt(t time.Time) *MindmapCreate {
-	mc.mutation.SetCreatedAt(t)
+// SetViews sets the "views" field.
+func (mc *MindmapCreate) SetViews(i int32) *MindmapCreate {
+	mc.mutation.SetViews(i)
 	return mc
 }
 
-// SetUpdatedAt sets the "updatedAt" field.
-func (mc *MindmapCreate) SetUpdatedAt(t time.Time) *MindmapCreate {
-	mc.mutation.SetUpdatedAt(t)
+// SetLikes sets the "likes" field.
+func (mc *MindmapCreate) SetLikes(i int32) *MindmapCreate {
+	mc.mutation.SetLikes(i)
+	return mc
+}
+
+// SetSummary sets the "summary" field.
+func (mc *MindmapCreate) SetSummary(s string) *MindmapCreate {
+	mc.mutation.SetSummary(s)
+	return mc
+}
+
+// SetExtraData sets the "extraData" field.
+func (mc *MindmapCreate) SetExtraData(jm json.RawMessage) *MindmapCreate {
+	mc.mutation.SetExtraData(jm)
+	return mc
+}
+
+// SetCategory sets the "category" field.
+func (mc *MindmapCreate) SetCategory(s string) *MindmapCreate {
+	mc.mutation.SetCategory(s)
 	return mc
 }
 
@@ -167,14 +167,17 @@ func (mc *MindmapCreate) check() error {
 	if _, ok := mc.mutation.Content(); !ok {
 		return &ValidationError{Name: "content", err: errors.New(`ent: missing required field "Mindmap.content"`)}
 	}
-	if _, ok := mc.mutation.Summary(); !ok {
-		return &ValidationError{Name: "summary", err: errors.New(`ent: missing required field "Mindmap.summary"`)}
-	}
 	if _, ok := mc.mutation.IsPublic(); !ok {
 		return &ValidationError{Name: "isPublic", err: errors.New(`ent: missing required field "Mindmap.isPublic"`)}
 	}
 	if _, ok := mc.mutation.Tags(); !ok {
 		return &ValidationError{Name: "tags", err: errors.New(`ent: missing required field "Mindmap.tags"`)}
+	}
+	if _, ok := mc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "createdAt", err: errors.New(`ent: missing required field "Mindmap.createdAt"`)}
+	}
+	if _, ok := mc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updatedAt", err: errors.New(`ent: missing required field "Mindmap.updatedAt"`)}
 	}
 	if _, ok := mc.mutation.Views(); !ok {
 		return &ValidationError{Name: "views", err: errors.New(`ent: missing required field "Mindmap.views"`)}
@@ -182,17 +185,14 @@ func (mc *MindmapCreate) check() error {
 	if _, ok := mc.mutation.Likes(); !ok {
 		return &ValidationError{Name: "likes", err: errors.New(`ent: missing required field "Mindmap.likes"`)}
 	}
+	if _, ok := mc.mutation.Summary(); !ok {
+		return &ValidationError{Name: "summary", err: errors.New(`ent: missing required field "Mindmap.summary"`)}
+	}
 	if _, ok := mc.mutation.ExtraData(); !ok {
 		return &ValidationError{Name: "extraData", err: errors.New(`ent: missing required field "Mindmap.extraData"`)}
 	}
 	if _, ok := mc.mutation.Category(); !ok {
 		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "Mindmap.category"`)}
-	}
-	if _, ok := mc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "createdAt", err: errors.New(`ent: missing required field "Mindmap.createdAt"`)}
-	}
-	if _, ok := mc.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updatedAt", err: errors.New(`ent: missing required field "Mindmap.updatedAt"`)}
 	}
 	return nil
 }
@@ -237,10 +237,6 @@ func (mc *MindmapCreate) createSpec() (*Mindmap, *sqlgraph.CreateSpec) {
 		_spec.SetField(mindmap.FieldContent, field.TypeJSON, value)
 		_node.Content = value
 	}
-	if value, ok := mc.mutation.Summary(); ok {
-		_spec.SetField(mindmap.FieldSummary, field.TypeString, value)
-		_node.Summary = value
-	}
 	if value, ok := mc.mutation.IsPublic(); ok {
 		_spec.SetField(mindmap.FieldIsPublic, field.TypeBool, value)
 		_node.IsPublic = value
@@ -248,6 +244,14 @@ func (mc *MindmapCreate) createSpec() (*Mindmap, *sqlgraph.CreateSpec) {
 	if value, ok := mc.mutation.Tags(); ok {
 		_spec.SetField(mindmap.FieldTags, field.TypeJSON, value)
 		_node.Tags = value
+	}
+	if value, ok := mc.mutation.CreatedAt(); ok {
+		_spec.SetField(mindmap.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := mc.mutation.UpdatedAt(); ok {
+		_spec.SetField(mindmap.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
 	}
 	if value, ok := mc.mutation.Views(); ok {
 		_spec.SetField(mindmap.FieldViews, field.TypeInt32, value)
@@ -257,6 +261,10 @@ func (mc *MindmapCreate) createSpec() (*Mindmap, *sqlgraph.CreateSpec) {
 		_spec.SetField(mindmap.FieldLikes, field.TypeInt32, value)
 		_node.Likes = value
 	}
+	if value, ok := mc.mutation.Summary(); ok {
+		_spec.SetField(mindmap.FieldSummary, field.TypeString, value)
+		_node.Summary = value
+	}
 	if value, ok := mc.mutation.ExtraData(); ok {
 		_spec.SetField(mindmap.FieldExtraData, field.TypeJSON, value)
 		_node.ExtraData = value
@@ -264,14 +272,6 @@ func (mc *MindmapCreate) createSpec() (*Mindmap, *sqlgraph.CreateSpec) {
 	if value, ok := mc.mutation.Category(); ok {
 		_spec.SetField(mindmap.FieldCategory, field.TypeString, value)
 		_node.Category = value
-	}
-	if value, ok := mc.mutation.CreatedAt(); ok {
-		_spec.SetField(mindmap.FieldCreatedAt, field.TypeTime, value)
-		_node.CreatedAt = value
-	}
-	if value, ok := mc.mutation.UpdatedAt(); ok {
-		_spec.SetField(mindmap.FieldUpdatedAt, field.TypeTime, value)
-		_node.UpdatedAt = value
 	}
 	if nodes := mc.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

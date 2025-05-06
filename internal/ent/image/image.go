@@ -34,10 +34,6 @@ const (
 	FieldDescription = "description"
 	// FieldTags holds the string denoting the tags field in the database.
 	FieldTags = "tags"
-	// FieldExtraData holds the string denoting the extradata field in the database.
-	FieldExtraData = "extraData"
-	// FieldCategory holds the string denoting the category field in the database.
-	FieldCategory = "category"
 	// FieldThumbnail10x holds the string denoting the thumbnail_10x field in the database.
 	FieldThumbnail10x = "thumbnail_10x"
 	// FieldThumbnail320xID holds the string denoting the thumbnail_320x_id field in the database.
@@ -48,12 +44,18 @@ const (
 	FieldCompressedID = "compressed_id"
 	// FieldOriginalID holds the string denoting the original_id field in the database.
 	FieldOriginalID = "original_id"
-	// FieldUploadedBy holds the string denoting the uploadedby field in the database.
-	FieldUploadedBy = "uploadedBy"
 	// FieldCreatedAt holds the string denoting the createdat field in the database.
 	FieldCreatedAt = "createdAt"
 	// FieldUpdatedAt holds the string denoting the updatedat field in the database.
 	FieldUpdatedAt = "updatedAt"
+	// FieldUploadedBy holds the string denoting the uploadedby field in the database.
+	FieldUploadedBy = "uploadedBy"
+	// FieldCategory holds the string denoting the category field in the database.
+	FieldCategory = "category"
+	// FieldExtraData holds the string denoting the extradata field in the database.
+	FieldExtraData = "extraData"
+	// FieldDescriptionVector holds the string denoting the description_vector field in the database.
+	FieldDescriptionVector = "description_vector"
 	// EdgeCompressed holds the string denoting the compressed edge name in mutations.
 	EdgeCompressed = "compressed"
 	// EdgeOriginal holds the string denoting the original edge name in mutations.
@@ -126,16 +128,17 @@ var Columns = []string{
 	FieldIsPublic,
 	FieldDescription,
 	FieldTags,
-	FieldExtraData,
-	FieldCategory,
 	FieldThumbnail10x,
 	FieldThumbnail320xID,
 	FieldThumbnail768xID,
 	FieldCompressedID,
 	FieldOriginalID,
-	FieldUploadedBy,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldUploadedBy,
+	FieldCategory,
+	FieldExtraData,
+	FieldDescriptionVector,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -201,11 +204,6 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
-// ByCategory orders the results by the category field.
-func ByCategory(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCategory, opts...).ToFunc()
-}
-
 // ByThumbnail320xID orders the results by the thumbnail_320x_id field.
 func ByThumbnail320xID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldThumbnail320xID, opts...).ToFunc()
@@ -226,11 +224,6 @@ func ByOriginalID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldOriginalID, opts...).ToFunc()
 }
 
-// ByUploadedBy orders the results by the uploadedBy field.
-func ByUploadedBy(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUploadedBy, opts...).ToFunc()
-}
-
 // ByCreatedAt orders the results by the createdAt field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
@@ -239,6 +232,16 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updatedAt field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByUploadedBy orders the results by the uploadedBy field.
+func ByUploadedBy(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUploadedBy, opts...).ToFunc()
+}
+
+// ByCategory orders the results by the category field.
+func ByCategory(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCategory, opts...).ToFunc()
 }
 
 // ByCompressedField orders the results by compressed field.

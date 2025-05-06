@@ -65,14 +65,9 @@ func IDContainsFold(id string) predicate.Video {
 	return predicate.Video(sql.FieldContainsFold(FieldID, id))
 }
 
-// Name applies equality check predicate on the "name" field. It's identical to NameEQ.
-func Name(v string) predicate.Video {
-	return predicate.Video(sql.FieldEQ(FieldName, v))
-}
-
-// Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
-func Type(v string) predicate.Video {
-	return predicate.Video(sql.FieldEQ(FieldType, v))
+// Hash applies equality check predicate on the "hash" field. It's identical to HashEQ.
+func Hash(v string) predicate.Video {
+	return predicate.Video(sql.FieldEQ(FieldHash, v))
 }
 
 // Size applies equality check predicate on the "size" field. It's identical to SizeEQ.
@@ -80,24 +75,9 @@ func Size(v int) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldSize, v))
 }
 
-// Hash applies equality check predicate on the "hash" field. It's identical to HashEQ.
-func Hash(v string) predicate.Video {
-	return predicate.Video(sql.FieldEQ(FieldHash, v))
-}
-
-// Duration applies equality check predicate on the "duration" field. It's identical to DurationEQ.
-func Duration(v int32) predicate.Video {
-	return predicate.Video(sql.FieldEQ(FieldDuration, v))
-}
-
 // IsPublic applies equality check predicate on the "isPublic" field. It's identical to IsPublicEQ.
 func IsPublic(v bool) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldIsPublic, v))
-}
-
-// Category applies equality check predicate on the "category" field. It's identical to CategoryEQ.
-func Category(v string) predicate.Video {
-	return predicate.Video(sql.FieldEQ(FieldCategory, v))
 }
 
 // PosterId applies equality check predicate on the "posterId" field. It's identical to PosterIdEQ.
@@ -125,174 +105,24 @@ func UpdatedAt(v time.Time) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
-// NameEQ applies the EQ predicate on the "name" field.
-func NameEQ(v string) predicate.Video {
+// Duration applies equality check predicate on the "duration" field. It's identical to DurationEQ.
+func Duration(v int32) predicate.Video {
+	return predicate.Video(sql.FieldEQ(FieldDuration, v))
+}
+
+// Name applies equality check predicate on the "name" field. It's identical to NameEQ.
+func Name(v string) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldName, v))
 }
 
-// NameNEQ applies the NEQ predicate on the "name" field.
-func NameNEQ(v string) predicate.Video {
-	return predicate.Video(sql.FieldNEQ(FieldName, v))
-}
-
-// NameIn applies the In predicate on the "name" field.
-func NameIn(vs ...string) predicate.Video {
-	return predicate.Video(sql.FieldIn(FieldName, vs...))
-}
-
-// NameNotIn applies the NotIn predicate on the "name" field.
-func NameNotIn(vs ...string) predicate.Video {
-	return predicate.Video(sql.FieldNotIn(FieldName, vs...))
-}
-
-// NameGT applies the GT predicate on the "name" field.
-func NameGT(v string) predicate.Video {
-	return predicate.Video(sql.FieldGT(FieldName, v))
-}
-
-// NameGTE applies the GTE predicate on the "name" field.
-func NameGTE(v string) predicate.Video {
-	return predicate.Video(sql.FieldGTE(FieldName, v))
-}
-
-// NameLT applies the LT predicate on the "name" field.
-func NameLT(v string) predicate.Video {
-	return predicate.Video(sql.FieldLT(FieldName, v))
-}
-
-// NameLTE applies the LTE predicate on the "name" field.
-func NameLTE(v string) predicate.Video {
-	return predicate.Video(sql.FieldLTE(FieldName, v))
-}
-
-// NameContains applies the Contains predicate on the "name" field.
-func NameContains(v string) predicate.Video {
-	return predicate.Video(sql.FieldContains(FieldName, v))
-}
-
-// NameHasPrefix applies the HasPrefix predicate on the "name" field.
-func NameHasPrefix(v string) predicate.Video {
-	return predicate.Video(sql.FieldHasPrefix(FieldName, v))
-}
-
-// NameHasSuffix applies the HasSuffix predicate on the "name" field.
-func NameHasSuffix(v string) predicate.Video {
-	return predicate.Video(sql.FieldHasSuffix(FieldName, v))
-}
-
-// NameEqualFold applies the EqualFold predicate on the "name" field.
-func NameEqualFold(v string) predicate.Video {
-	return predicate.Video(sql.FieldEqualFold(FieldName, v))
-}
-
-// NameContainsFold applies the ContainsFold predicate on the "name" field.
-func NameContainsFold(v string) predicate.Video {
-	return predicate.Video(sql.FieldContainsFold(FieldName, v))
-}
-
-// TypeEQ applies the EQ predicate on the "type" field.
-func TypeEQ(v string) predicate.Video {
+// Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
+func Type(v string) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldType, v))
 }
 
-// TypeNEQ applies the NEQ predicate on the "type" field.
-func TypeNEQ(v string) predicate.Video {
-	return predicate.Video(sql.FieldNEQ(FieldType, v))
-}
-
-// TypeIn applies the In predicate on the "type" field.
-func TypeIn(vs ...string) predicate.Video {
-	return predicate.Video(sql.FieldIn(FieldType, vs...))
-}
-
-// TypeNotIn applies the NotIn predicate on the "type" field.
-func TypeNotIn(vs ...string) predicate.Video {
-	return predicate.Video(sql.FieldNotIn(FieldType, vs...))
-}
-
-// TypeGT applies the GT predicate on the "type" field.
-func TypeGT(v string) predicate.Video {
-	return predicate.Video(sql.FieldGT(FieldType, v))
-}
-
-// TypeGTE applies the GTE predicate on the "type" field.
-func TypeGTE(v string) predicate.Video {
-	return predicate.Video(sql.FieldGTE(FieldType, v))
-}
-
-// TypeLT applies the LT predicate on the "type" field.
-func TypeLT(v string) predicate.Video {
-	return predicate.Video(sql.FieldLT(FieldType, v))
-}
-
-// TypeLTE applies the LTE predicate on the "type" field.
-func TypeLTE(v string) predicate.Video {
-	return predicate.Video(sql.FieldLTE(FieldType, v))
-}
-
-// TypeContains applies the Contains predicate on the "type" field.
-func TypeContains(v string) predicate.Video {
-	return predicate.Video(sql.FieldContains(FieldType, v))
-}
-
-// TypeHasPrefix applies the HasPrefix predicate on the "type" field.
-func TypeHasPrefix(v string) predicate.Video {
-	return predicate.Video(sql.FieldHasPrefix(FieldType, v))
-}
-
-// TypeHasSuffix applies the HasSuffix predicate on the "type" field.
-func TypeHasSuffix(v string) predicate.Video {
-	return predicate.Video(sql.FieldHasSuffix(FieldType, v))
-}
-
-// TypeEqualFold applies the EqualFold predicate on the "type" field.
-func TypeEqualFold(v string) predicate.Video {
-	return predicate.Video(sql.FieldEqualFold(FieldType, v))
-}
-
-// TypeContainsFold applies the ContainsFold predicate on the "type" field.
-func TypeContainsFold(v string) predicate.Video {
-	return predicate.Video(sql.FieldContainsFold(FieldType, v))
-}
-
-// SizeEQ applies the EQ predicate on the "size" field.
-func SizeEQ(v int) predicate.Video {
-	return predicate.Video(sql.FieldEQ(FieldSize, v))
-}
-
-// SizeNEQ applies the NEQ predicate on the "size" field.
-func SizeNEQ(v int) predicate.Video {
-	return predicate.Video(sql.FieldNEQ(FieldSize, v))
-}
-
-// SizeIn applies the In predicate on the "size" field.
-func SizeIn(vs ...int) predicate.Video {
-	return predicate.Video(sql.FieldIn(FieldSize, vs...))
-}
-
-// SizeNotIn applies the NotIn predicate on the "size" field.
-func SizeNotIn(vs ...int) predicate.Video {
-	return predicate.Video(sql.FieldNotIn(FieldSize, vs...))
-}
-
-// SizeGT applies the GT predicate on the "size" field.
-func SizeGT(v int) predicate.Video {
-	return predicate.Video(sql.FieldGT(FieldSize, v))
-}
-
-// SizeGTE applies the GTE predicate on the "size" field.
-func SizeGTE(v int) predicate.Video {
-	return predicate.Video(sql.FieldGTE(FieldSize, v))
-}
-
-// SizeLT applies the LT predicate on the "size" field.
-func SizeLT(v int) predicate.Video {
-	return predicate.Video(sql.FieldLT(FieldSize, v))
-}
-
-// SizeLTE applies the LTE predicate on the "size" field.
-func SizeLTE(v int) predicate.Video {
-	return predicate.Video(sql.FieldLTE(FieldSize, v))
+// Category applies equality check predicate on the "category" field. It's identical to CategoryEQ.
+func Category(v string) predicate.Video {
+	return predicate.Video(sql.FieldEQ(FieldCategory, v))
 }
 
 // HashEQ applies the EQ predicate on the "hash" field.
@@ -360,44 +190,44 @@ func HashContainsFold(v string) predicate.Video {
 	return predicate.Video(sql.FieldContainsFold(FieldHash, v))
 }
 
-// DurationEQ applies the EQ predicate on the "duration" field.
-func DurationEQ(v int32) predicate.Video {
-	return predicate.Video(sql.FieldEQ(FieldDuration, v))
+// SizeEQ applies the EQ predicate on the "size" field.
+func SizeEQ(v int) predicate.Video {
+	return predicate.Video(sql.FieldEQ(FieldSize, v))
 }
 
-// DurationNEQ applies the NEQ predicate on the "duration" field.
-func DurationNEQ(v int32) predicate.Video {
-	return predicate.Video(sql.FieldNEQ(FieldDuration, v))
+// SizeNEQ applies the NEQ predicate on the "size" field.
+func SizeNEQ(v int) predicate.Video {
+	return predicate.Video(sql.FieldNEQ(FieldSize, v))
 }
 
-// DurationIn applies the In predicate on the "duration" field.
-func DurationIn(vs ...int32) predicate.Video {
-	return predicate.Video(sql.FieldIn(FieldDuration, vs...))
+// SizeIn applies the In predicate on the "size" field.
+func SizeIn(vs ...int) predicate.Video {
+	return predicate.Video(sql.FieldIn(FieldSize, vs...))
 }
 
-// DurationNotIn applies the NotIn predicate on the "duration" field.
-func DurationNotIn(vs ...int32) predicate.Video {
-	return predicate.Video(sql.FieldNotIn(FieldDuration, vs...))
+// SizeNotIn applies the NotIn predicate on the "size" field.
+func SizeNotIn(vs ...int) predicate.Video {
+	return predicate.Video(sql.FieldNotIn(FieldSize, vs...))
 }
 
-// DurationGT applies the GT predicate on the "duration" field.
-func DurationGT(v int32) predicate.Video {
-	return predicate.Video(sql.FieldGT(FieldDuration, v))
+// SizeGT applies the GT predicate on the "size" field.
+func SizeGT(v int) predicate.Video {
+	return predicate.Video(sql.FieldGT(FieldSize, v))
 }
 
-// DurationGTE applies the GTE predicate on the "duration" field.
-func DurationGTE(v int32) predicate.Video {
-	return predicate.Video(sql.FieldGTE(FieldDuration, v))
+// SizeGTE applies the GTE predicate on the "size" field.
+func SizeGTE(v int) predicate.Video {
+	return predicate.Video(sql.FieldGTE(FieldSize, v))
 }
 
-// DurationLT applies the LT predicate on the "duration" field.
-func DurationLT(v int32) predicate.Video {
-	return predicate.Video(sql.FieldLT(FieldDuration, v))
+// SizeLT applies the LT predicate on the "size" field.
+func SizeLT(v int) predicate.Video {
+	return predicate.Video(sql.FieldLT(FieldSize, v))
 }
 
-// DurationLTE applies the LTE predicate on the "duration" field.
-func DurationLTE(v int32) predicate.Video {
-	return predicate.Video(sql.FieldLTE(FieldDuration, v))
+// SizeLTE applies the LTE predicate on the "size" field.
+func SizeLTE(v int) predicate.Video {
+	return predicate.Video(sql.FieldLTE(FieldSize, v))
 }
 
 // IsPublicEQ applies the EQ predicate on the "isPublic" field.
@@ -408,71 +238,6 @@ func IsPublicEQ(v bool) predicate.Video {
 // IsPublicNEQ applies the NEQ predicate on the "isPublic" field.
 func IsPublicNEQ(v bool) predicate.Video {
 	return predicate.Video(sql.FieldNEQ(FieldIsPublic, v))
-}
-
-// CategoryEQ applies the EQ predicate on the "category" field.
-func CategoryEQ(v string) predicate.Video {
-	return predicate.Video(sql.FieldEQ(FieldCategory, v))
-}
-
-// CategoryNEQ applies the NEQ predicate on the "category" field.
-func CategoryNEQ(v string) predicate.Video {
-	return predicate.Video(sql.FieldNEQ(FieldCategory, v))
-}
-
-// CategoryIn applies the In predicate on the "category" field.
-func CategoryIn(vs ...string) predicate.Video {
-	return predicate.Video(sql.FieldIn(FieldCategory, vs...))
-}
-
-// CategoryNotIn applies the NotIn predicate on the "category" field.
-func CategoryNotIn(vs ...string) predicate.Video {
-	return predicate.Video(sql.FieldNotIn(FieldCategory, vs...))
-}
-
-// CategoryGT applies the GT predicate on the "category" field.
-func CategoryGT(v string) predicate.Video {
-	return predicate.Video(sql.FieldGT(FieldCategory, v))
-}
-
-// CategoryGTE applies the GTE predicate on the "category" field.
-func CategoryGTE(v string) predicate.Video {
-	return predicate.Video(sql.FieldGTE(FieldCategory, v))
-}
-
-// CategoryLT applies the LT predicate on the "category" field.
-func CategoryLT(v string) predicate.Video {
-	return predicate.Video(sql.FieldLT(FieldCategory, v))
-}
-
-// CategoryLTE applies the LTE predicate on the "category" field.
-func CategoryLTE(v string) predicate.Video {
-	return predicate.Video(sql.FieldLTE(FieldCategory, v))
-}
-
-// CategoryContains applies the Contains predicate on the "category" field.
-func CategoryContains(v string) predicate.Video {
-	return predicate.Video(sql.FieldContains(FieldCategory, v))
-}
-
-// CategoryHasPrefix applies the HasPrefix predicate on the "category" field.
-func CategoryHasPrefix(v string) predicate.Video {
-	return predicate.Video(sql.FieldHasPrefix(FieldCategory, v))
-}
-
-// CategoryHasSuffix applies the HasSuffix predicate on the "category" field.
-func CategoryHasSuffix(v string) predicate.Video {
-	return predicate.Video(sql.FieldHasSuffix(FieldCategory, v))
-}
-
-// CategoryEqualFold applies the EqualFold predicate on the "category" field.
-func CategoryEqualFold(v string) predicate.Video {
-	return predicate.Video(sql.FieldEqualFold(FieldCategory, v))
-}
-
-// CategoryContainsFold applies the ContainsFold predicate on the "category" field.
-func CategoryContainsFold(v string) predicate.Video {
-	return predicate.Video(sql.FieldContainsFold(FieldCategory, v))
 }
 
 // PosterIdEQ applies the EQ predicate on the "posterId" field.
@@ -778,6 +543,241 @@ func UpdatedAtLT(v time.Time) predicate.Video {
 // UpdatedAtLTE applies the LTE predicate on the "updatedAt" field.
 func UpdatedAtLTE(v time.Time) predicate.Video {
 	return predicate.Video(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// DurationEQ applies the EQ predicate on the "duration" field.
+func DurationEQ(v int32) predicate.Video {
+	return predicate.Video(sql.FieldEQ(FieldDuration, v))
+}
+
+// DurationNEQ applies the NEQ predicate on the "duration" field.
+func DurationNEQ(v int32) predicate.Video {
+	return predicate.Video(sql.FieldNEQ(FieldDuration, v))
+}
+
+// DurationIn applies the In predicate on the "duration" field.
+func DurationIn(vs ...int32) predicate.Video {
+	return predicate.Video(sql.FieldIn(FieldDuration, vs...))
+}
+
+// DurationNotIn applies the NotIn predicate on the "duration" field.
+func DurationNotIn(vs ...int32) predicate.Video {
+	return predicate.Video(sql.FieldNotIn(FieldDuration, vs...))
+}
+
+// DurationGT applies the GT predicate on the "duration" field.
+func DurationGT(v int32) predicate.Video {
+	return predicate.Video(sql.FieldGT(FieldDuration, v))
+}
+
+// DurationGTE applies the GTE predicate on the "duration" field.
+func DurationGTE(v int32) predicate.Video {
+	return predicate.Video(sql.FieldGTE(FieldDuration, v))
+}
+
+// DurationLT applies the LT predicate on the "duration" field.
+func DurationLT(v int32) predicate.Video {
+	return predicate.Video(sql.FieldLT(FieldDuration, v))
+}
+
+// DurationLTE applies the LTE predicate on the "duration" field.
+func DurationLTE(v int32) predicate.Video {
+	return predicate.Video(sql.FieldLTE(FieldDuration, v))
+}
+
+// NameEQ applies the EQ predicate on the "name" field.
+func NameEQ(v string) predicate.Video {
+	return predicate.Video(sql.FieldEQ(FieldName, v))
+}
+
+// NameNEQ applies the NEQ predicate on the "name" field.
+func NameNEQ(v string) predicate.Video {
+	return predicate.Video(sql.FieldNEQ(FieldName, v))
+}
+
+// NameIn applies the In predicate on the "name" field.
+func NameIn(vs ...string) predicate.Video {
+	return predicate.Video(sql.FieldIn(FieldName, vs...))
+}
+
+// NameNotIn applies the NotIn predicate on the "name" field.
+func NameNotIn(vs ...string) predicate.Video {
+	return predicate.Video(sql.FieldNotIn(FieldName, vs...))
+}
+
+// NameGT applies the GT predicate on the "name" field.
+func NameGT(v string) predicate.Video {
+	return predicate.Video(sql.FieldGT(FieldName, v))
+}
+
+// NameGTE applies the GTE predicate on the "name" field.
+func NameGTE(v string) predicate.Video {
+	return predicate.Video(sql.FieldGTE(FieldName, v))
+}
+
+// NameLT applies the LT predicate on the "name" field.
+func NameLT(v string) predicate.Video {
+	return predicate.Video(sql.FieldLT(FieldName, v))
+}
+
+// NameLTE applies the LTE predicate on the "name" field.
+func NameLTE(v string) predicate.Video {
+	return predicate.Video(sql.FieldLTE(FieldName, v))
+}
+
+// NameContains applies the Contains predicate on the "name" field.
+func NameContains(v string) predicate.Video {
+	return predicate.Video(sql.FieldContains(FieldName, v))
+}
+
+// NameHasPrefix applies the HasPrefix predicate on the "name" field.
+func NameHasPrefix(v string) predicate.Video {
+	return predicate.Video(sql.FieldHasPrefix(FieldName, v))
+}
+
+// NameHasSuffix applies the HasSuffix predicate on the "name" field.
+func NameHasSuffix(v string) predicate.Video {
+	return predicate.Video(sql.FieldHasSuffix(FieldName, v))
+}
+
+// NameEqualFold applies the EqualFold predicate on the "name" field.
+func NameEqualFold(v string) predicate.Video {
+	return predicate.Video(sql.FieldEqualFold(FieldName, v))
+}
+
+// NameContainsFold applies the ContainsFold predicate on the "name" field.
+func NameContainsFold(v string) predicate.Video {
+	return predicate.Video(sql.FieldContainsFold(FieldName, v))
+}
+
+// TypeEQ applies the EQ predicate on the "type" field.
+func TypeEQ(v string) predicate.Video {
+	return predicate.Video(sql.FieldEQ(FieldType, v))
+}
+
+// TypeNEQ applies the NEQ predicate on the "type" field.
+func TypeNEQ(v string) predicate.Video {
+	return predicate.Video(sql.FieldNEQ(FieldType, v))
+}
+
+// TypeIn applies the In predicate on the "type" field.
+func TypeIn(vs ...string) predicate.Video {
+	return predicate.Video(sql.FieldIn(FieldType, vs...))
+}
+
+// TypeNotIn applies the NotIn predicate on the "type" field.
+func TypeNotIn(vs ...string) predicate.Video {
+	return predicate.Video(sql.FieldNotIn(FieldType, vs...))
+}
+
+// TypeGT applies the GT predicate on the "type" field.
+func TypeGT(v string) predicate.Video {
+	return predicate.Video(sql.FieldGT(FieldType, v))
+}
+
+// TypeGTE applies the GTE predicate on the "type" field.
+func TypeGTE(v string) predicate.Video {
+	return predicate.Video(sql.FieldGTE(FieldType, v))
+}
+
+// TypeLT applies the LT predicate on the "type" field.
+func TypeLT(v string) predicate.Video {
+	return predicate.Video(sql.FieldLT(FieldType, v))
+}
+
+// TypeLTE applies the LTE predicate on the "type" field.
+func TypeLTE(v string) predicate.Video {
+	return predicate.Video(sql.FieldLTE(FieldType, v))
+}
+
+// TypeContains applies the Contains predicate on the "type" field.
+func TypeContains(v string) predicate.Video {
+	return predicate.Video(sql.FieldContains(FieldType, v))
+}
+
+// TypeHasPrefix applies the HasPrefix predicate on the "type" field.
+func TypeHasPrefix(v string) predicate.Video {
+	return predicate.Video(sql.FieldHasPrefix(FieldType, v))
+}
+
+// TypeHasSuffix applies the HasSuffix predicate on the "type" field.
+func TypeHasSuffix(v string) predicate.Video {
+	return predicate.Video(sql.FieldHasSuffix(FieldType, v))
+}
+
+// TypeEqualFold applies the EqualFold predicate on the "type" field.
+func TypeEqualFold(v string) predicate.Video {
+	return predicate.Video(sql.FieldEqualFold(FieldType, v))
+}
+
+// TypeContainsFold applies the ContainsFold predicate on the "type" field.
+func TypeContainsFold(v string) predicate.Video {
+	return predicate.Video(sql.FieldContainsFold(FieldType, v))
+}
+
+// CategoryEQ applies the EQ predicate on the "category" field.
+func CategoryEQ(v string) predicate.Video {
+	return predicate.Video(sql.FieldEQ(FieldCategory, v))
+}
+
+// CategoryNEQ applies the NEQ predicate on the "category" field.
+func CategoryNEQ(v string) predicate.Video {
+	return predicate.Video(sql.FieldNEQ(FieldCategory, v))
+}
+
+// CategoryIn applies the In predicate on the "category" field.
+func CategoryIn(vs ...string) predicate.Video {
+	return predicate.Video(sql.FieldIn(FieldCategory, vs...))
+}
+
+// CategoryNotIn applies the NotIn predicate on the "category" field.
+func CategoryNotIn(vs ...string) predicate.Video {
+	return predicate.Video(sql.FieldNotIn(FieldCategory, vs...))
+}
+
+// CategoryGT applies the GT predicate on the "category" field.
+func CategoryGT(v string) predicate.Video {
+	return predicate.Video(sql.FieldGT(FieldCategory, v))
+}
+
+// CategoryGTE applies the GTE predicate on the "category" field.
+func CategoryGTE(v string) predicate.Video {
+	return predicate.Video(sql.FieldGTE(FieldCategory, v))
+}
+
+// CategoryLT applies the LT predicate on the "category" field.
+func CategoryLT(v string) predicate.Video {
+	return predicate.Video(sql.FieldLT(FieldCategory, v))
+}
+
+// CategoryLTE applies the LTE predicate on the "category" field.
+func CategoryLTE(v string) predicate.Video {
+	return predicate.Video(sql.FieldLTE(FieldCategory, v))
+}
+
+// CategoryContains applies the Contains predicate on the "category" field.
+func CategoryContains(v string) predicate.Video {
+	return predicate.Video(sql.FieldContains(FieldCategory, v))
+}
+
+// CategoryHasPrefix applies the HasPrefix predicate on the "category" field.
+func CategoryHasPrefix(v string) predicate.Video {
+	return predicate.Video(sql.FieldHasPrefix(FieldCategory, v))
+}
+
+// CategoryHasSuffix applies the HasSuffix predicate on the "category" field.
+func CategoryHasSuffix(v string) predicate.Video {
+	return predicate.Video(sql.FieldHasSuffix(FieldCategory, v))
+}
+
+// CategoryEqualFold applies the EqualFold predicate on the "category" field.
+func CategoryEqualFold(v string) predicate.Video {
+	return predicate.Video(sql.FieldEqualFold(FieldCategory, v))
+}
+
+// CategoryContainsFold applies the ContainsFold predicate on the "category" field.
+func CategoryContainsFold(v string) predicate.Video {
+	return predicate.Video(sql.FieldContainsFold(FieldCategory, v))
 }
 
 // HasMomentVideos applies the HasEdge predicate on the "moment_videos" edge.

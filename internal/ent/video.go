@@ -20,22 +20,12 @@ type Video struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
-	// Name holds the value of the "name" field.
-	Name string `json:"name,omitempty"`
-	// Type holds the value of the "type" field.
-	Type string `json:"type,omitempty"`
-	// Size holds the value of the "size" field.
-	Size int `json:"size,omitempty"`
 	// Hash holds the value of the "hash" field.
 	Hash string `json:"hash,omitempty"`
-	// Duration holds the value of the "duration" field.
-	Duration int32 `json:"duration,omitempty"`
+	// Size holds the value of the "size" field.
+	Size int `json:"size,omitempty"`
 	// IsPublic holds the value of the "isPublic" field.
 	IsPublic bool `json:"isPublic,omitempty"`
-	// ExtraData holds the value of the "extraData" field.
-	ExtraData json.RawMessage `json:"extraData,omitempty"`
-	// Category holds the value of the "category" field.
-	Category string `json:"category,omitempty"`
 	// PosterId holds the value of the "posterId" field.
 	PosterId string `json:"posterId,omitempty"`
 	// FileId holds the value of the "fileId" field.
@@ -46,6 +36,16 @@ type Video struct {
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 	// UpdatedAt holds the value of the "updatedAt" field.
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
+	// Duration holds the value of the "duration" field.
+	Duration int32 `json:"duration,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
+	// Type holds the value of the "type" field.
+	Type string `json:"type,omitempty"`
+	// ExtraData holds the value of the "extraData" field.
+	ExtraData json.RawMessage `json:"extraData,omitempty"`
+	// Category holds the value of the "category" field.
+	Category string `json:"category,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the VideoQuery when eager-loading is set.
 	Edges        VideoEdges `json:"edges"`
@@ -120,7 +120,7 @@ func (*Video) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case video.FieldSize, video.FieldDuration:
 			values[i] = new(sql.NullInt64)
-		case video.FieldID, video.FieldName, video.FieldType, video.FieldHash, video.FieldCategory, video.FieldPosterId, video.FieldFileId, video.FieldUploadedBy:
+		case video.FieldID, video.FieldHash, video.FieldPosterId, video.FieldFileId, video.FieldUploadedBy, video.FieldName, video.FieldType, video.FieldCategory:
 			values[i] = new(sql.NullString)
 		case video.FieldCreatedAt, video.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -145,17 +145,11 @@ func (v *Video) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				v.ID = value.String
 			}
-		case video.FieldName:
+		case video.FieldHash:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field name", values[i])
+				return fmt.Errorf("unexpected type %T for field hash", values[i])
 			} else if value.Valid {
-				v.Name = value.String
-			}
-		case video.FieldType:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field type", values[i])
-			} else if value.Valid {
-				v.Type = value.String
+				v.Hash = value.String
 			}
 		case video.FieldSize:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -163,37 +157,11 @@ func (v *Video) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				v.Size = int(value.Int64)
 			}
-		case video.FieldHash:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field hash", values[i])
-			} else if value.Valid {
-				v.Hash = value.String
-			}
-		case video.FieldDuration:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field duration", values[i])
-			} else if value.Valid {
-				v.Duration = int32(value.Int64)
-			}
 		case video.FieldIsPublic:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field isPublic", values[i])
 			} else if value.Valid {
 				v.IsPublic = value.Bool
-			}
-		case video.FieldExtraData:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field extraData", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &v.ExtraData); err != nil {
-					return fmt.Errorf("unmarshal field extraData: %w", err)
-				}
-			}
-		case video.FieldCategory:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field category", values[i])
-			} else if value.Valid {
-				v.Category = value.String
 			}
 		case video.FieldPosterId:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -224,6 +192,38 @@ func (v *Video) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updatedAt", values[i])
 			} else if value.Valid {
 				v.UpdatedAt = value.Time
+			}
+		case video.FieldDuration:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field duration", values[i])
+			} else if value.Valid {
+				v.Duration = int32(value.Int64)
+			}
+		case video.FieldName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field name", values[i])
+			} else if value.Valid {
+				v.Name = value.String
+			}
+		case video.FieldType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field type", values[i])
+			} else if value.Valid {
+				v.Type = value.String
+			}
+		case video.FieldExtraData:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field extraData", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &v.ExtraData); err != nil {
+					return fmt.Errorf("unmarshal field extraData: %w", err)
+				}
+			}
+		case video.FieldCategory:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field category", values[i])
+			} else if value.Valid {
+				v.Category = value.String
 			}
 		default:
 			v.selectValues.Set(columns[i], values[i])
@@ -281,29 +281,14 @@ func (v *Video) String() string {
 	var builder strings.Builder
 	builder.WriteString("Video(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", v.ID))
-	builder.WriteString("name=")
-	builder.WriteString(v.Name)
-	builder.WriteString(", ")
-	builder.WriteString("type=")
-	builder.WriteString(v.Type)
+	builder.WriteString("hash=")
+	builder.WriteString(v.Hash)
 	builder.WriteString(", ")
 	builder.WriteString("size=")
 	builder.WriteString(fmt.Sprintf("%v", v.Size))
 	builder.WriteString(", ")
-	builder.WriteString("hash=")
-	builder.WriteString(v.Hash)
-	builder.WriteString(", ")
-	builder.WriteString("duration=")
-	builder.WriteString(fmt.Sprintf("%v", v.Duration))
-	builder.WriteString(", ")
 	builder.WriteString("isPublic=")
 	builder.WriteString(fmt.Sprintf("%v", v.IsPublic))
-	builder.WriteString(", ")
-	builder.WriteString("extraData=")
-	builder.WriteString(fmt.Sprintf("%v", v.ExtraData))
-	builder.WriteString(", ")
-	builder.WriteString("category=")
-	builder.WriteString(v.Category)
 	builder.WriteString(", ")
 	builder.WriteString("posterId=")
 	builder.WriteString(v.PosterId)
@@ -319,6 +304,21 @@ func (v *Video) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updatedAt=")
 	builder.WriteString(v.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("duration=")
+	builder.WriteString(fmt.Sprintf("%v", v.Duration))
+	builder.WriteString(", ")
+	builder.WriteString("name=")
+	builder.WriteString(v.Name)
+	builder.WriteString(", ")
+	builder.WriteString("type=")
+	builder.WriteString(v.Type)
+	builder.WriteString(", ")
+	builder.WriteString("extraData=")
+	builder.WriteString(fmt.Sprintf("%v", v.ExtraData))
+	builder.WriteString(", ")
+	builder.WriteString("category=")
+	builder.WriteString(v.Category)
 	builder.WriteByte(')')
 	return builder.String()
 }

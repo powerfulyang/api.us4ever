@@ -34,7 +34,13 @@ func SyncSchema() error {
 
 	log.Printf("使用 DSN: %s", dsn)
 
-	cmd := exec.Command("go", "run", "-mod=mod", "github.com/powerfulyang/entimport/cmd/entimport", "-dsn", dsn, "-schema-path", "./internal/ent/schema")
+	cmd := exec.Command(
+		"go", "run",
+		"-mod=mod", "github.com/powerfulyang/entimport/cmd/entimport",
+		"-dsn", dsn,
+		"-schema-path", "./internal/ent/schema",
+		"--exclude-tables", "_prisma_migrations",
+	)
 	cmd.Dir = "."
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

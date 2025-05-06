@@ -34,12 +34,6 @@ func (kc *KeepCreate) SetContent(s string) *KeepCreate {
 	return kc
 }
 
-// SetSummary sets the "summary" field.
-func (kc *KeepCreate) SetSummary(s string) *KeepCreate {
-	kc.mutation.SetSummary(s)
-	return kc
-}
-
 // SetIsPublic sets the "isPublic" field.
 func (kc *KeepCreate) SetIsPublic(b bool) *KeepCreate {
 	kc.mutation.SetIsPublic(b)
@@ -52,27 +46,15 @@ func (kc *KeepCreate) SetTags(jm json.RawMessage) *KeepCreate {
 	return kc
 }
 
-// SetViews sets the "views" field.
-func (kc *KeepCreate) SetViews(i int32) *KeepCreate {
-	kc.mutation.SetViews(i)
+// SetCreatedAt sets the "createdAt" field.
+func (kc *KeepCreate) SetCreatedAt(t time.Time) *KeepCreate {
+	kc.mutation.SetCreatedAt(t)
 	return kc
 }
 
-// SetLikes sets the "likes" field.
-func (kc *KeepCreate) SetLikes(i int32) *KeepCreate {
-	kc.mutation.SetLikes(i)
-	return kc
-}
-
-// SetExtraData sets the "extraData" field.
-func (kc *KeepCreate) SetExtraData(jm json.RawMessage) *KeepCreate {
-	kc.mutation.SetExtraData(jm)
-	return kc
-}
-
-// SetCategory sets the "category" field.
-func (kc *KeepCreate) SetCategory(s string) *KeepCreate {
-	kc.mutation.SetCategory(s)
+// SetUpdatedAt sets the "updatedAt" field.
+func (kc *KeepCreate) SetUpdatedAt(t time.Time) *KeepCreate {
+	kc.mutation.SetUpdatedAt(t)
 	return kc
 }
 
@@ -90,15 +72,51 @@ func (kc *KeepCreate) SetNillableOwnerId(s *string) *KeepCreate {
 	return kc
 }
 
-// SetCreatedAt sets the "createdAt" field.
-func (kc *KeepCreate) SetCreatedAt(t time.Time) *KeepCreate {
-	kc.mutation.SetCreatedAt(t)
+// SetCategory sets the "category" field.
+func (kc *KeepCreate) SetCategory(s string) *KeepCreate {
+	kc.mutation.SetCategory(s)
 	return kc
 }
 
-// SetUpdatedAt sets the "updatedAt" field.
-func (kc *KeepCreate) SetUpdatedAt(t time.Time) *KeepCreate {
-	kc.mutation.SetUpdatedAt(t)
+// SetViews sets the "views" field.
+func (kc *KeepCreate) SetViews(i int32) *KeepCreate {
+	kc.mutation.SetViews(i)
+	return kc
+}
+
+// SetLikes sets the "likes" field.
+func (kc *KeepCreate) SetLikes(i int32) *KeepCreate {
+	kc.mutation.SetLikes(i)
+	return kc
+}
+
+// SetSummary sets the "summary" field.
+func (kc *KeepCreate) SetSummary(s string) *KeepCreate {
+	kc.mutation.SetSummary(s)
+	return kc
+}
+
+// SetExtraData sets the "extraData" field.
+func (kc *KeepCreate) SetExtraData(jm json.RawMessage) *KeepCreate {
+	kc.mutation.SetExtraData(jm)
+	return kc
+}
+
+// SetContentVector sets the "content_vector" field.
+func (kc *KeepCreate) SetContentVector(jm json.RawMessage) *KeepCreate {
+	kc.mutation.SetContentVector(jm)
+	return kc
+}
+
+// SetSummaryVector sets the "summary_vector" field.
+func (kc *KeepCreate) SetSummaryVector(jm json.RawMessage) *KeepCreate {
+	kc.mutation.SetSummaryVector(jm)
+	return kc
+}
+
+// SetTitleVector sets the "title_vector" field.
+func (kc *KeepCreate) SetTitleVector(jm json.RawMessage) *KeepCreate {
+	kc.mutation.SetTitleVector(jm)
 	return kc
 }
 
@@ -167,14 +185,20 @@ func (kc *KeepCreate) check() error {
 	if _, ok := kc.mutation.Content(); !ok {
 		return &ValidationError{Name: "content", err: errors.New(`ent: missing required field "Keep.content"`)}
 	}
-	if _, ok := kc.mutation.Summary(); !ok {
-		return &ValidationError{Name: "summary", err: errors.New(`ent: missing required field "Keep.summary"`)}
-	}
 	if _, ok := kc.mutation.IsPublic(); !ok {
 		return &ValidationError{Name: "isPublic", err: errors.New(`ent: missing required field "Keep.isPublic"`)}
 	}
 	if _, ok := kc.mutation.Tags(); !ok {
 		return &ValidationError{Name: "tags", err: errors.New(`ent: missing required field "Keep.tags"`)}
+	}
+	if _, ok := kc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "createdAt", err: errors.New(`ent: missing required field "Keep.createdAt"`)}
+	}
+	if _, ok := kc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updatedAt", err: errors.New(`ent: missing required field "Keep.updatedAt"`)}
+	}
+	if _, ok := kc.mutation.Category(); !ok {
+		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "Keep.category"`)}
 	}
 	if _, ok := kc.mutation.Views(); !ok {
 		return &ValidationError{Name: "views", err: errors.New(`ent: missing required field "Keep.views"`)}
@@ -182,17 +206,11 @@ func (kc *KeepCreate) check() error {
 	if _, ok := kc.mutation.Likes(); !ok {
 		return &ValidationError{Name: "likes", err: errors.New(`ent: missing required field "Keep.likes"`)}
 	}
+	if _, ok := kc.mutation.Summary(); !ok {
+		return &ValidationError{Name: "summary", err: errors.New(`ent: missing required field "Keep.summary"`)}
+	}
 	if _, ok := kc.mutation.ExtraData(); !ok {
 		return &ValidationError{Name: "extraData", err: errors.New(`ent: missing required field "Keep.extraData"`)}
-	}
-	if _, ok := kc.mutation.Category(); !ok {
-		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "Keep.category"`)}
-	}
-	if _, ok := kc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "createdAt", err: errors.New(`ent: missing required field "Keep.createdAt"`)}
-	}
-	if _, ok := kc.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updatedAt", err: errors.New(`ent: missing required field "Keep.updatedAt"`)}
 	}
 	return nil
 }
@@ -237,10 +255,6 @@ func (kc *KeepCreate) createSpec() (*Keep, *sqlgraph.CreateSpec) {
 		_spec.SetField(keep.FieldContent, field.TypeString, value)
 		_node.Content = value
 	}
-	if value, ok := kc.mutation.Summary(); ok {
-		_spec.SetField(keep.FieldSummary, field.TypeString, value)
-		_node.Summary = value
-	}
 	if value, ok := kc.mutation.IsPublic(); ok {
 		_spec.SetField(keep.FieldIsPublic, field.TypeBool, value)
 		_node.IsPublic = value
@@ -248,6 +262,18 @@ func (kc *KeepCreate) createSpec() (*Keep, *sqlgraph.CreateSpec) {
 	if value, ok := kc.mutation.Tags(); ok {
 		_spec.SetField(keep.FieldTags, field.TypeJSON, value)
 		_node.Tags = value
+	}
+	if value, ok := kc.mutation.CreatedAt(); ok {
+		_spec.SetField(keep.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := kc.mutation.UpdatedAt(); ok {
+		_spec.SetField(keep.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := kc.mutation.Category(); ok {
+		_spec.SetField(keep.FieldCategory, field.TypeString, value)
+		_node.Category = value
 	}
 	if value, ok := kc.mutation.Views(); ok {
 		_spec.SetField(keep.FieldViews, field.TypeInt32, value)
@@ -257,21 +283,25 @@ func (kc *KeepCreate) createSpec() (*Keep, *sqlgraph.CreateSpec) {
 		_spec.SetField(keep.FieldLikes, field.TypeInt32, value)
 		_node.Likes = value
 	}
+	if value, ok := kc.mutation.Summary(); ok {
+		_spec.SetField(keep.FieldSummary, field.TypeString, value)
+		_node.Summary = value
+	}
 	if value, ok := kc.mutation.ExtraData(); ok {
 		_spec.SetField(keep.FieldExtraData, field.TypeJSON, value)
 		_node.ExtraData = value
 	}
-	if value, ok := kc.mutation.Category(); ok {
-		_spec.SetField(keep.FieldCategory, field.TypeString, value)
-		_node.Category = value
+	if value, ok := kc.mutation.ContentVector(); ok {
+		_spec.SetField(keep.FieldContentVector, field.TypeJSON, value)
+		_node.ContentVector = value
 	}
-	if value, ok := kc.mutation.CreatedAt(); ok {
-		_spec.SetField(keep.FieldCreatedAt, field.TypeTime, value)
-		_node.CreatedAt = value
+	if value, ok := kc.mutation.SummaryVector(); ok {
+		_spec.SetField(keep.FieldSummaryVector, field.TypeJSON, value)
+		_node.SummaryVector = value
 	}
-	if value, ok := kc.mutation.UpdatedAt(); ok {
-		_spec.SetField(keep.FieldUpdatedAt, field.TypeTime, value)
-		_node.UpdatedAt = value
+	if value, ok := kc.mutation.TitleVector(); ok {
+		_spec.SetField(keep.FieldTitleVector, field.TypeJSON, value)
+		_node.TitleVector = value
 	}
 	if nodes := kc.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

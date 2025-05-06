@@ -26,16 +26,16 @@ const (
 	FieldIsPublic = "isPublic"
 	// FieldPinned holds the string denoting the pinned field in the database.
 	FieldPinned = "pinned"
-	// FieldExtraData holds the string denoting the extradata field in the database.
-	FieldExtraData = "extraData"
-	// FieldCategory holds the string denoting the category field in the database.
-	FieldCategory = "category"
 	// FieldOwnerId holds the string denoting the ownerid field in the database.
 	FieldOwnerId = "ownerId"
 	// FieldCreatedAt holds the string denoting the createdat field in the database.
 	FieldCreatedAt = "createdAt"
 	// FieldUpdatedAt holds the string denoting the updatedat field in the database.
 	FieldUpdatedAt = "updatedAt"
+	// FieldExtraData holds the string denoting the extradata field in the database.
+	FieldExtraData = "extraData"
+	// FieldCategory holds the string denoting the category field in the database.
+	FieldCategory = "category"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// Table holds the table name of the todo in the database.
@@ -59,11 +59,11 @@ var Columns = []string{
 	FieldDueDate,
 	FieldIsPublic,
 	FieldPinned,
-	FieldExtraData,
-	FieldCategory,
 	FieldOwnerId,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldExtraData,
+	FieldCategory,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -119,11 +119,6 @@ func ByPinned(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPinned, opts...).ToFunc()
 }
 
-// ByCategory orders the results by the category field.
-func ByCategory(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCategory, opts...).ToFunc()
-}
-
 // ByOwnerId orders the results by the ownerId field.
 func ByOwnerId(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldOwnerId, opts...).ToFunc()
@@ -137,6 +132,11 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updatedAt field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByCategory orders the results by the category field.
+func ByCategory(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCategory, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

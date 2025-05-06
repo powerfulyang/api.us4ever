@@ -33,30 +33,16 @@ func (vu *VideoUpdate) Where(ps ...predicate.Video) *VideoUpdate {
 	return vu
 }
 
-// SetName sets the "name" field.
-func (vu *VideoUpdate) SetName(s string) *VideoUpdate {
-	vu.mutation.SetName(s)
+// SetHash sets the "hash" field.
+func (vu *VideoUpdate) SetHash(s string) *VideoUpdate {
+	vu.mutation.SetHash(s)
 	return vu
 }
 
-// SetNillableName sets the "name" field if the given value is not nil.
-func (vu *VideoUpdate) SetNillableName(s *string) *VideoUpdate {
+// SetNillableHash sets the "hash" field if the given value is not nil.
+func (vu *VideoUpdate) SetNillableHash(s *string) *VideoUpdate {
 	if s != nil {
-		vu.SetName(*s)
-	}
-	return vu
-}
-
-// SetType sets the "type" field.
-func (vu *VideoUpdate) SetType(s string) *VideoUpdate {
-	vu.mutation.SetType(s)
-	return vu
-}
-
-// SetNillableType sets the "type" field if the given value is not nil.
-func (vu *VideoUpdate) SetNillableType(s *string) *VideoUpdate {
-	if s != nil {
-		vu.SetType(*s)
+		vu.SetHash(*s)
 	}
 	return vu
 }
@@ -82,41 +68,6 @@ func (vu *VideoUpdate) AddSize(i int) *VideoUpdate {
 	return vu
 }
 
-// SetHash sets the "hash" field.
-func (vu *VideoUpdate) SetHash(s string) *VideoUpdate {
-	vu.mutation.SetHash(s)
-	return vu
-}
-
-// SetNillableHash sets the "hash" field if the given value is not nil.
-func (vu *VideoUpdate) SetNillableHash(s *string) *VideoUpdate {
-	if s != nil {
-		vu.SetHash(*s)
-	}
-	return vu
-}
-
-// SetDuration sets the "duration" field.
-func (vu *VideoUpdate) SetDuration(i int32) *VideoUpdate {
-	vu.mutation.ResetDuration()
-	vu.mutation.SetDuration(i)
-	return vu
-}
-
-// SetNillableDuration sets the "duration" field if the given value is not nil.
-func (vu *VideoUpdate) SetNillableDuration(i *int32) *VideoUpdate {
-	if i != nil {
-		vu.SetDuration(*i)
-	}
-	return vu
-}
-
-// AddDuration adds i to the "duration" field.
-func (vu *VideoUpdate) AddDuration(i int32) *VideoUpdate {
-	vu.mutation.AddDuration(i)
-	return vu
-}
-
 // SetIsPublic sets the "isPublic" field.
 func (vu *VideoUpdate) SetIsPublic(b bool) *VideoUpdate {
 	vu.mutation.SetIsPublic(b)
@@ -127,32 +78,6 @@ func (vu *VideoUpdate) SetIsPublic(b bool) *VideoUpdate {
 func (vu *VideoUpdate) SetNillableIsPublic(b *bool) *VideoUpdate {
 	if b != nil {
 		vu.SetIsPublic(*b)
-	}
-	return vu
-}
-
-// SetExtraData sets the "extraData" field.
-func (vu *VideoUpdate) SetExtraData(jm json.RawMessage) *VideoUpdate {
-	vu.mutation.SetExtraData(jm)
-	return vu
-}
-
-// AppendExtraData appends jm to the "extraData" field.
-func (vu *VideoUpdate) AppendExtraData(jm json.RawMessage) *VideoUpdate {
-	vu.mutation.AppendExtraData(jm)
-	return vu
-}
-
-// SetCategory sets the "category" field.
-func (vu *VideoUpdate) SetCategory(s string) *VideoUpdate {
-	vu.mutation.SetCategory(s)
-	return vu
-}
-
-// SetNillableCategory sets the "category" field if the given value is not nil.
-func (vu *VideoUpdate) SetNillableCategory(s *string) *VideoUpdate {
-	if s != nil {
-		vu.SetCategory(*s)
 	}
 	return vu
 }
@@ -241,6 +166,81 @@ func (vu *VideoUpdate) SetUpdatedAt(t time.Time) *VideoUpdate {
 func (vu *VideoUpdate) SetNillableUpdatedAt(t *time.Time) *VideoUpdate {
 	if t != nil {
 		vu.SetUpdatedAt(*t)
+	}
+	return vu
+}
+
+// SetDuration sets the "duration" field.
+func (vu *VideoUpdate) SetDuration(i int32) *VideoUpdate {
+	vu.mutation.ResetDuration()
+	vu.mutation.SetDuration(i)
+	return vu
+}
+
+// SetNillableDuration sets the "duration" field if the given value is not nil.
+func (vu *VideoUpdate) SetNillableDuration(i *int32) *VideoUpdate {
+	if i != nil {
+		vu.SetDuration(*i)
+	}
+	return vu
+}
+
+// AddDuration adds i to the "duration" field.
+func (vu *VideoUpdate) AddDuration(i int32) *VideoUpdate {
+	vu.mutation.AddDuration(i)
+	return vu
+}
+
+// SetName sets the "name" field.
+func (vu *VideoUpdate) SetName(s string) *VideoUpdate {
+	vu.mutation.SetName(s)
+	return vu
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (vu *VideoUpdate) SetNillableName(s *string) *VideoUpdate {
+	if s != nil {
+		vu.SetName(*s)
+	}
+	return vu
+}
+
+// SetType sets the "type" field.
+func (vu *VideoUpdate) SetType(s string) *VideoUpdate {
+	vu.mutation.SetType(s)
+	return vu
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (vu *VideoUpdate) SetNillableType(s *string) *VideoUpdate {
+	if s != nil {
+		vu.SetType(*s)
+	}
+	return vu
+}
+
+// SetExtraData sets the "extraData" field.
+func (vu *VideoUpdate) SetExtraData(jm json.RawMessage) *VideoUpdate {
+	vu.mutation.SetExtraData(jm)
+	return vu
+}
+
+// AppendExtraData appends jm to the "extraData" field.
+func (vu *VideoUpdate) AppendExtraData(jm json.RawMessage) *VideoUpdate {
+	vu.mutation.AppendExtraData(jm)
+	return vu
+}
+
+// SetCategory sets the "category" field.
+func (vu *VideoUpdate) SetCategory(s string) *VideoUpdate {
+	vu.mutation.SetCategory(s)
+	return vu
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (vu *VideoUpdate) SetNillableCategory(s *string) *VideoUpdate {
+	if s != nil {
+		vu.SetCategory(*s)
 	}
 	return vu
 }
@@ -397,11 +397,8 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := vu.mutation.Name(); ok {
-		_spec.SetField(video.FieldName, field.TypeString, value)
-	}
-	if value, ok := vu.mutation.GetType(); ok {
-		_spec.SetField(video.FieldType, field.TypeString, value)
+	if value, ok := vu.mutation.Hash(); ok {
+		_spec.SetField(video.FieldHash, field.TypeString, value)
 	}
 	if value, ok := vu.mutation.Size(); ok {
 		_spec.SetField(video.FieldSize, field.TypeInt, value)
@@ -409,8 +406,14 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := vu.mutation.AddedSize(); ok {
 		_spec.AddField(video.FieldSize, field.TypeInt, value)
 	}
-	if value, ok := vu.mutation.Hash(); ok {
-		_spec.SetField(video.FieldHash, field.TypeString, value)
+	if value, ok := vu.mutation.IsPublic(); ok {
+		_spec.SetField(video.FieldIsPublic, field.TypeBool, value)
+	}
+	if value, ok := vu.mutation.CreatedAt(); ok {
+		_spec.SetField(video.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := vu.mutation.UpdatedAt(); ok {
+		_spec.SetField(video.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := vu.mutation.Duration(); ok {
 		_spec.SetField(video.FieldDuration, field.TypeInt32, value)
@@ -418,8 +421,11 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := vu.mutation.AddedDuration(); ok {
 		_spec.AddField(video.FieldDuration, field.TypeInt32, value)
 	}
-	if value, ok := vu.mutation.IsPublic(); ok {
-		_spec.SetField(video.FieldIsPublic, field.TypeBool, value)
+	if value, ok := vu.mutation.Name(); ok {
+		_spec.SetField(video.FieldName, field.TypeString, value)
+	}
+	if value, ok := vu.mutation.GetType(); ok {
+		_spec.SetField(video.FieldType, field.TypeString, value)
 	}
 	if value, ok := vu.mutation.ExtraData(); ok {
 		_spec.SetField(video.FieldExtraData, field.TypeJSON, value)
@@ -431,12 +437,6 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := vu.mutation.Category(); ok {
 		_spec.SetField(video.FieldCategory, field.TypeString, value)
-	}
-	if value, ok := vu.mutation.CreatedAt(); ok {
-		_spec.SetField(video.FieldCreatedAt, field.TypeTime, value)
-	}
-	if value, ok := vu.mutation.UpdatedAt(); ok {
-		_spec.SetField(video.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if vu.mutation.MomentVideosCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -590,30 +590,16 @@ type VideoUpdateOne struct {
 	mutation *VideoMutation
 }
 
-// SetName sets the "name" field.
-func (vuo *VideoUpdateOne) SetName(s string) *VideoUpdateOne {
-	vuo.mutation.SetName(s)
+// SetHash sets the "hash" field.
+func (vuo *VideoUpdateOne) SetHash(s string) *VideoUpdateOne {
+	vuo.mutation.SetHash(s)
 	return vuo
 }
 
-// SetNillableName sets the "name" field if the given value is not nil.
-func (vuo *VideoUpdateOne) SetNillableName(s *string) *VideoUpdateOne {
+// SetNillableHash sets the "hash" field if the given value is not nil.
+func (vuo *VideoUpdateOne) SetNillableHash(s *string) *VideoUpdateOne {
 	if s != nil {
-		vuo.SetName(*s)
-	}
-	return vuo
-}
-
-// SetType sets the "type" field.
-func (vuo *VideoUpdateOne) SetType(s string) *VideoUpdateOne {
-	vuo.mutation.SetType(s)
-	return vuo
-}
-
-// SetNillableType sets the "type" field if the given value is not nil.
-func (vuo *VideoUpdateOne) SetNillableType(s *string) *VideoUpdateOne {
-	if s != nil {
-		vuo.SetType(*s)
+		vuo.SetHash(*s)
 	}
 	return vuo
 }
@@ -639,41 +625,6 @@ func (vuo *VideoUpdateOne) AddSize(i int) *VideoUpdateOne {
 	return vuo
 }
 
-// SetHash sets the "hash" field.
-func (vuo *VideoUpdateOne) SetHash(s string) *VideoUpdateOne {
-	vuo.mutation.SetHash(s)
-	return vuo
-}
-
-// SetNillableHash sets the "hash" field if the given value is not nil.
-func (vuo *VideoUpdateOne) SetNillableHash(s *string) *VideoUpdateOne {
-	if s != nil {
-		vuo.SetHash(*s)
-	}
-	return vuo
-}
-
-// SetDuration sets the "duration" field.
-func (vuo *VideoUpdateOne) SetDuration(i int32) *VideoUpdateOne {
-	vuo.mutation.ResetDuration()
-	vuo.mutation.SetDuration(i)
-	return vuo
-}
-
-// SetNillableDuration sets the "duration" field if the given value is not nil.
-func (vuo *VideoUpdateOne) SetNillableDuration(i *int32) *VideoUpdateOne {
-	if i != nil {
-		vuo.SetDuration(*i)
-	}
-	return vuo
-}
-
-// AddDuration adds i to the "duration" field.
-func (vuo *VideoUpdateOne) AddDuration(i int32) *VideoUpdateOne {
-	vuo.mutation.AddDuration(i)
-	return vuo
-}
-
 // SetIsPublic sets the "isPublic" field.
 func (vuo *VideoUpdateOne) SetIsPublic(b bool) *VideoUpdateOne {
 	vuo.mutation.SetIsPublic(b)
@@ -684,32 +635,6 @@ func (vuo *VideoUpdateOne) SetIsPublic(b bool) *VideoUpdateOne {
 func (vuo *VideoUpdateOne) SetNillableIsPublic(b *bool) *VideoUpdateOne {
 	if b != nil {
 		vuo.SetIsPublic(*b)
-	}
-	return vuo
-}
-
-// SetExtraData sets the "extraData" field.
-func (vuo *VideoUpdateOne) SetExtraData(jm json.RawMessage) *VideoUpdateOne {
-	vuo.mutation.SetExtraData(jm)
-	return vuo
-}
-
-// AppendExtraData appends jm to the "extraData" field.
-func (vuo *VideoUpdateOne) AppendExtraData(jm json.RawMessage) *VideoUpdateOne {
-	vuo.mutation.AppendExtraData(jm)
-	return vuo
-}
-
-// SetCategory sets the "category" field.
-func (vuo *VideoUpdateOne) SetCategory(s string) *VideoUpdateOne {
-	vuo.mutation.SetCategory(s)
-	return vuo
-}
-
-// SetNillableCategory sets the "category" field if the given value is not nil.
-func (vuo *VideoUpdateOne) SetNillableCategory(s *string) *VideoUpdateOne {
-	if s != nil {
-		vuo.SetCategory(*s)
 	}
 	return vuo
 }
@@ -798,6 +723,81 @@ func (vuo *VideoUpdateOne) SetUpdatedAt(t time.Time) *VideoUpdateOne {
 func (vuo *VideoUpdateOne) SetNillableUpdatedAt(t *time.Time) *VideoUpdateOne {
 	if t != nil {
 		vuo.SetUpdatedAt(*t)
+	}
+	return vuo
+}
+
+// SetDuration sets the "duration" field.
+func (vuo *VideoUpdateOne) SetDuration(i int32) *VideoUpdateOne {
+	vuo.mutation.ResetDuration()
+	vuo.mutation.SetDuration(i)
+	return vuo
+}
+
+// SetNillableDuration sets the "duration" field if the given value is not nil.
+func (vuo *VideoUpdateOne) SetNillableDuration(i *int32) *VideoUpdateOne {
+	if i != nil {
+		vuo.SetDuration(*i)
+	}
+	return vuo
+}
+
+// AddDuration adds i to the "duration" field.
+func (vuo *VideoUpdateOne) AddDuration(i int32) *VideoUpdateOne {
+	vuo.mutation.AddDuration(i)
+	return vuo
+}
+
+// SetName sets the "name" field.
+func (vuo *VideoUpdateOne) SetName(s string) *VideoUpdateOne {
+	vuo.mutation.SetName(s)
+	return vuo
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (vuo *VideoUpdateOne) SetNillableName(s *string) *VideoUpdateOne {
+	if s != nil {
+		vuo.SetName(*s)
+	}
+	return vuo
+}
+
+// SetType sets the "type" field.
+func (vuo *VideoUpdateOne) SetType(s string) *VideoUpdateOne {
+	vuo.mutation.SetType(s)
+	return vuo
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (vuo *VideoUpdateOne) SetNillableType(s *string) *VideoUpdateOne {
+	if s != nil {
+		vuo.SetType(*s)
+	}
+	return vuo
+}
+
+// SetExtraData sets the "extraData" field.
+func (vuo *VideoUpdateOne) SetExtraData(jm json.RawMessage) *VideoUpdateOne {
+	vuo.mutation.SetExtraData(jm)
+	return vuo
+}
+
+// AppendExtraData appends jm to the "extraData" field.
+func (vuo *VideoUpdateOne) AppendExtraData(jm json.RawMessage) *VideoUpdateOne {
+	vuo.mutation.AppendExtraData(jm)
+	return vuo
+}
+
+// SetCategory sets the "category" field.
+func (vuo *VideoUpdateOne) SetCategory(s string) *VideoUpdateOne {
+	vuo.mutation.SetCategory(s)
+	return vuo
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (vuo *VideoUpdateOne) SetNillableCategory(s *string) *VideoUpdateOne {
+	if s != nil {
+		vuo.SetCategory(*s)
 	}
 	return vuo
 }
@@ -984,11 +984,8 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error
 			}
 		}
 	}
-	if value, ok := vuo.mutation.Name(); ok {
-		_spec.SetField(video.FieldName, field.TypeString, value)
-	}
-	if value, ok := vuo.mutation.GetType(); ok {
-		_spec.SetField(video.FieldType, field.TypeString, value)
+	if value, ok := vuo.mutation.Hash(); ok {
+		_spec.SetField(video.FieldHash, field.TypeString, value)
 	}
 	if value, ok := vuo.mutation.Size(); ok {
 		_spec.SetField(video.FieldSize, field.TypeInt, value)
@@ -996,8 +993,14 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error
 	if value, ok := vuo.mutation.AddedSize(); ok {
 		_spec.AddField(video.FieldSize, field.TypeInt, value)
 	}
-	if value, ok := vuo.mutation.Hash(); ok {
-		_spec.SetField(video.FieldHash, field.TypeString, value)
+	if value, ok := vuo.mutation.IsPublic(); ok {
+		_spec.SetField(video.FieldIsPublic, field.TypeBool, value)
+	}
+	if value, ok := vuo.mutation.CreatedAt(); ok {
+		_spec.SetField(video.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := vuo.mutation.UpdatedAt(); ok {
+		_spec.SetField(video.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := vuo.mutation.Duration(); ok {
 		_spec.SetField(video.FieldDuration, field.TypeInt32, value)
@@ -1005,8 +1008,11 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error
 	if value, ok := vuo.mutation.AddedDuration(); ok {
 		_spec.AddField(video.FieldDuration, field.TypeInt32, value)
 	}
-	if value, ok := vuo.mutation.IsPublic(); ok {
-		_spec.SetField(video.FieldIsPublic, field.TypeBool, value)
+	if value, ok := vuo.mutation.Name(); ok {
+		_spec.SetField(video.FieldName, field.TypeString, value)
+	}
+	if value, ok := vuo.mutation.GetType(); ok {
+		_spec.SetField(video.FieldType, field.TypeString, value)
 	}
 	if value, ok := vuo.mutation.ExtraData(); ok {
 		_spec.SetField(video.FieldExtraData, field.TypeJSON, value)
@@ -1018,12 +1024,6 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error
 	}
 	if value, ok := vuo.mutation.Category(); ok {
 		_spec.SetField(video.FieldCategory, field.TypeString, value)
-	}
-	if value, ok := vuo.mutation.CreatedAt(); ok {
-		_spec.SetField(video.FieldCreatedAt, field.TypeTime, value)
-	}
-	if value, ok := vuo.mutation.UpdatedAt(); ok {
-		_spec.SetField(video.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if vuo.mutation.MomentVideosCleared() {
 		edge := &sqlgraph.EdgeSpec{

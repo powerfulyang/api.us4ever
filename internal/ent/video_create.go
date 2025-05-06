@@ -24,15 +24,9 @@ type VideoCreate struct {
 	hooks    []Hook
 }
 
-// SetName sets the "name" field.
-func (vc *VideoCreate) SetName(s string) *VideoCreate {
-	vc.mutation.SetName(s)
-	return vc
-}
-
-// SetType sets the "type" field.
-func (vc *VideoCreate) SetType(s string) *VideoCreate {
-	vc.mutation.SetType(s)
+// SetHash sets the "hash" field.
+func (vc *VideoCreate) SetHash(s string) *VideoCreate {
+	vc.mutation.SetHash(s)
 	return vc
 }
 
@@ -42,33 +36,9 @@ func (vc *VideoCreate) SetSize(i int) *VideoCreate {
 	return vc
 }
 
-// SetHash sets the "hash" field.
-func (vc *VideoCreate) SetHash(s string) *VideoCreate {
-	vc.mutation.SetHash(s)
-	return vc
-}
-
-// SetDuration sets the "duration" field.
-func (vc *VideoCreate) SetDuration(i int32) *VideoCreate {
-	vc.mutation.SetDuration(i)
-	return vc
-}
-
 // SetIsPublic sets the "isPublic" field.
 func (vc *VideoCreate) SetIsPublic(b bool) *VideoCreate {
 	vc.mutation.SetIsPublic(b)
-	return vc
-}
-
-// SetExtraData sets the "extraData" field.
-func (vc *VideoCreate) SetExtraData(jm json.RawMessage) *VideoCreate {
-	vc.mutation.SetExtraData(jm)
-	return vc
-}
-
-// SetCategory sets the "category" field.
-func (vc *VideoCreate) SetCategory(s string) *VideoCreate {
-	vc.mutation.SetCategory(s)
 	return vc
 }
 
@@ -123,6 +93,36 @@ func (vc *VideoCreate) SetCreatedAt(t time.Time) *VideoCreate {
 // SetUpdatedAt sets the "updatedAt" field.
 func (vc *VideoCreate) SetUpdatedAt(t time.Time) *VideoCreate {
 	vc.mutation.SetUpdatedAt(t)
+	return vc
+}
+
+// SetDuration sets the "duration" field.
+func (vc *VideoCreate) SetDuration(i int32) *VideoCreate {
+	vc.mutation.SetDuration(i)
+	return vc
+}
+
+// SetName sets the "name" field.
+func (vc *VideoCreate) SetName(s string) *VideoCreate {
+	vc.mutation.SetName(s)
+	return vc
+}
+
+// SetType sets the "type" field.
+func (vc *VideoCreate) SetType(s string) *VideoCreate {
+	vc.mutation.SetType(s)
+	return vc
+}
+
+// SetExtraData sets the "extraData" field.
+func (vc *VideoCreate) SetExtraData(jm json.RawMessage) *VideoCreate {
+	vc.mutation.SetExtraData(jm)
+	return vc
+}
+
+// SetCategory sets the "category" field.
+func (vc *VideoCreate) SetCategory(s string) *VideoCreate {
+	vc.mutation.SetCategory(s)
 	return vc
 }
 
@@ -238,35 +238,35 @@ func (vc *VideoCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (vc *VideoCreate) check() error {
-	if _, ok := vc.mutation.Name(); !ok {
-		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Video.name"`)}
-	}
-	if _, ok := vc.mutation.GetType(); !ok {
-		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Video.type"`)}
+	if _, ok := vc.mutation.Hash(); !ok {
+		return &ValidationError{Name: "hash", err: errors.New(`ent: missing required field "Video.hash"`)}
 	}
 	if _, ok := vc.mutation.Size(); !ok {
 		return &ValidationError{Name: "size", err: errors.New(`ent: missing required field "Video.size"`)}
 	}
-	if _, ok := vc.mutation.Hash(); !ok {
-		return &ValidationError{Name: "hash", err: errors.New(`ent: missing required field "Video.hash"`)}
-	}
-	if _, ok := vc.mutation.Duration(); !ok {
-		return &ValidationError{Name: "duration", err: errors.New(`ent: missing required field "Video.duration"`)}
-	}
 	if _, ok := vc.mutation.IsPublic(); !ok {
 		return &ValidationError{Name: "isPublic", err: errors.New(`ent: missing required field "Video.isPublic"`)}
-	}
-	if _, ok := vc.mutation.ExtraData(); !ok {
-		return &ValidationError{Name: "extraData", err: errors.New(`ent: missing required field "Video.extraData"`)}
-	}
-	if _, ok := vc.mutation.Category(); !ok {
-		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "Video.category"`)}
 	}
 	if _, ok := vc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "createdAt", err: errors.New(`ent: missing required field "Video.createdAt"`)}
 	}
 	if _, ok := vc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updatedAt", err: errors.New(`ent: missing required field "Video.updatedAt"`)}
+	}
+	if _, ok := vc.mutation.Duration(); !ok {
+		return &ValidationError{Name: "duration", err: errors.New(`ent: missing required field "Video.duration"`)}
+	}
+	if _, ok := vc.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Video.name"`)}
+	}
+	if _, ok := vc.mutation.GetType(); !ok {
+		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Video.type"`)}
+	}
+	if _, ok := vc.mutation.ExtraData(); !ok {
+		return &ValidationError{Name: "extraData", err: errors.New(`ent: missing required field "Video.extraData"`)}
+	}
+	if _, ok := vc.mutation.Category(); !ok {
+		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "Video.category"`)}
 	}
 	return nil
 }
@@ -303,37 +303,17 @@ func (vc *VideoCreate) createSpec() (*Video, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := vc.mutation.Name(); ok {
-		_spec.SetField(video.FieldName, field.TypeString, value)
-		_node.Name = value
-	}
-	if value, ok := vc.mutation.GetType(); ok {
-		_spec.SetField(video.FieldType, field.TypeString, value)
-		_node.Type = value
+	if value, ok := vc.mutation.Hash(); ok {
+		_spec.SetField(video.FieldHash, field.TypeString, value)
+		_node.Hash = value
 	}
 	if value, ok := vc.mutation.Size(); ok {
 		_spec.SetField(video.FieldSize, field.TypeInt, value)
 		_node.Size = value
 	}
-	if value, ok := vc.mutation.Hash(); ok {
-		_spec.SetField(video.FieldHash, field.TypeString, value)
-		_node.Hash = value
-	}
-	if value, ok := vc.mutation.Duration(); ok {
-		_spec.SetField(video.FieldDuration, field.TypeInt32, value)
-		_node.Duration = value
-	}
 	if value, ok := vc.mutation.IsPublic(); ok {
 		_spec.SetField(video.FieldIsPublic, field.TypeBool, value)
 		_node.IsPublic = value
-	}
-	if value, ok := vc.mutation.ExtraData(); ok {
-		_spec.SetField(video.FieldExtraData, field.TypeJSON, value)
-		_node.ExtraData = value
-	}
-	if value, ok := vc.mutation.Category(); ok {
-		_spec.SetField(video.FieldCategory, field.TypeString, value)
-		_node.Category = value
 	}
 	if value, ok := vc.mutation.CreatedAt(); ok {
 		_spec.SetField(video.FieldCreatedAt, field.TypeTime, value)
@@ -342,6 +322,26 @@ func (vc *VideoCreate) createSpec() (*Video, *sqlgraph.CreateSpec) {
 	if value, ok := vc.mutation.UpdatedAt(); ok {
 		_spec.SetField(video.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := vc.mutation.Duration(); ok {
+		_spec.SetField(video.FieldDuration, field.TypeInt32, value)
+		_node.Duration = value
+	}
+	if value, ok := vc.mutation.Name(); ok {
+		_spec.SetField(video.FieldName, field.TypeString, value)
+		_node.Name = value
+	}
+	if value, ok := vc.mutation.GetType(); ok {
+		_spec.SetField(video.FieldType, field.TypeString, value)
+		_node.Type = value
+	}
+	if value, ok := vc.mutation.ExtraData(); ok {
+		_spec.SetField(video.FieldExtraData, field.TypeJSON, value)
+		_node.ExtraData = value
+	}
+	if value, ok := vc.mutation.Category(); ok {
+		_spec.SetField(video.FieldCategory, field.TypeString, value)
+		_node.Category = value
 	}
 	if nodes := vc.mutation.MomentVideosIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

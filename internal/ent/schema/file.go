@@ -16,7 +16,7 @@ type File struct {
 }
 
 func (File) Fields() []ent.Field {
-	return []ent.Field{field.String("id").StorageKey("id"), field.String("bucketId").Optional().StorageKey("bucketId"), field.String("name").StorageKey("name"), field.String("type").StorageKey("type"), field.String("hash").StorageKey("hash"), field.Int("size").StorageKey("size"), field.String("path").StorageKey("path"), field.Bool("isPublic").StorageKey("isPublic"), field.String("description").StorageKey("description"), field.JSON("tags", json.RawMessage{}).StorageKey("tags"), field.JSON("extraData", json.RawMessage{}).StorageKey("extraData"), field.String("category").StorageKey("category"), field.String("uploadedBy").Optional().StorageKey("uploadedBy"), field.Time("createdAt").StorageKey("createdAt"), field.Time("updatedAt").StorageKey("updatedAt")}
+	return []ent.Field{field.String("id").StorageKey("id"), field.String("bucketId").Optional().StorageKey("bucketId"), field.String("name").StorageKey("name"), field.String("type").StorageKey("type"), field.String("hash").StorageKey("hash"), field.Int("size").StorageKey("size"), field.String("path").StorageKey("path"), field.Bool("isPublic").StorageKey("isPublic"), field.String("uploadedBy").Optional().StorageKey("uploadedBy"), field.String("description").StorageKey("description"), field.JSON("tags", json.RawMessage{}).StorageKey("tags"), field.Time("createdAt").StorageKey("createdAt"), field.Time("updatedAt").StorageKey("updatedAt"), field.JSON("extraData", json.RawMessage{}).StorageKey("extraData"), field.String("category").StorageKey("category")}
 
 }
 func (File) Edges() []ent.Edge {

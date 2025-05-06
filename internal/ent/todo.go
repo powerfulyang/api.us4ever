@@ -33,16 +33,16 @@ type Todo struct {
 	IsPublic bool `json:"isPublic,omitempty"`
 	// Pinned holds the value of the "pinned" field.
 	Pinned bool `json:"pinned,omitempty"`
-	// ExtraData holds the value of the "extraData" field.
-	ExtraData json.RawMessage `json:"extraData,omitempty"`
-	// Category holds the value of the "category" field.
-	Category string `json:"category,omitempty"`
 	// OwnerId holds the value of the "ownerId" field.
 	OwnerId string `json:"ownerId,omitempty"`
 	// CreatedAt holds the value of the "createdAt" field.
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 	// UpdatedAt holds the value of the "updatedAt" field.
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
+	// ExtraData holds the value of the "extraData" field.
+	ExtraData json.RawMessage `json:"extraData,omitempty"`
+	// Category holds the value of the "category" field.
+	Category string `json:"category,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TodoQuery when eager-loading is set.
 	Edges        TodoEdges `json:"edges"`
@@ -80,7 +80,7 @@ func (*Todo) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case todo.FieldPriority:
 			values[i] = new(sql.NullInt64)
-		case todo.FieldID, todo.FieldTitle, todo.FieldContent, todo.FieldCategory, todo.FieldOwnerId:
+		case todo.FieldID, todo.FieldTitle, todo.FieldContent, todo.FieldOwnerId, todo.FieldCategory:
 			values[i] = new(sql.NullString)
 		case todo.FieldDueDate, todo.FieldCreatedAt, todo.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -147,20 +147,6 @@ func (t *Todo) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				t.Pinned = value.Bool
 			}
-		case todo.FieldExtraData:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field extraData", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &t.ExtraData); err != nil {
-					return fmt.Errorf("unmarshal field extraData: %w", err)
-				}
-			}
-		case todo.FieldCategory:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field category", values[i])
-			} else if value.Valid {
-				t.Category = value.String
-			}
 		case todo.FieldOwnerId:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field ownerId", values[i])
@@ -178,6 +164,20 @@ func (t *Todo) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updatedAt", values[i])
 			} else if value.Valid {
 				t.UpdatedAt = value.Time
+			}
+		case todo.FieldExtraData:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field extraData", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &t.ExtraData); err != nil {
+					return fmt.Errorf("unmarshal field extraData: %w", err)
+				}
+			}
+		case todo.FieldCategory:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field category", values[i])
+			} else if value.Valid {
+				t.Category = value.String
 			}
 		default:
 			t.selectValues.Set(columns[i], values[i])
@@ -241,12 +241,6 @@ func (t *Todo) String() string {
 	builder.WriteString("pinned=")
 	builder.WriteString(fmt.Sprintf("%v", t.Pinned))
 	builder.WriteString(", ")
-	builder.WriteString("extraData=")
-	builder.WriteString(fmt.Sprintf("%v", t.ExtraData))
-	builder.WriteString(", ")
-	builder.WriteString("category=")
-	builder.WriteString(t.Category)
-	builder.WriteString(", ")
 	builder.WriteString("ownerId=")
 	builder.WriteString(t.OwnerId)
 	builder.WriteString(", ")
@@ -255,6 +249,12 @@ func (t *Todo) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updatedAt=")
 	builder.WriteString(t.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("extraData=")
+	builder.WriteString(fmt.Sprintf("%v", t.ExtraData))
+	builder.WriteString(", ")
+	builder.WriteString("category=")
+	builder.WriteString(t.Category)
 	builder.WriteByte(')')
 	return builder.String()
 }

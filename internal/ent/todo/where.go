@@ -100,11 +100,6 @@ func Pinned(v bool) predicate.Todo {
 	return predicate.Todo(sql.FieldEQ(FieldPinned, v))
 }
 
-// Category applies equality check predicate on the "category" field. It's identical to CategoryEQ.
-func Category(v string) predicate.Todo {
-	return predicate.Todo(sql.FieldEQ(FieldCategory, v))
-}
-
 // OwnerId applies equality check predicate on the "ownerId" field. It's identical to OwnerIdEQ.
 func OwnerId(v string) predicate.Todo {
 	return predicate.Todo(sql.FieldEQ(FieldOwnerId, v))
@@ -118,6 +113,11 @@ func CreatedAt(v time.Time) predicate.Todo {
 // UpdatedAt applies equality check predicate on the "updatedAt" field. It's identical to UpdatedAtEQ.
 func UpdatedAt(v time.Time) predicate.Todo {
 	return predicate.Todo(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// Category applies equality check predicate on the "category" field. It's identical to CategoryEQ.
+func Category(v string) predicate.Todo {
+	return predicate.Todo(sql.FieldEQ(FieldCategory, v))
 }
 
 // TitleEQ applies the EQ predicate on the "title" field.
@@ -380,71 +380,6 @@ func PinnedNEQ(v bool) predicate.Todo {
 	return predicate.Todo(sql.FieldNEQ(FieldPinned, v))
 }
 
-// CategoryEQ applies the EQ predicate on the "category" field.
-func CategoryEQ(v string) predicate.Todo {
-	return predicate.Todo(sql.FieldEQ(FieldCategory, v))
-}
-
-// CategoryNEQ applies the NEQ predicate on the "category" field.
-func CategoryNEQ(v string) predicate.Todo {
-	return predicate.Todo(sql.FieldNEQ(FieldCategory, v))
-}
-
-// CategoryIn applies the In predicate on the "category" field.
-func CategoryIn(vs ...string) predicate.Todo {
-	return predicate.Todo(sql.FieldIn(FieldCategory, vs...))
-}
-
-// CategoryNotIn applies the NotIn predicate on the "category" field.
-func CategoryNotIn(vs ...string) predicate.Todo {
-	return predicate.Todo(sql.FieldNotIn(FieldCategory, vs...))
-}
-
-// CategoryGT applies the GT predicate on the "category" field.
-func CategoryGT(v string) predicate.Todo {
-	return predicate.Todo(sql.FieldGT(FieldCategory, v))
-}
-
-// CategoryGTE applies the GTE predicate on the "category" field.
-func CategoryGTE(v string) predicate.Todo {
-	return predicate.Todo(sql.FieldGTE(FieldCategory, v))
-}
-
-// CategoryLT applies the LT predicate on the "category" field.
-func CategoryLT(v string) predicate.Todo {
-	return predicate.Todo(sql.FieldLT(FieldCategory, v))
-}
-
-// CategoryLTE applies the LTE predicate on the "category" field.
-func CategoryLTE(v string) predicate.Todo {
-	return predicate.Todo(sql.FieldLTE(FieldCategory, v))
-}
-
-// CategoryContains applies the Contains predicate on the "category" field.
-func CategoryContains(v string) predicate.Todo {
-	return predicate.Todo(sql.FieldContains(FieldCategory, v))
-}
-
-// CategoryHasPrefix applies the HasPrefix predicate on the "category" field.
-func CategoryHasPrefix(v string) predicate.Todo {
-	return predicate.Todo(sql.FieldHasPrefix(FieldCategory, v))
-}
-
-// CategoryHasSuffix applies the HasSuffix predicate on the "category" field.
-func CategoryHasSuffix(v string) predicate.Todo {
-	return predicate.Todo(sql.FieldHasSuffix(FieldCategory, v))
-}
-
-// CategoryEqualFold applies the EqualFold predicate on the "category" field.
-func CategoryEqualFold(v string) predicate.Todo {
-	return predicate.Todo(sql.FieldEqualFold(FieldCategory, v))
-}
-
-// CategoryContainsFold applies the ContainsFold predicate on the "category" field.
-func CategoryContainsFold(v string) predicate.Todo {
-	return predicate.Todo(sql.FieldContainsFold(FieldCategory, v))
-}
-
 // OwnerIdEQ applies the EQ predicate on the "ownerId" field.
 func OwnerIdEQ(v string) predicate.Todo {
 	return predicate.Todo(sql.FieldEQ(FieldOwnerId, v))
@@ -598,6 +533,71 @@ func UpdatedAtLT(v time.Time) predicate.Todo {
 // UpdatedAtLTE applies the LTE predicate on the "updatedAt" field.
 func UpdatedAtLTE(v time.Time) predicate.Todo {
 	return predicate.Todo(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// CategoryEQ applies the EQ predicate on the "category" field.
+func CategoryEQ(v string) predicate.Todo {
+	return predicate.Todo(sql.FieldEQ(FieldCategory, v))
+}
+
+// CategoryNEQ applies the NEQ predicate on the "category" field.
+func CategoryNEQ(v string) predicate.Todo {
+	return predicate.Todo(sql.FieldNEQ(FieldCategory, v))
+}
+
+// CategoryIn applies the In predicate on the "category" field.
+func CategoryIn(vs ...string) predicate.Todo {
+	return predicate.Todo(sql.FieldIn(FieldCategory, vs...))
+}
+
+// CategoryNotIn applies the NotIn predicate on the "category" field.
+func CategoryNotIn(vs ...string) predicate.Todo {
+	return predicate.Todo(sql.FieldNotIn(FieldCategory, vs...))
+}
+
+// CategoryGT applies the GT predicate on the "category" field.
+func CategoryGT(v string) predicate.Todo {
+	return predicate.Todo(sql.FieldGT(FieldCategory, v))
+}
+
+// CategoryGTE applies the GTE predicate on the "category" field.
+func CategoryGTE(v string) predicate.Todo {
+	return predicate.Todo(sql.FieldGTE(FieldCategory, v))
+}
+
+// CategoryLT applies the LT predicate on the "category" field.
+func CategoryLT(v string) predicate.Todo {
+	return predicate.Todo(sql.FieldLT(FieldCategory, v))
+}
+
+// CategoryLTE applies the LTE predicate on the "category" field.
+func CategoryLTE(v string) predicate.Todo {
+	return predicate.Todo(sql.FieldLTE(FieldCategory, v))
+}
+
+// CategoryContains applies the Contains predicate on the "category" field.
+func CategoryContains(v string) predicate.Todo {
+	return predicate.Todo(sql.FieldContains(FieldCategory, v))
+}
+
+// CategoryHasPrefix applies the HasPrefix predicate on the "category" field.
+func CategoryHasPrefix(v string) predicate.Todo {
+	return predicate.Todo(sql.FieldHasPrefix(FieldCategory, v))
+}
+
+// CategoryHasSuffix applies the HasSuffix predicate on the "category" field.
+func CategoryHasSuffix(v string) predicate.Todo {
+	return predicate.Todo(sql.FieldHasSuffix(FieldCategory, v))
+}
+
+// CategoryEqualFold applies the EqualFold predicate on the "category" field.
+func CategoryEqualFold(v string) predicate.Todo {
+	return predicate.Todo(sql.FieldEqualFold(FieldCategory, v))
+}
+
+// CategoryContainsFold applies the ContainsFold predicate on the "category" field.
+func CategoryContainsFold(v string) predicate.Todo {
+	return predicate.Todo(sql.FieldContainsFold(FieldCategory, v))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

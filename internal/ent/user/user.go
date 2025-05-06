@@ -22,8 +22,6 @@ const (
 	FieldBio = "bio"
 	// FieldIsAdmin holds the string denoting the isadmin field in the database.
 	FieldIsAdmin = "isAdmin"
-	// FieldLastLoginAt holds the string denoting the lastloginat field in the database.
-	FieldLastLoginAt = "lastLoginAt"
 	// FieldLastLoginIp holds the string denoting the lastloginip field in the database.
 	FieldLastLoginIp = "lastLoginIp"
 	// FieldGroupId holds the string denoting the groupid field in the database.
@@ -32,6 +30,8 @@ const (
 	FieldCreatedAt = "createdAt"
 	// FieldUpdatedAt holds the string denoting the updatedat field in the database.
 	FieldUpdatedAt = "updatedAt"
+	// FieldLastLoginAt holds the string denoting the lastloginat field in the database.
+	FieldLastLoginAt = "lastLoginAt"
 	// EdgeBuckets holds the string denoting the buckets edge name in mutations.
 	EdgeBuckets = "buckets"
 	// EdgeFiles holds the string denoting the files edge name in mutations.
@@ -125,11 +125,11 @@ var Columns = []string{
 	FieldAvatar,
 	FieldBio,
 	FieldIsAdmin,
-	FieldLastLoginAt,
 	FieldLastLoginIp,
 	FieldGroupId,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldLastLoginAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -175,11 +175,6 @@ func ByIsAdmin(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsAdmin, opts...).ToFunc()
 }
 
-// ByLastLoginAt orders the results by the lastLoginAt field.
-func ByLastLoginAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldLastLoginAt, opts...).ToFunc()
-}
-
 // ByLastLoginIp orders the results by the lastLoginIp field.
 func ByLastLoginIp(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLastLoginIp, opts...).ToFunc()
@@ -198,6 +193,11 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updatedAt field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByLastLoginAt orders the results by the lastLoginAt field.
+func ByLastLoginAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLastLoginAt, opts...).ToFunc()
 }
 
 // ByBucketsCount orders the results by buckets count.

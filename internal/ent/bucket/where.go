@@ -105,16 +105,6 @@ func Description(v string) predicate.Bucket {
 	return predicate.Bucket(sql.FieldEQ(FieldDescription, v))
 }
 
-// Category applies equality check predicate on the "category" field. It's identical to CategoryEQ.
-func Category(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldEQ(FieldCategory, v))
-}
-
-// OwnerId applies equality check predicate on the "ownerId" field. It's identical to OwnerIdEQ.
-func OwnerId(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldEQ(FieldOwnerId, v))
-}
-
 // CreatedAt applies equality check predicate on the "createdAt" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Bucket {
 	return predicate.Bucket(sql.FieldEQ(FieldCreatedAt, v))
@@ -123,6 +113,16 @@ func CreatedAt(v time.Time) predicate.Bucket {
 // UpdatedAt applies equality check predicate on the "updatedAt" field. It's identical to UpdatedAtEQ.
 func UpdatedAt(v time.Time) predicate.Bucket {
 	return predicate.Bucket(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// OwnerId applies equality check predicate on the "ownerId" field. It's identical to OwnerIdEQ.
+func OwnerId(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldEQ(FieldOwnerId, v))
+}
+
+// Category applies equality check predicate on the "category" field. It's identical to CategoryEQ.
+func Category(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldEQ(FieldCategory, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.
@@ -665,146 +665,6 @@ func DescriptionContainsFold(v string) predicate.Bucket {
 	return predicate.Bucket(sql.FieldContainsFold(FieldDescription, v))
 }
 
-// CategoryEQ applies the EQ predicate on the "category" field.
-func CategoryEQ(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldEQ(FieldCategory, v))
-}
-
-// CategoryNEQ applies the NEQ predicate on the "category" field.
-func CategoryNEQ(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldNEQ(FieldCategory, v))
-}
-
-// CategoryIn applies the In predicate on the "category" field.
-func CategoryIn(vs ...string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldIn(FieldCategory, vs...))
-}
-
-// CategoryNotIn applies the NotIn predicate on the "category" field.
-func CategoryNotIn(vs ...string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldNotIn(FieldCategory, vs...))
-}
-
-// CategoryGT applies the GT predicate on the "category" field.
-func CategoryGT(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldGT(FieldCategory, v))
-}
-
-// CategoryGTE applies the GTE predicate on the "category" field.
-func CategoryGTE(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldGTE(FieldCategory, v))
-}
-
-// CategoryLT applies the LT predicate on the "category" field.
-func CategoryLT(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldLT(FieldCategory, v))
-}
-
-// CategoryLTE applies the LTE predicate on the "category" field.
-func CategoryLTE(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldLTE(FieldCategory, v))
-}
-
-// CategoryContains applies the Contains predicate on the "category" field.
-func CategoryContains(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldContains(FieldCategory, v))
-}
-
-// CategoryHasPrefix applies the HasPrefix predicate on the "category" field.
-func CategoryHasPrefix(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldHasPrefix(FieldCategory, v))
-}
-
-// CategoryHasSuffix applies the HasSuffix predicate on the "category" field.
-func CategoryHasSuffix(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldHasSuffix(FieldCategory, v))
-}
-
-// CategoryEqualFold applies the EqualFold predicate on the "category" field.
-func CategoryEqualFold(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldEqualFold(FieldCategory, v))
-}
-
-// CategoryContainsFold applies the ContainsFold predicate on the "category" field.
-func CategoryContainsFold(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldContainsFold(FieldCategory, v))
-}
-
-// OwnerIdEQ applies the EQ predicate on the "ownerId" field.
-func OwnerIdEQ(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldEQ(FieldOwnerId, v))
-}
-
-// OwnerIdNEQ applies the NEQ predicate on the "ownerId" field.
-func OwnerIdNEQ(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldNEQ(FieldOwnerId, v))
-}
-
-// OwnerIdIn applies the In predicate on the "ownerId" field.
-func OwnerIdIn(vs ...string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldIn(FieldOwnerId, vs...))
-}
-
-// OwnerIdNotIn applies the NotIn predicate on the "ownerId" field.
-func OwnerIdNotIn(vs ...string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldNotIn(FieldOwnerId, vs...))
-}
-
-// OwnerIdGT applies the GT predicate on the "ownerId" field.
-func OwnerIdGT(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldGT(FieldOwnerId, v))
-}
-
-// OwnerIdGTE applies the GTE predicate on the "ownerId" field.
-func OwnerIdGTE(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldGTE(FieldOwnerId, v))
-}
-
-// OwnerIdLT applies the LT predicate on the "ownerId" field.
-func OwnerIdLT(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldLT(FieldOwnerId, v))
-}
-
-// OwnerIdLTE applies the LTE predicate on the "ownerId" field.
-func OwnerIdLTE(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldLTE(FieldOwnerId, v))
-}
-
-// OwnerIdContains applies the Contains predicate on the "ownerId" field.
-func OwnerIdContains(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldContains(FieldOwnerId, v))
-}
-
-// OwnerIdHasPrefix applies the HasPrefix predicate on the "ownerId" field.
-func OwnerIdHasPrefix(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldHasPrefix(FieldOwnerId, v))
-}
-
-// OwnerIdHasSuffix applies the HasSuffix predicate on the "ownerId" field.
-func OwnerIdHasSuffix(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldHasSuffix(FieldOwnerId, v))
-}
-
-// OwnerIdIsNil applies the IsNil predicate on the "ownerId" field.
-func OwnerIdIsNil() predicate.Bucket {
-	return predicate.Bucket(sql.FieldIsNull(FieldOwnerId))
-}
-
-// OwnerIdNotNil applies the NotNil predicate on the "ownerId" field.
-func OwnerIdNotNil() predicate.Bucket {
-	return predicate.Bucket(sql.FieldNotNull(FieldOwnerId))
-}
-
-// OwnerIdEqualFold applies the EqualFold predicate on the "ownerId" field.
-func OwnerIdEqualFold(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldEqualFold(FieldOwnerId, v))
-}
-
-// OwnerIdContainsFold applies the ContainsFold predicate on the "ownerId" field.
-func OwnerIdContainsFold(v string) predicate.Bucket {
-	return predicate.Bucket(sql.FieldContainsFold(FieldOwnerId, v))
-}
-
 // CreatedAtEQ applies the EQ predicate on the "createdAt" field.
 func CreatedAtEQ(v time.Time) predicate.Bucket {
 	return predicate.Bucket(sql.FieldEQ(FieldCreatedAt, v))
@@ -883,6 +743,146 @@ func UpdatedAtLT(v time.Time) predicate.Bucket {
 // UpdatedAtLTE applies the LTE predicate on the "updatedAt" field.
 func UpdatedAtLTE(v time.Time) predicate.Bucket {
 	return predicate.Bucket(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// OwnerIdEQ applies the EQ predicate on the "ownerId" field.
+func OwnerIdEQ(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldEQ(FieldOwnerId, v))
+}
+
+// OwnerIdNEQ applies the NEQ predicate on the "ownerId" field.
+func OwnerIdNEQ(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldNEQ(FieldOwnerId, v))
+}
+
+// OwnerIdIn applies the In predicate on the "ownerId" field.
+func OwnerIdIn(vs ...string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldIn(FieldOwnerId, vs...))
+}
+
+// OwnerIdNotIn applies the NotIn predicate on the "ownerId" field.
+func OwnerIdNotIn(vs ...string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldNotIn(FieldOwnerId, vs...))
+}
+
+// OwnerIdGT applies the GT predicate on the "ownerId" field.
+func OwnerIdGT(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldGT(FieldOwnerId, v))
+}
+
+// OwnerIdGTE applies the GTE predicate on the "ownerId" field.
+func OwnerIdGTE(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldGTE(FieldOwnerId, v))
+}
+
+// OwnerIdLT applies the LT predicate on the "ownerId" field.
+func OwnerIdLT(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldLT(FieldOwnerId, v))
+}
+
+// OwnerIdLTE applies the LTE predicate on the "ownerId" field.
+func OwnerIdLTE(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldLTE(FieldOwnerId, v))
+}
+
+// OwnerIdContains applies the Contains predicate on the "ownerId" field.
+func OwnerIdContains(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldContains(FieldOwnerId, v))
+}
+
+// OwnerIdHasPrefix applies the HasPrefix predicate on the "ownerId" field.
+func OwnerIdHasPrefix(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldHasPrefix(FieldOwnerId, v))
+}
+
+// OwnerIdHasSuffix applies the HasSuffix predicate on the "ownerId" field.
+func OwnerIdHasSuffix(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldHasSuffix(FieldOwnerId, v))
+}
+
+// OwnerIdIsNil applies the IsNil predicate on the "ownerId" field.
+func OwnerIdIsNil() predicate.Bucket {
+	return predicate.Bucket(sql.FieldIsNull(FieldOwnerId))
+}
+
+// OwnerIdNotNil applies the NotNil predicate on the "ownerId" field.
+func OwnerIdNotNil() predicate.Bucket {
+	return predicate.Bucket(sql.FieldNotNull(FieldOwnerId))
+}
+
+// OwnerIdEqualFold applies the EqualFold predicate on the "ownerId" field.
+func OwnerIdEqualFold(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldEqualFold(FieldOwnerId, v))
+}
+
+// OwnerIdContainsFold applies the ContainsFold predicate on the "ownerId" field.
+func OwnerIdContainsFold(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldContainsFold(FieldOwnerId, v))
+}
+
+// CategoryEQ applies the EQ predicate on the "category" field.
+func CategoryEQ(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldEQ(FieldCategory, v))
+}
+
+// CategoryNEQ applies the NEQ predicate on the "category" field.
+func CategoryNEQ(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldNEQ(FieldCategory, v))
+}
+
+// CategoryIn applies the In predicate on the "category" field.
+func CategoryIn(vs ...string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldIn(FieldCategory, vs...))
+}
+
+// CategoryNotIn applies the NotIn predicate on the "category" field.
+func CategoryNotIn(vs ...string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldNotIn(FieldCategory, vs...))
+}
+
+// CategoryGT applies the GT predicate on the "category" field.
+func CategoryGT(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldGT(FieldCategory, v))
+}
+
+// CategoryGTE applies the GTE predicate on the "category" field.
+func CategoryGTE(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldGTE(FieldCategory, v))
+}
+
+// CategoryLT applies the LT predicate on the "category" field.
+func CategoryLT(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldLT(FieldCategory, v))
+}
+
+// CategoryLTE applies the LTE predicate on the "category" field.
+func CategoryLTE(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldLTE(FieldCategory, v))
+}
+
+// CategoryContains applies the Contains predicate on the "category" field.
+func CategoryContains(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldContains(FieldCategory, v))
+}
+
+// CategoryHasPrefix applies the HasPrefix predicate on the "category" field.
+func CategoryHasPrefix(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldHasPrefix(FieldCategory, v))
+}
+
+// CategoryHasSuffix applies the HasSuffix predicate on the "category" field.
+func CategoryHasSuffix(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldHasSuffix(FieldCategory, v))
+}
+
+// CategoryEqualFold applies the EqualFold predicate on the "category" field.
+func CategoryEqualFold(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldEqualFold(FieldCategory, v))
+}
+
+// CategoryContainsFold applies the ContainsFold predicate on the "category" field.
+func CategoryContainsFold(v string) predicate.Bucket {
+	return predicate.Bucket(sql.FieldContainsFold(FieldCategory, v))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

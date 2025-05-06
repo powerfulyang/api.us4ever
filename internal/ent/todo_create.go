@@ -80,18 +80,6 @@ func (tc *TodoCreate) SetPinned(b bool) *TodoCreate {
 	return tc
 }
 
-// SetExtraData sets the "extraData" field.
-func (tc *TodoCreate) SetExtraData(jm json.RawMessage) *TodoCreate {
-	tc.mutation.SetExtraData(jm)
-	return tc
-}
-
-// SetCategory sets the "category" field.
-func (tc *TodoCreate) SetCategory(s string) *TodoCreate {
-	tc.mutation.SetCategory(s)
-	return tc
-}
-
 // SetOwnerId sets the "ownerId" field.
 func (tc *TodoCreate) SetOwnerId(s string) *TodoCreate {
 	tc.mutation.SetOwnerId(s)
@@ -115,6 +103,18 @@ func (tc *TodoCreate) SetCreatedAt(t time.Time) *TodoCreate {
 // SetUpdatedAt sets the "updatedAt" field.
 func (tc *TodoCreate) SetUpdatedAt(t time.Time) *TodoCreate {
 	tc.mutation.SetUpdatedAt(t)
+	return tc
+}
+
+// SetExtraData sets the "extraData" field.
+func (tc *TodoCreate) SetExtraData(jm json.RawMessage) *TodoCreate {
+	tc.mutation.SetExtraData(jm)
+	return tc
+}
+
+// SetCategory sets the "category" field.
+func (tc *TodoCreate) SetCategory(s string) *TodoCreate {
+	tc.mutation.SetCategory(s)
 	return tc
 }
 
@@ -192,17 +192,17 @@ func (tc *TodoCreate) check() error {
 	if _, ok := tc.mutation.Pinned(); !ok {
 		return &ValidationError{Name: "pinned", err: errors.New(`ent: missing required field "Todo.pinned"`)}
 	}
-	if _, ok := tc.mutation.ExtraData(); !ok {
-		return &ValidationError{Name: "extraData", err: errors.New(`ent: missing required field "Todo.extraData"`)}
-	}
-	if _, ok := tc.mutation.Category(); !ok {
-		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "Todo.category"`)}
-	}
 	if _, ok := tc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "createdAt", err: errors.New(`ent: missing required field "Todo.createdAt"`)}
 	}
 	if _, ok := tc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updatedAt", err: errors.New(`ent: missing required field "Todo.updatedAt"`)}
+	}
+	if _, ok := tc.mutation.ExtraData(); !ok {
+		return &ValidationError{Name: "extraData", err: errors.New(`ent: missing required field "Todo.extraData"`)}
+	}
+	if _, ok := tc.mutation.Category(); !ok {
+		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "Todo.category"`)}
 	}
 	return nil
 }
@@ -267,14 +267,6 @@ func (tc *TodoCreate) createSpec() (*Todo, *sqlgraph.CreateSpec) {
 		_spec.SetField(todo.FieldPinned, field.TypeBool, value)
 		_node.Pinned = value
 	}
-	if value, ok := tc.mutation.ExtraData(); ok {
-		_spec.SetField(todo.FieldExtraData, field.TypeJSON, value)
-		_node.ExtraData = value
-	}
-	if value, ok := tc.mutation.Category(); ok {
-		_spec.SetField(todo.FieldCategory, field.TypeString, value)
-		_node.Category = value
-	}
 	if value, ok := tc.mutation.CreatedAt(); ok {
 		_spec.SetField(todo.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -282,6 +274,14 @@ func (tc *TodoCreate) createSpec() (*Todo, *sqlgraph.CreateSpec) {
 	if value, ok := tc.mutation.UpdatedAt(); ok {
 		_spec.SetField(todo.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := tc.mutation.ExtraData(); ok {
+		_spec.SetField(todo.FieldExtraData, field.TypeJSON, value)
+		_node.ExtraData = value
+	}
+	if value, ok := tc.mutation.Category(); ok {
+		_spec.SetField(todo.FieldCategory, field.TypeString, value)
+		_node.Category = value
 	}
 	if nodes := tc.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

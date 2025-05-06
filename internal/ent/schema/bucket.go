@@ -16,7 +16,7 @@ type Bucket struct {
 }
 
 func (Bucket) Fields() []ent.Field {
-	return []ent.Field{field.String("id").StorageKey("id"), field.String("name").Unique().StorageKey("name"), field.String("bucketName").StorageKey("bucketName"), field.Enum("provider").StorageKey("provider").Values("R2", "TENCENT_COS", "ORACLE_OSS"), field.String("region").StorageKey("region"), field.String("endpoint").StorageKey("endpoint"), field.String("publicUrl").StorageKey("publicUrl"), field.String("accessKey").StorageKey("accessKey"), field.String("secretKey").StorageKey("secretKey"), field.String("description").StorageKey("description"), field.JSON("extraData", json.RawMessage{}).StorageKey("extraData"), field.String("category").StorageKey("category"), field.String("ownerId").Optional().StorageKey("ownerId"), field.Time("createdAt").StorageKey("createdAt"), field.Time("updatedAt").StorageKey("updatedAt")}
+	return []ent.Field{field.String("id").StorageKey("id"), field.String("name").Unique().StorageKey("name"), field.String("bucketName").StorageKey("bucketName"), field.Enum("provider").StorageKey("provider").Values("R2", "TENCENT_COS", "ORACLE_OSS"), field.String("region").StorageKey("region"), field.String("endpoint").StorageKey("endpoint"), field.String("publicUrl").StorageKey("publicUrl"), field.String("accessKey").StorageKey("accessKey"), field.String("secretKey").StorageKey("secretKey"), field.String("description").StorageKey("description"), field.Time("createdAt").StorageKey("createdAt"), field.Time("updatedAt").StorageKey("updatedAt"), field.String("ownerId").Optional().StorageKey("ownerId"), field.JSON("extraData", json.RawMessage{}).StorageKey("extraData"), field.String("category").StorageKey("category")}
 
 }
 func (Bucket) Edges() []ent.Edge {

@@ -75,30 +75,6 @@ func (fc *FileCreate) SetIsPublic(b bool) *FileCreate {
 	return fc
 }
 
-// SetDescription sets the "description" field.
-func (fc *FileCreate) SetDescription(s string) *FileCreate {
-	fc.mutation.SetDescription(s)
-	return fc
-}
-
-// SetTags sets the "tags" field.
-func (fc *FileCreate) SetTags(jm json.RawMessage) *FileCreate {
-	fc.mutation.SetTags(jm)
-	return fc
-}
-
-// SetExtraData sets the "extraData" field.
-func (fc *FileCreate) SetExtraData(jm json.RawMessage) *FileCreate {
-	fc.mutation.SetExtraData(jm)
-	return fc
-}
-
-// SetCategory sets the "category" field.
-func (fc *FileCreate) SetCategory(s string) *FileCreate {
-	fc.mutation.SetCategory(s)
-	return fc
-}
-
 // SetUploadedBy sets the "uploadedBy" field.
 func (fc *FileCreate) SetUploadedBy(s string) *FileCreate {
 	fc.mutation.SetUploadedBy(s)
@@ -113,6 +89,18 @@ func (fc *FileCreate) SetNillableUploadedBy(s *string) *FileCreate {
 	return fc
 }
 
+// SetDescription sets the "description" field.
+func (fc *FileCreate) SetDescription(s string) *FileCreate {
+	fc.mutation.SetDescription(s)
+	return fc
+}
+
+// SetTags sets the "tags" field.
+func (fc *FileCreate) SetTags(jm json.RawMessage) *FileCreate {
+	fc.mutation.SetTags(jm)
+	return fc
+}
+
 // SetCreatedAt sets the "createdAt" field.
 func (fc *FileCreate) SetCreatedAt(t time.Time) *FileCreate {
 	fc.mutation.SetCreatedAt(t)
@@ -122,6 +110,18 @@ func (fc *FileCreate) SetCreatedAt(t time.Time) *FileCreate {
 // SetUpdatedAt sets the "updatedAt" field.
 func (fc *FileCreate) SetUpdatedAt(t time.Time) *FileCreate {
 	fc.mutation.SetUpdatedAt(t)
+	return fc
+}
+
+// SetExtraData sets the "extraData" field.
+func (fc *FileCreate) SetExtraData(jm json.RawMessage) *FileCreate {
+	fc.mutation.SetExtraData(jm)
+	return fc
+}
+
+// SetCategory sets the "category" field.
+func (fc *FileCreate) SetCategory(s string) *FileCreate {
+	fc.mutation.SetCategory(s)
 	return fc
 }
 
@@ -317,17 +317,17 @@ func (fc *FileCreate) check() error {
 	if _, ok := fc.mutation.Tags(); !ok {
 		return &ValidationError{Name: "tags", err: errors.New(`ent: missing required field "File.tags"`)}
 	}
-	if _, ok := fc.mutation.ExtraData(); !ok {
-		return &ValidationError{Name: "extraData", err: errors.New(`ent: missing required field "File.extraData"`)}
-	}
-	if _, ok := fc.mutation.Category(); !ok {
-		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "File.category"`)}
-	}
 	if _, ok := fc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "createdAt", err: errors.New(`ent: missing required field "File.createdAt"`)}
 	}
 	if _, ok := fc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updatedAt", err: errors.New(`ent: missing required field "File.updatedAt"`)}
+	}
+	if _, ok := fc.mutation.ExtraData(); !ok {
+		return &ValidationError{Name: "extraData", err: errors.New(`ent: missing required field "File.extraData"`)}
+	}
+	if _, ok := fc.mutation.Category(); !ok {
+		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "File.category"`)}
 	}
 	return nil
 }
@@ -396,14 +396,6 @@ func (fc *FileCreate) createSpec() (*File, *sqlgraph.CreateSpec) {
 		_spec.SetField(file.FieldTags, field.TypeJSON, value)
 		_node.Tags = value
 	}
-	if value, ok := fc.mutation.ExtraData(); ok {
-		_spec.SetField(file.FieldExtraData, field.TypeJSON, value)
-		_node.ExtraData = value
-	}
-	if value, ok := fc.mutation.Category(); ok {
-		_spec.SetField(file.FieldCategory, field.TypeString, value)
-		_node.Category = value
-	}
 	if value, ok := fc.mutation.CreatedAt(); ok {
 		_spec.SetField(file.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -411,6 +403,14 @@ func (fc *FileCreate) createSpec() (*File, *sqlgraph.CreateSpec) {
 	if value, ok := fc.mutation.UpdatedAt(); ok {
 		_spec.SetField(file.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := fc.mutation.ExtraData(); ok {
+		_spec.SetField(file.FieldExtraData, field.TypeJSON, value)
+		_node.ExtraData = value
+	}
+	if value, ok := fc.mutation.Category(); ok {
+		_spec.SetField(file.FieldCategory, field.TypeString, value)
+		_node.Category = value
 	}
 	if nodes := fc.mutation.BucketIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

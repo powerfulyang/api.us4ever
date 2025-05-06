@@ -158,52 +158,6 @@ func (bu *BucketUpdate) SetNillableDescription(s *string) *BucketUpdate {
 	return bu
 }
 
-// SetExtraData sets the "extraData" field.
-func (bu *BucketUpdate) SetExtraData(jm json.RawMessage) *BucketUpdate {
-	bu.mutation.SetExtraData(jm)
-	return bu
-}
-
-// AppendExtraData appends jm to the "extraData" field.
-func (bu *BucketUpdate) AppendExtraData(jm json.RawMessage) *BucketUpdate {
-	bu.mutation.AppendExtraData(jm)
-	return bu
-}
-
-// SetCategory sets the "category" field.
-func (bu *BucketUpdate) SetCategory(s string) *BucketUpdate {
-	bu.mutation.SetCategory(s)
-	return bu
-}
-
-// SetNillableCategory sets the "category" field if the given value is not nil.
-func (bu *BucketUpdate) SetNillableCategory(s *string) *BucketUpdate {
-	if s != nil {
-		bu.SetCategory(*s)
-	}
-	return bu
-}
-
-// SetOwnerId sets the "ownerId" field.
-func (bu *BucketUpdate) SetOwnerId(s string) *BucketUpdate {
-	bu.mutation.SetOwnerId(s)
-	return bu
-}
-
-// SetNillableOwnerId sets the "ownerId" field if the given value is not nil.
-func (bu *BucketUpdate) SetNillableOwnerId(s *string) *BucketUpdate {
-	if s != nil {
-		bu.SetOwnerId(*s)
-	}
-	return bu
-}
-
-// ClearOwnerId clears the value of the "ownerId" field.
-func (bu *BucketUpdate) ClearOwnerId() *BucketUpdate {
-	bu.mutation.ClearOwnerId()
-	return bu
-}
-
 // SetCreatedAt sets the "createdAt" field.
 func (bu *BucketUpdate) SetCreatedAt(t time.Time) *BucketUpdate {
 	bu.mutation.SetCreatedAt(t)
@@ -228,6 +182,52 @@ func (bu *BucketUpdate) SetUpdatedAt(t time.Time) *BucketUpdate {
 func (bu *BucketUpdate) SetNillableUpdatedAt(t *time.Time) *BucketUpdate {
 	if t != nil {
 		bu.SetUpdatedAt(*t)
+	}
+	return bu
+}
+
+// SetOwnerId sets the "ownerId" field.
+func (bu *BucketUpdate) SetOwnerId(s string) *BucketUpdate {
+	bu.mutation.SetOwnerId(s)
+	return bu
+}
+
+// SetNillableOwnerId sets the "ownerId" field if the given value is not nil.
+func (bu *BucketUpdate) SetNillableOwnerId(s *string) *BucketUpdate {
+	if s != nil {
+		bu.SetOwnerId(*s)
+	}
+	return bu
+}
+
+// ClearOwnerId clears the value of the "ownerId" field.
+func (bu *BucketUpdate) ClearOwnerId() *BucketUpdate {
+	bu.mutation.ClearOwnerId()
+	return bu
+}
+
+// SetExtraData sets the "extraData" field.
+func (bu *BucketUpdate) SetExtraData(jm json.RawMessage) *BucketUpdate {
+	bu.mutation.SetExtraData(jm)
+	return bu
+}
+
+// AppendExtraData appends jm to the "extraData" field.
+func (bu *BucketUpdate) AppendExtraData(jm json.RawMessage) *BucketUpdate {
+	bu.mutation.AppendExtraData(jm)
+	return bu
+}
+
+// SetCategory sets the "category" field.
+func (bu *BucketUpdate) SetCategory(s string) *BucketUpdate {
+	bu.mutation.SetCategory(s)
+	return bu
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (bu *BucketUpdate) SetNillableCategory(s *string) *BucketUpdate {
+	if s != nil {
+		bu.SetCategory(*s)
 	}
 	return bu
 }
@@ -374,6 +374,12 @@ func (bu *BucketUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := bu.mutation.Description(); ok {
 		_spec.SetField(bucket.FieldDescription, field.TypeString, value)
 	}
+	if value, ok := bu.mutation.CreatedAt(); ok {
+		_spec.SetField(bucket.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := bu.mutation.UpdatedAt(); ok {
+		_spec.SetField(bucket.FieldUpdatedAt, field.TypeTime, value)
+	}
 	if value, ok := bu.mutation.ExtraData(); ok {
 		_spec.SetField(bucket.FieldExtraData, field.TypeJSON, value)
 	}
@@ -384,12 +390,6 @@ func (bu *BucketUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := bu.mutation.Category(); ok {
 		_spec.SetField(bucket.FieldCategory, field.TypeString, value)
-	}
-	if value, ok := bu.mutation.CreatedAt(); ok {
-		_spec.SetField(bucket.FieldCreatedAt, field.TypeTime, value)
-	}
-	if value, ok := bu.mutation.UpdatedAt(); ok {
-		_spec.SetField(bucket.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if bu.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -611,52 +611,6 @@ func (buo *BucketUpdateOne) SetNillableDescription(s *string) *BucketUpdateOne {
 	return buo
 }
 
-// SetExtraData sets the "extraData" field.
-func (buo *BucketUpdateOne) SetExtraData(jm json.RawMessage) *BucketUpdateOne {
-	buo.mutation.SetExtraData(jm)
-	return buo
-}
-
-// AppendExtraData appends jm to the "extraData" field.
-func (buo *BucketUpdateOne) AppendExtraData(jm json.RawMessage) *BucketUpdateOne {
-	buo.mutation.AppendExtraData(jm)
-	return buo
-}
-
-// SetCategory sets the "category" field.
-func (buo *BucketUpdateOne) SetCategory(s string) *BucketUpdateOne {
-	buo.mutation.SetCategory(s)
-	return buo
-}
-
-// SetNillableCategory sets the "category" field if the given value is not nil.
-func (buo *BucketUpdateOne) SetNillableCategory(s *string) *BucketUpdateOne {
-	if s != nil {
-		buo.SetCategory(*s)
-	}
-	return buo
-}
-
-// SetOwnerId sets the "ownerId" field.
-func (buo *BucketUpdateOne) SetOwnerId(s string) *BucketUpdateOne {
-	buo.mutation.SetOwnerId(s)
-	return buo
-}
-
-// SetNillableOwnerId sets the "ownerId" field if the given value is not nil.
-func (buo *BucketUpdateOne) SetNillableOwnerId(s *string) *BucketUpdateOne {
-	if s != nil {
-		buo.SetOwnerId(*s)
-	}
-	return buo
-}
-
-// ClearOwnerId clears the value of the "ownerId" field.
-func (buo *BucketUpdateOne) ClearOwnerId() *BucketUpdateOne {
-	buo.mutation.ClearOwnerId()
-	return buo
-}
-
 // SetCreatedAt sets the "createdAt" field.
 func (buo *BucketUpdateOne) SetCreatedAt(t time.Time) *BucketUpdateOne {
 	buo.mutation.SetCreatedAt(t)
@@ -681,6 +635,52 @@ func (buo *BucketUpdateOne) SetUpdatedAt(t time.Time) *BucketUpdateOne {
 func (buo *BucketUpdateOne) SetNillableUpdatedAt(t *time.Time) *BucketUpdateOne {
 	if t != nil {
 		buo.SetUpdatedAt(*t)
+	}
+	return buo
+}
+
+// SetOwnerId sets the "ownerId" field.
+func (buo *BucketUpdateOne) SetOwnerId(s string) *BucketUpdateOne {
+	buo.mutation.SetOwnerId(s)
+	return buo
+}
+
+// SetNillableOwnerId sets the "ownerId" field if the given value is not nil.
+func (buo *BucketUpdateOne) SetNillableOwnerId(s *string) *BucketUpdateOne {
+	if s != nil {
+		buo.SetOwnerId(*s)
+	}
+	return buo
+}
+
+// ClearOwnerId clears the value of the "ownerId" field.
+func (buo *BucketUpdateOne) ClearOwnerId() *BucketUpdateOne {
+	buo.mutation.ClearOwnerId()
+	return buo
+}
+
+// SetExtraData sets the "extraData" field.
+func (buo *BucketUpdateOne) SetExtraData(jm json.RawMessage) *BucketUpdateOne {
+	buo.mutation.SetExtraData(jm)
+	return buo
+}
+
+// AppendExtraData appends jm to the "extraData" field.
+func (buo *BucketUpdateOne) AppendExtraData(jm json.RawMessage) *BucketUpdateOne {
+	buo.mutation.AppendExtraData(jm)
+	return buo
+}
+
+// SetCategory sets the "category" field.
+func (buo *BucketUpdateOne) SetCategory(s string) *BucketUpdateOne {
+	buo.mutation.SetCategory(s)
+	return buo
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (buo *BucketUpdateOne) SetNillableCategory(s *string) *BucketUpdateOne {
+	if s != nil {
+		buo.SetCategory(*s)
 	}
 	return buo
 }
@@ -857,6 +857,12 @@ func (buo *BucketUpdateOne) sqlSave(ctx context.Context) (_node *Bucket, err err
 	if value, ok := buo.mutation.Description(); ok {
 		_spec.SetField(bucket.FieldDescription, field.TypeString, value)
 	}
+	if value, ok := buo.mutation.CreatedAt(); ok {
+		_spec.SetField(bucket.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := buo.mutation.UpdatedAt(); ok {
+		_spec.SetField(bucket.FieldUpdatedAt, field.TypeTime, value)
+	}
 	if value, ok := buo.mutation.ExtraData(); ok {
 		_spec.SetField(bucket.FieldExtraData, field.TypeJSON, value)
 	}
@@ -867,12 +873,6 @@ func (buo *BucketUpdateOne) sqlSave(ctx context.Context) (_node *Bucket, err err
 	}
 	if value, ok := buo.mutation.Category(); ok {
 		_spec.SetField(bucket.FieldCategory, field.TypeString, value)
-	}
-	if value, ok := buo.mutation.CreatedAt(); ok {
-		_spec.SetField(bucket.FieldCreatedAt, field.TypeTime, value)
-	}
-	if value, ok := buo.mutation.UpdatedAt(); ok {
-		_spec.SetField(bucket.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if buo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

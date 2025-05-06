@@ -65,11 +65,11 @@ type BucketMutation struct {
 	accessKey       *string
 	secretKey       *string
 	description     *string
+	createdAt       *time.Time
+	updatedAt       *time.Time
 	extraData       *json.RawMessage
 	appendextraData json.RawMessage
 	category        *string
-	createdAt       *time.Time
-	updatedAt       *time.Time
 	clearedFields   map[string]struct{}
 	user            *string
 	cleareduser     bool
@@ -509,6 +509,127 @@ func (m *BucketMutation) ResetDescription() {
 	m.description = nil
 }
 
+// SetCreatedAt sets the "createdAt" field.
+func (m *BucketMutation) SetCreatedAt(t time.Time) {
+	m.createdAt = &t
+}
+
+// CreatedAt returns the value of the "createdAt" field in the mutation.
+func (m *BucketMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.createdAt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "createdAt" field's value of the Bucket entity.
+// If the Bucket object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BucketMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "createdAt" field.
+func (m *BucketMutation) ResetCreatedAt() {
+	m.createdAt = nil
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (m *BucketMutation) SetUpdatedAt(t time.Time) {
+	m.updatedAt = &t
+}
+
+// UpdatedAt returns the value of the "updatedAt" field in the mutation.
+func (m *BucketMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updatedAt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updatedAt" field's value of the Bucket entity.
+// If the Bucket object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BucketMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updatedAt" field.
+func (m *BucketMutation) ResetUpdatedAt() {
+	m.updatedAt = nil
+}
+
+// SetOwnerId sets the "ownerId" field.
+func (m *BucketMutation) SetOwnerId(s string) {
+	m.user = &s
+}
+
+// OwnerId returns the value of the "ownerId" field in the mutation.
+func (m *BucketMutation) OwnerId() (r string, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOwnerId returns the old "ownerId" field's value of the Bucket entity.
+// If the Bucket object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BucketMutation) OldOwnerId(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOwnerId is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOwnerId requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOwnerId: %w", err)
+	}
+	return oldValue.OwnerId, nil
+}
+
+// ClearOwnerId clears the value of the "ownerId" field.
+func (m *BucketMutation) ClearOwnerId() {
+	m.user = nil
+	m.clearedFields[bucket.FieldOwnerId] = struct{}{}
+}
+
+// OwnerIdCleared returns if the "ownerId" field was cleared in this mutation.
+func (m *BucketMutation) OwnerIdCleared() bool {
+	_, ok := m.clearedFields[bucket.FieldOwnerId]
+	return ok
+}
+
+// ResetOwnerId resets all changes to the "ownerId" field.
+func (m *BucketMutation) ResetOwnerId() {
+	m.user = nil
+	delete(m.clearedFields, bucket.FieldOwnerId)
+}
+
 // SetExtraData sets the "extraData" field.
 func (m *BucketMutation) SetExtraData(jm json.RawMessage) {
 	m.extraData = &jm
@@ -594,127 +715,6 @@ func (m *BucketMutation) OldCategory(ctx context.Context) (v string, err error) 
 // ResetCategory resets all changes to the "category" field.
 func (m *BucketMutation) ResetCategory() {
 	m.category = nil
-}
-
-// SetOwnerId sets the "ownerId" field.
-func (m *BucketMutation) SetOwnerId(s string) {
-	m.user = &s
-}
-
-// OwnerId returns the value of the "ownerId" field in the mutation.
-func (m *BucketMutation) OwnerId() (r string, exists bool) {
-	v := m.user
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOwnerId returns the old "ownerId" field's value of the Bucket entity.
-// If the Bucket object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BucketMutation) OldOwnerId(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOwnerId is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOwnerId requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOwnerId: %w", err)
-	}
-	return oldValue.OwnerId, nil
-}
-
-// ClearOwnerId clears the value of the "ownerId" field.
-func (m *BucketMutation) ClearOwnerId() {
-	m.user = nil
-	m.clearedFields[bucket.FieldOwnerId] = struct{}{}
-}
-
-// OwnerIdCleared returns if the "ownerId" field was cleared in this mutation.
-func (m *BucketMutation) OwnerIdCleared() bool {
-	_, ok := m.clearedFields[bucket.FieldOwnerId]
-	return ok
-}
-
-// ResetOwnerId resets all changes to the "ownerId" field.
-func (m *BucketMutation) ResetOwnerId() {
-	m.user = nil
-	delete(m.clearedFields, bucket.FieldOwnerId)
-}
-
-// SetCreatedAt sets the "createdAt" field.
-func (m *BucketMutation) SetCreatedAt(t time.Time) {
-	m.createdAt = &t
-}
-
-// CreatedAt returns the value of the "createdAt" field in the mutation.
-func (m *BucketMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.createdAt
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "createdAt" field's value of the Bucket entity.
-// If the Bucket object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BucketMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "createdAt" field.
-func (m *BucketMutation) ResetCreatedAt() {
-	m.createdAt = nil
-}
-
-// SetUpdatedAt sets the "updatedAt" field.
-func (m *BucketMutation) SetUpdatedAt(t time.Time) {
-	m.updatedAt = &t
-}
-
-// UpdatedAt returns the value of the "updatedAt" field in the mutation.
-func (m *BucketMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updatedAt
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updatedAt" field's value of the Bucket entity.
-// If the Bucket object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BucketMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updatedAt" field.
-func (m *BucketMutation) ResetUpdatedAt() {
-	m.updatedAt = nil
 }
 
 // SetUserID sets the "user" edge to the User entity by id.
@@ -873,20 +873,20 @@ func (m *BucketMutation) Fields() []string {
 	if m.description != nil {
 		fields = append(fields, bucket.FieldDescription)
 	}
-	if m.extraData != nil {
-		fields = append(fields, bucket.FieldExtraData)
-	}
-	if m.category != nil {
-		fields = append(fields, bucket.FieldCategory)
-	}
-	if m.user != nil {
-		fields = append(fields, bucket.FieldOwnerId)
-	}
 	if m.createdAt != nil {
 		fields = append(fields, bucket.FieldCreatedAt)
 	}
 	if m.updatedAt != nil {
 		fields = append(fields, bucket.FieldUpdatedAt)
+	}
+	if m.user != nil {
+		fields = append(fields, bucket.FieldOwnerId)
+	}
+	if m.extraData != nil {
+		fields = append(fields, bucket.FieldExtraData)
+	}
+	if m.category != nil {
+		fields = append(fields, bucket.FieldCategory)
 	}
 	return fields
 }
@@ -914,16 +914,16 @@ func (m *BucketMutation) Field(name string) (ent.Value, bool) {
 		return m.SecretKey()
 	case bucket.FieldDescription:
 		return m.Description()
-	case bucket.FieldExtraData:
-		return m.ExtraData()
-	case bucket.FieldCategory:
-		return m.Category()
-	case bucket.FieldOwnerId:
-		return m.OwnerId()
 	case bucket.FieldCreatedAt:
 		return m.CreatedAt()
 	case bucket.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case bucket.FieldOwnerId:
+		return m.OwnerId()
+	case bucket.FieldExtraData:
+		return m.ExtraData()
+	case bucket.FieldCategory:
+		return m.Category()
 	}
 	return nil, false
 }
@@ -951,16 +951,16 @@ func (m *BucketMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldSecretKey(ctx)
 	case bucket.FieldDescription:
 		return m.OldDescription(ctx)
-	case bucket.FieldExtraData:
-		return m.OldExtraData(ctx)
-	case bucket.FieldCategory:
-		return m.OldCategory(ctx)
-	case bucket.FieldOwnerId:
-		return m.OldOwnerId(ctx)
 	case bucket.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case bucket.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case bucket.FieldOwnerId:
+		return m.OldOwnerId(ctx)
+	case bucket.FieldExtraData:
+		return m.OldExtraData(ctx)
+	case bucket.FieldCategory:
+		return m.OldCategory(ctx)
 	}
 	return nil, fmt.Errorf("unknown Bucket field %s", name)
 }
@@ -1033,27 +1033,6 @@ func (m *BucketMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDescription(v)
 		return nil
-	case bucket.FieldExtraData:
-		v, ok := value.(json.RawMessage)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetExtraData(v)
-		return nil
-	case bucket.FieldCategory:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCategory(v)
-		return nil
-	case bucket.FieldOwnerId:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOwnerId(v)
-		return nil
 	case bucket.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -1067,6 +1046,27 @@ func (m *BucketMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
+		return nil
+	case bucket.FieldOwnerId:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOwnerId(v)
+		return nil
+	case bucket.FieldExtraData:
+		v, ok := value.(json.RawMessage)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExtraData(v)
+		return nil
+	case bucket.FieldCategory:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCategory(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Bucket field %s", name)
@@ -1153,20 +1153,20 @@ func (m *BucketMutation) ResetField(name string) error {
 	case bucket.FieldDescription:
 		m.ResetDescription()
 		return nil
-	case bucket.FieldExtraData:
-		m.ResetExtraData()
-		return nil
-	case bucket.FieldCategory:
-		m.ResetCategory()
-		return nil
-	case bucket.FieldOwnerId:
-		m.ResetOwnerId()
-		return nil
 	case bucket.FieldCreatedAt:
 		m.ResetCreatedAt()
 		return nil
 	case bucket.FieldUpdatedAt:
 		m.ResetUpdatedAt()
+		return nil
+	case bucket.FieldOwnerId:
+		m.ResetOwnerId()
+		return nil
+	case bucket.FieldExtraData:
+		m.ResetExtraData()
+		return nil
+	case bucket.FieldCategory:
+		m.ResetCategory()
 		return nil
 	}
 	return fmt.Errorf("unknown Bucket field %s", name)
@@ -1290,11 +1290,11 @@ type FileMutation struct {
 	description                 *string
 	tags                        *json.RawMessage
 	appendtags                  json.RawMessage
+	createdAt                   *time.Time
+	updatedAt                   *time.Time
 	extraData                   *json.RawMessage
 	appendextraData             json.RawMessage
 	category                    *string
-	createdAt                   *time.Time
-	updatedAt                   *time.Time
 	clearedFields               map[string]struct{}
 	bucket                      *string
 	clearedbucket               bool
@@ -1712,6 +1712,55 @@ func (m *FileMutation) ResetIsPublic() {
 	m.isPublic = nil
 }
 
+// SetUploadedBy sets the "uploadedBy" field.
+func (m *FileMutation) SetUploadedBy(s string) {
+	m.user = &s
+}
+
+// UploadedBy returns the value of the "uploadedBy" field in the mutation.
+func (m *FileMutation) UploadedBy() (r string, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUploadedBy returns the old "uploadedBy" field's value of the File entity.
+// If the File object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FileMutation) OldUploadedBy(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUploadedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUploadedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUploadedBy: %w", err)
+	}
+	return oldValue.UploadedBy, nil
+}
+
+// ClearUploadedBy clears the value of the "uploadedBy" field.
+func (m *FileMutation) ClearUploadedBy() {
+	m.user = nil
+	m.clearedFields[file.FieldUploadedBy] = struct{}{}
+}
+
+// UploadedByCleared returns if the "uploadedBy" field was cleared in this mutation.
+func (m *FileMutation) UploadedByCleared() bool {
+	_, ok := m.clearedFields[file.FieldUploadedBy]
+	return ok
+}
+
+// ResetUploadedBy resets all changes to the "uploadedBy" field.
+func (m *FileMutation) ResetUploadedBy() {
+	m.user = nil
+	delete(m.clearedFields, file.FieldUploadedBy)
+}
+
 // SetDescription sets the "description" field.
 func (m *FileMutation) SetDescription(s string) {
 	m.description = &s
@@ -1799,6 +1848,78 @@ func (m *FileMutation) ResetTags() {
 	m.appendtags = nil
 }
 
+// SetCreatedAt sets the "createdAt" field.
+func (m *FileMutation) SetCreatedAt(t time.Time) {
+	m.createdAt = &t
+}
+
+// CreatedAt returns the value of the "createdAt" field in the mutation.
+func (m *FileMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.createdAt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "createdAt" field's value of the File entity.
+// If the File object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FileMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "createdAt" field.
+func (m *FileMutation) ResetCreatedAt() {
+	m.createdAt = nil
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (m *FileMutation) SetUpdatedAt(t time.Time) {
+	m.updatedAt = &t
+}
+
+// UpdatedAt returns the value of the "updatedAt" field in the mutation.
+func (m *FileMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updatedAt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updatedAt" field's value of the File entity.
+// If the File object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FileMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updatedAt" field.
+func (m *FileMutation) ResetUpdatedAt() {
+	m.updatedAt = nil
+}
+
 // SetExtraData sets the "extraData" field.
 func (m *FileMutation) SetExtraData(jm json.RawMessage) {
 	m.extraData = &jm
@@ -1884,127 +2005,6 @@ func (m *FileMutation) OldCategory(ctx context.Context) (v string, err error) {
 // ResetCategory resets all changes to the "category" field.
 func (m *FileMutation) ResetCategory() {
 	m.category = nil
-}
-
-// SetUploadedBy sets the "uploadedBy" field.
-func (m *FileMutation) SetUploadedBy(s string) {
-	m.user = &s
-}
-
-// UploadedBy returns the value of the "uploadedBy" field in the mutation.
-func (m *FileMutation) UploadedBy() (r string, exists bool) {
-	v := m.user
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUploadedBy returns the old "uploadedBy" field's value of the File entity.
-// If the File object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FileMutation) OldUploadedBy(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUploadedBy is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUploadedBy requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUploadedBy: %w", err)
-	}
-	return oldValue.UploadedBy, nil
-}
-
-// ClearUploadedBy clears the value of the "uploadedBy" field.
-func (m *FileMutation) ClearUploadedBy() {
-	m.user = nil
-	m.clearedFields[file.FieldUploadedBy] = struct{}{}
-}
-
-// UploadedByCleared returns if the "uploadedBy" field was cleared in this mutation.
-func (m *FileMutation) UploadedByCleared() bool {
-	_, ok := m.clearedFields[file.FieldUploadedBy]
-	return ok
-}
-
-// ResetUploadedBy resets all changes to the "uploadedBy" field.
-func (m *FileMutation) ResetUploadedBy() {
-	m.user = nil
-	delete(m.clearedFields, file.FieldUploadedBy)
-}
-
-// SetCreatedAt sets the "createdAt" field.
-func (m *FileMutation) SetCreatedAt(t time.Time) {
-	m.createdAt = &t
-}
-
-// CreatedAt returns the value of the "createdAt" field in the mutation.
-func (m *FileMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.createdAt
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "createdAt" field's value of the File entity.
-// If the File object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FileMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "createdAt" field.
-func (m *FileMutation) ResetCreatedAt() {
-	m.createdAt = nil
-}
-
-// SetUpdatedAt sets the "updatedAt" field.
-func (m *FileMutation) SetUpdatedAt(t time.Time) {
-	m.updatedAt = &t
-}
-
-// UpdatedAt returns the value of the "updatedAt" field in the mutation.
-func (m *FileMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updatedAt
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updatedAt" field's value of the File entity.
-// If the File object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FileMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updatedAt" field.
-func (m *FileMutation) ResetUpdatedAt() {
-	m.updatedAt = nil
 }
 
 // SetBucketID sets the "bucket" edge to the Bucket entity by id.
@@ -2467,26 +2467,26 @@ func (m *FileMutation) Fields() []string {
 	if m.isPublic != nil {
 		fields = append(fields, file.FieldIsPublic)
 	}
+	if m.user != nil {
+		fields = append(fields, file.FieldUploadedBy)
+	}
 	if m.description != nil {
 		fields = append(fields, file.FieldDescription)
 	}
 	if m.tags != nil {
 		fields = append(fields, file.FieldTags)
 	}
-	if m.extraData != nil {
-		fields = append(fields, file.FieldExtraData)
-	}
-	if m.category != nil {
-		fields = append(fields, file.FieldCategory)
-	}
-	if m.user != nil {
-		fields = append(fields, file.FieldUploadedBy)
-	}
 	if m.createdAt != nil {
 		fields = append(fields, file.FieldCreatedAt)
 	}
 	if m.updatedAt != nil {
 		fields = append(fields, file.FieldUpdatedAt)
+	}
+	if m.extraData != nil {
+		fields = append(fields, file.FieldExtraData)
+	}
+	if m.category != nil {
+		fields = append(fields, file.FieldCategory)
 	}
 	return fields
 }
@@ -2510,20 +2510,20 @@ func (m *FileMutation) Field(name string) (ent.Value, bool) {
 		return m.Path()
 	case file.FieldIsPublic:
 		return m.IsPublic()
+	case file.FieldUploadedBy:
+		return m.UploadedBy()
 	case file.FieldDescription:
 		return m.Description()
 	case file.FieldTags:
 		return m.Tags()
-	case file.FieldExtraData:
-		return m.ExtraData()
-	case file.FieldCategory:
-		return m.Category()
-	case file.FieldUploadedBy:
-		return m.UploadedBy()
 	case file.FieldCreatedAt:
 		return m.CreatedAt()
 	case file.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case file.FieldExtraData:
+		return m.ExtraData()
+	case file.FieldCategory:
+		return m.Category()
 	}
 	return nil, false
 }
@@ -2547,20 +2547,20 @@ func (m *FileMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldPath(ctx)
 	case file.FieldIsPublic:
 		return m.OldIsPublic(ctx)
+	case file.FieldUploadedBy:
+		return m.OldUploadedBy(ctx)
 	case file.FieldDescription:
 		return m.OldDescription(ctx)
 	case file.FieldTags:
 		return m.OldTags(ctx)
-	case file.FieldExtraData:
-		return m.OldExtraData(ctx)
-	case file.FieldCategory:
-		return m.OldCategory(ctx)
-	case file.FieldUploadedBy:
-		return m.OldUploadedBy(ctx)
 	case file.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case file.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case file.FieldExtraData:
+		return m.OldExtraData(ctx)
+	case file.FieldCategory:
+		return m.OldCategory(ctx)
 	}
 	return nil, fmt.Errorf("unknown File field %s", name)
 }
@@ -2619,6 +2619,13 @@ func (m *FileMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetIsPublic(v)
 		return nil
+	case file.FieldUploadedBy:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUploadedBy(v)
+		return nil
 	case file.FieldDescription:
 		v, ok := value.(string)
 		if !ok {
@@ -2633,27 +2640,6 @@ func (m *FileMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetTags(v)
 		return nil
-	case file.FieldExtraData:
-		v, ok := value.(json.RawMessage)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetExtraData(v)
-		return nil
-	case file.FieldCategory:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCategory(v)
-		return nil
-	case file.FieldUploadedBy:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUploadedBy(v)
-		return nil
 	case file.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -2667,6 +2653,20 @@ func (m *FileMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
+		return nil
+	case file.FieldExtraData:
+		v, ok := value.(json.RawMessage)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExtraData(v)
+		return nil
+	case file.FieldCategory:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCategory(v)
 		return nil
 	}
 	return fmt.Errorf("unknown File field %s", name)
@@ -2768,26 +2768,26 @@ func (m *FileMutation) ResetField(name string) error {
 	case file.FieldIsPublic:
 		m.ResetIsPublic()
 		return nil
+	case file.FieldUploadedBy:
+		m.ResetUploadedBy()
+		return nil
 	case file.FieldDescription:
 		m.ResetDescription()
 		return nil
 	case file.FieldTags:
 		m.ResetTags()
 		return nil
-	case file.FieldExtraData:
-		m.ResetExtraData()
-		return nil
-	case file.FieldCategory:
-		m.ResetCategory()
-		return nil
-	case file.FieldUploadedBy:
-		m.ResetUploadedBy()
-		return nil
 	case file.FieldCreatedAt:
 		m.ResetCreatedAt()
 		return nil
 	case file.FieldUpdatedAt:
 		m.ResetUpdatedAt()
+		return nil
+	case file.FieldExtraData:
+		m.ResetExtraData()
+		return nil
+	case file.FieldCategory:
+		m.ResetCategory()
 		return nil
 	}
 	return fmt.Errorf("unknown File field %s", name)
@@ -3633,48 +3633,50 @@ func (m *GroupMutation) ResetEdge(name string) error {
 // ImageMutation represents an operation that mutates the Image nodes in the graph.
 type ImageMutation struct {
 	config
-	op                   Op
-	typ                  string
-	id                   *string
-	name                 *string
-	_type                *string
-	size                 *int
-	addsize              *int
-	width                *int32
-	addwidth             *int32
-	height               *int32
-	addheight            *int32
-	exif                 *json.RawMessage
-	appendexif           json.RawMessage
-	hash                 *string
-	address              *string
-	isPublic             *bool
-	description          *string
-	tags                 *json.RawMessage
-	appendtags           json.RawMessage
-	extraData            *json.RawMessage
-	appendextraData      json.RawMessage
-	category             *string
-	thumbnail_10x        *[]byte
-	createdAt            *time.Time
-	updatedAt            *time.Time
-	clearedFields        map[string]struct{}
-	compressed           *string
-	clearedcompressed    bool
-	original             *string
-	clearedoriginal      bool
-	thumbnail320x        *string
-	clearedthumbnail320x bool
-	thumbnail768x        *string
-	clearedthumbnail768x bool
-	user                 *string
-	cleareduser          bool
-	moment_images        map[uint]struct{}
-	removedmoment_images map[uint]struct{}
-	clearedmoment_images bool
-	done                 bool
-	oldValue             func(context.Context) (*Image, error)
-	predicates           []predicate.Image
+	op                       Op
+	typ                      string
+	id                       *string
+	name                     *string
+	_type                    *string
+	size                     *int
+	addsize                  *int
+	width                    *int32
+	addwidth                 *int32
+	height                   *int32
+	addheight                *int32
+	exif                     *json.RawMessage
+	appendexif               json.RawMessage
+	hash                     *string
+	address                  *string
+	isPublic                 *bool
+	description              *string
+	tags                     *json.RawMessage
+	appendtags               json.RawMessage
+	thumbnail_10x            *[]byte
+	createdAt                *time.Time
+	updatedAt                *time.Time
+	category                 *string
+	extraData                *json.RawMessage
+	appendextraData          json.RawMessage
+	description_vector       *json.RawMessage
+	appenddescription_vector json.RawMessage
+	clearedFields            map[string]struct{}
+	compressed               *string
+	clearedcompressed        bool
+	original                 *string
+	clearedoriginal          bool
+	thumbnail320x            *string
+	clearedthumbnail320x     bool
+	thumbnail768x            *string
+	clearedthumbnail768x     bool
+	user                     *string
+	cleareduser              bool
+	moment_images            map[uint]struct{}
+	removedmoment_images     map[uint]struct{}
+	clearedmoment_images     bool
+	done                     bool
+	oldValue                 func(context.Context) (*Image, error)
+	predicates               []predicate.Image
 }
 
 var _ ent.Mutation = (*ImageMutation)(nil)
@@ -4267,93 +4269,6 @@ func (m *ImageMutation) ResetTags() {
 	m.appendtags = nil
 }
 
-// SetExtraData sets the "extraData" field.
-func (m *ImageMutation) SetExtraData(jm json.RawMessage) {
-	m.extraData = &jm
-	m.appendextraData = nil
-}
-
-// ExtraData returns the value of the "extraData" field in the mutation.
-func (m *ImageMutation) ExtraData() (r json.RawMessage, exists bool) {
-	v := m.extraData
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldExtraData returns the old "extraData" field's value of the Image entity.
-// If the Image object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ImageMutation) OldExtraData(ctx context.Context) (v json.RawMessage, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldExtraData is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldExtraData requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldExtraData: %w", err)
-	}
-	return oldValue.ExtraData, nil
-}
-
-// AppendExtraData adds jm to the "extraData" field.
-func (m *ImageMutation) AppendExtraData(jm json.RawMessage) {
-	m.appendextraData = append(m.appendextraData, jm...)
-}
-
-// AppendedExtraData returns the list of values that were appended to the "extraData" field in this mutation.
-func (m *ImageMutation) AppendedExtraData() (json.RawMessage, bool) {
-	if len(m.appendextraData) == 0 {
-		return nil, false
-	}
-	return m.appendextraData, true
-}
-
-// ResetExtraData resets all changes to the "extraData" field.
-func (m *ImageMutation) ResetExtraData() {
-	m.extraData = nil
-	m.appendextraData = nil
-}
-
-// SetCategory sets the "category" field.
-func (m *ImageMutation) SetCategory(s string) {
-	m.category = &s
-}
-
-// Category returns the value of the "category" field in the mutation.
-func (m *ImageMutation) Category() (r string, exists bool) {
-	v := m.category
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCategory returns the old "category" field's value of the Image entity.
-// If the Image object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ImageMutation) OldCategory(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCategory requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
-	}
-	return oldValue.Category, nil
-}
-
-// ResetCategory resets all changes to the "category" field.
-func (m *ImageMutation) ResetCategory() {
-	m.category = nil
-}
-
 // SetThumbnail10x sets the "thumbnail_10x" field.
 func (m *ImageMutation) SetThumbnail10x(b []byte) {
 	m.thumbnail_10x = &b
@@ -4586,55 +4501,6 @@ func (m *ImageMutation) ResetOriginalID() {
 	delete(m.clearedFields, image.FieldOriginalID)
 }
 
-// SetUploadedBy sets the "uploadedBy" field.
-func (m *ImageMutation) SetUploadedBy(s string) {
-	m.user = &s
-}
-
-// UploadedBy returns the value of the "uploadedBy" field in the mutation.
-func (m *ImageMutation) UploadedBy() (r string, exists bool) {
-	v := m.user
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUploadedBy returns the old "uploadedBy" field's value of the Image entity.
-// If the Image object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ImageMutation) OldUploadedBy(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUploadedBy is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUploadedBy requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUploadedBy: %w", err)
-	}
-	return oldValue.UploadedBy, nil
-}
-
-// ClearUploadedBy clears the value of the "uploadedBy" field.
-func (m *ImageMutation) ClearUploadedBy() {
-	m.user = nil
-	m.clearedFields[image.FieldUploadedBy] = struct{}{}
-}
-
-// UploadedByCleared returns if the "uploadedBy" field was cleared in this mutation.
-func (m *ImageMutation) UploadedByCleared() bool {
-	_, ok := m.clearedFields[image.FieldUploadedBy]
-	return ok
-}
-
-// ResetUploadedBy resets all changes to the "uploadedBy" field.
-func (m *ImageMutation) ResetUploadedBy() {
-	m.user = nil
-	delete(m.clearedFields, image.FieldUploadedBy)
-}
-
 // SetCreatedAt sets the "createdAt" field.
 func (m *ImageMutation) SetCreatedAt(t time.Time) {
 	m.createdAt = &t
@@ -4705,6 +4571,207 @@ func (m *ImageMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err erro
 // ResetUpdatedAt resets all changes to the "updatedAt" field.
 func (m *ImageMutation) ResetUpdatedAt() {
 	m.updatedAt = nil
+}
+
+// SetUploadedBy sets the "uploadedBy" field.
+func (m *ImageMutation) SetUploadedBy(s string) {
+	m.user = &s
+}
+
+// UploadedBy returns the value of the "uploadedBy" field in the mutation.
+func (m *ImageMutation) UploadedBy() (r string, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUploadedBy returns the old "uploadedBy" field's value of the Image entity.
+// If the Image object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ImageMutation) OldUploadedBy(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUploadedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUploadedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUploadedBy: %w", err)
+	}
+	return oldValue.UploadedBy, nil
+}
+
+// ClearUploadedBy clears the value of the "uploadedBy" field.
+func (m *ImageMutation) ClearUploadedBy() {
+	m.user = nil
+	m.clearedFields[image.FieldUploadedBy] = struct{}{}
+}
+
+// UploadedByCleared returns if the "uploadedBy" field was cleared in this mutation.
+func (m *ImageMutation) UploadedByCleared() bool {
+	_, ok := m.clearedFields[image.FieldUploadedBy]
+	return ok
+}
+
+// ResetUploadedBy resets all changes to the "uploadedBy" field.
+func (m *ImageMutation) ResetUploadedBy() {
+	m.user = nil
+	delete(m.clearedFields, image.FieldUploadedBy)
+}
+
+// SetCategory sets the "category" field.
+func (m *ImageMutation) SetCategory(s string) {
+	m.category = &s
+}
+
+// Category returns the value of the "category" field in the mutation.
+func (m *ImageMutation) Category() (r string, exists bool) {
+	v := m.category
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCategory returns the old "category" field's value of the Image entity.
+// If the Image object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ImageMutation) OldCategory(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCategory requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
+	}
+	return oldValue.Category, nil
+}
+
+// ResetCategory resets all changes to the "category" field.
+func (m *ImageMutation) ResetCategory() {
+	m.category = nil
+}
+
+// SetExtraData sets the "extraData" field.
+func (m *ImageMutation) SetExtraData(jm json.RawMessage) {
+	m.extraData = &jm
+	m.appendextraData = nil
+}
+
+// ExtraData returns the value of the "extraData" field in the mutation.
+func (m *ImageMutation) ExtraData() (r json.RawMessage, exists bool) {
+	v := m.extraData
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExtraData returns the old "extraData" field's value of the Image entity.
+// If the Image object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ImageMutation) OldExtraData(ctx context.Context) (v json.RawMessage, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExtraData is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExtraData requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExtraData: %w", err)
+	}
+	return oldValue.ExtraData, nil
+}
+
+// AppendExtraData adds jm to the "extraData" field.
+func (m *ImageMutation) AppendExtraData(jm json.RawMessage) {
+	m.appendextraData = append(m.appendextraData, jm...)
+}
+
+// AppendedExtraData returns the list of values that were appended to the "extraData" field in this mutation.
+func (m *ImageMutation) AppendedExtraData() (json.RawMessage, bool) {
+	if len(m.appendextraData) == 0 {
+		return nil, false
+	}
+	return m.appendextraData, true
+}
+
+// ResetExtraData resets all changes to the "extraData" field.
+func (m *ImageMutation) ResetExtraData() {
+	m.extraData = nil
+	m.appendextraData = nil
+}
+
+// SetDescriptionVector sets the "description_vector" field.
+func (m *ImageMutation) SetDescriptionVector(jm json.RawMessage) {
+	m.description_vector = &jm
+	m.appenddescription_vector = nil
+}
+
+// DescriptionVector returns the value of the "description_vector" field in the mutation.
+func (m *ImageMutation) DescriptionVector() (r json.RawMessage, exists bool) {
+	v := m.description_vector
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescriptionVector returns the old "description_vector" field's value of the Image entity.
+// If the Image object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ImageMutation) OldDescriptionVector(ctx context.Context) (v json.RawMessage, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescriptionVector is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescriptionVector requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescriptionVector: %w", err)
+	}
+	return oldValue.DescriptionVector, nil
+}
+
+// AppendDescriptionVector adds jm to the "description_vector" field.
+func (m *ImageMutation) AppendDescriptionVector(jm json.RawMessage) {
+	m.appenddescription_vector = append(m.appenddescription_vector, jm...)
+}
+
+// AppendedDescriptionVector returns the list of values that were appended to the "description_vector" field in this mutation.
+func (m *ImageMutation) AppendedDescriptionVector() (json.RawMessage, bool) {
+	if len(m.appenddescription_vector) == 0 {
+		return nil, false
+	}
+	return m.appenddescription_vector, true
+}
+
+// ClearDescriptionVector clears the value of the "description_vector" field.
+func (m *ImageMutation) ClearDescriptionVector() {
+	m.description_vector = nil
+	m.appenddescription_vector = nil
+	m.clearedFields[image.FieldDescriptionVector] = struct{}{}
+}
+
+// DescriptionVectorCleared returns if the "description_vector" field was cleared in this mutation.
+func (m *ImageMutation) DescriptionVectorCleared() bool {
+	_, ok := m.clearedFields[image.FieldDescriptionVector]
+	return ok
+}
+
+// ResetDescriptionVector resets all changes to the "description_vector" field.
+func (m *ImageMutation) ResetDescriptionVector() {
+	m.description_vector = nil
+	m.appenddescription_vector = nil
+	delete(m.clearedFields, image.FieldDescriptionVector)
 }
 
 // ClearCompressed clears the "compressed" edge to the File entity.
@@ -4943,7 +5010,7 @@ func (m *ImageMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ImageMutation) Fields() []string {
-	fields := make([]string, 0, 21)
+	fields := make([]string, 0, 22)
 	if m.name != nil {
 		fields = append(fields, image.FieldName)
 	}
@@ -4977,12 +5044,6 @@ func (m *ImageMutation) Fields() []string {
 	if m.tags != nil {
 		fields = append(fields, image.FieldTags)
 	}
-	if m.extraData != nil {
-		fields = append(fields, image.FieldExtraData)
-	}
-	if m.category != nil {
-		fields = append(fields, image.FieldCategory)
-	}
 	if m.thumbnail_10x != nil {
 		fields = append(fields, image.FieldThumbnail10x)
 	}
@@ -4998,14 +5059,23 @@ func (m *ImageMutation) Fields() []string {
 	if m.original != nil {
 		fields = append(fields, image.FieldOriginalID)
 	}
-	if m.user != nil {
-		fields = append(fields, image.FieldUploadedBy)
-	}
 	if m.createdAt != nil {
 		fields = append(fields, image.FieldCreatedAt)
 	}
 	if m.updatedAt != nil {
 		fields = append(fields, image.FieldUpdatedAt)
+	}
+	if m.user != nil {
+		fields = append(fields, image.FieldUploadedBy)
+	}
+	if m.category != nil {
+		fields = append(fields, image.FieldCategory)
+	}
+	if m.extraData != nil {
+		fields = append(fields, image.FieldExtraData)
+	}
+	if m.description_vector != nil {
+		fields = append(fields, image.FieldDescriptionVector)
 	}
 	return fields
 }
@@ -5037,10 +5107,6 @@ func (m *ImageMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case image.FieldTags:
 		return m.Tags()
-	case image.FieldExtraData:
-		return m.ExtraData()
-	case image.FieldCategory:
-		return m.Category()
 	case image.FieldThumbnail10x:
 		return m.Thumbnail10x()
 	case image.FieldThumbnail320xID:
@@ -5051,12 +5117,18 @@ func (m *ImageMutation) Field(name string) (ent.Value, bool) {
 		return m.CompressedID()
 	case image.FieldOriginalID:
 		return m.OriginalID()
-	case image.FieldUploadedBy:
-		return m.UploadedBy()
 	case image.FieldCreatedAt:
 		return m.CreatedAt()
 	case image.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case image.FieldUploadedBy:
+		return m.UploadedBy()
+	case image.FieldCategory:
+		return m.Category()
+	case image.FieldExtraData:
+		return m.ExtraData()
+	case image.FieldDescriptionVector:
+		return m.DescriptionVector()
 	}
 	return nil, false
 }
@@ -5088,10 +5160,6 @@ func (m *ImageMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldDescription(ctx)
 	case image.FieldTags:
 		return m.OldTags(ctx)
-	case image.FieldExtraData:
-		return m.OldExtraData(ctx)
-	case image.FieldCategory:
-		return m.OldCategory(ctx)
 	case image.FieldThumbnail10x:
 		return m.OldThumbnail10x(ctx)
 	case image.FieldThumbnail320xID:
@@ -5102,12 +5170,18 @@ func (m *ImageMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldCompressedID(ctx)
 	case image.FieldOriginalID:
 		return m.OldOriginalID(ctx)
-	case image.FieldUploadedBy:
-		return m.OldUploadedBy(ctx)
 	case image.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case image.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case image.FieldUploadedBy:
+		return m.OldUploadedBy(ctx)
+	case image.FieldCategory:
+		return m.OldCategory(ctx)
+	case image.FieldExtraData:
+		return m.OldExtraData(ctx)
+	case image.FieldDescriptionVector:
+		return m.OldDescriptionVector(ctx)
 	}
 	return nil, fmt.Errorf("unknown Image field %s", name)
 }
@@ -5194,20 +5268,6 @@ func (m *ImageMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetTags(v)
 		return nil
-	case image.FieldExtraData:
-		v, ok := value.(json.RawMessage)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetExtraData(v)
-		return nil
-	case image.FieldCategory:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCategory(v)
-		return nil
 	case image.FieldThumbnail10x:
 		v, ok := value.([]byte)
 		if !ok {
@@ -5243,13 +5303,6 @@ func (m *ImageMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetOriginalID(v)
 		return nil
-	case image.FieldUploadedBy:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUploadedBy(v)
-		return nil
 	case image.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -5263,6 +5316,34 @@ func (m *ImageMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
+		return nil
+	case image.FieldUploadedBy:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUploadedBy(v)
+		return nil
+	case image.FieldCategory:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCategory(v)
+		return nil
+	case image.FieldExtraData:
+		v, ok := value.(json.RawMessage)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExtraData(v)
+		return nil
+	case image.FieldDescriptionVector:
+		v, ok := value.(json.RawMessage)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescriptionVector(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Image field %s", name)
@@ -5348,6 +5429,9 @@ func (m *ImageMutation) ClearedFields() []string {
 	if m.FieldCleared(image.FieldUploadedBy) {
 		fields = append(fields, image.FieldUploadedBy)
 	}
+	if m.FieldCleared(image.FieldDescriptionVector) {
+		fields = append(fields, image.FieldDescriptionVector)
+	}
 	return fields
 }
 
@@ -5376,6 +5460,9 @@ func (m *ImageMutation) ClearField(name string) error {
 		return nil
 	case image.FieldUploadedBy:
 		m.ClearUploadedBy()
+		return nil
+	case image.FieldDescriptionVector:
+		m.ClearDescriptionVector()
 		return nil
 	}
 	return fmt.Errorf("unknown Image nullable field %s", name)
@@ -5418,12 +5505,6 @@ func (m *ImageMutation) ResetField(name string) error {
 	case image.FieldTags:
 		m.ResetTags()
 		return nil
-	case image.FieldExtraData:
-		m.ResetExtraData()
-		return nil
-	case image.FieldCategory:
-		m.ResetCategory()
-		return nil
 	case image.FieldThumbnail10x:
 		m.ResetThumbnail10x()
 		return nil
@@ -5439,14 +5520,23 @@ func (m *ImageMutation) ResetField(name string) error {
 	case image.FieldOriginalID:
 		m.ResetOriginalID()
 		return nil
-	case image.FieldUploadedBy:
-		m.ResetUploadedBy()
-		return nil
 	case image.FieldCreatedAt:
 		m.ResetCreatedAt()
 		return nil
 	case image.FieldUpdatedAt:
 		m.ResetUpdatedAt()
+		return nil
+	case image.FieldUploadedBy:
+		m.ResetUploadedBy()
+		return nil
+	case image.FieldCategory:
+		m.ResetCategory()
+		return nil
+	case image.FieldExtraData:
+		m.ResetExtraData()
+		return nil
+	case image.FieldDescriptionVector:
+		m.ResetDescriptionVector()
 		return nil
 	}
 	return fmt.Errorf("unknown Image field %s", name)
@@ -5629,30 +5719,36 @@ func (m *ImageMutation) ResetEdge(name string) error {
 // KeepMutation represents an operation that mutates the Keep nodes in the graph.
 type KeepMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *string
-	title           *string
-	content         *string
-	summary         *string
-	isPublic        *bool
-	tags            *json.RawMessage
-	appendtags      json.RawMessage
-	views           *int32
-	addviews        *int32
-	likes           *int32
-	addlikes        *int32
-	extraData       *json.RawMessage
-	appendextraData json.RawMessage
-	category        *string
-	createdAt       *time.Time
-	updatedAt       *time.Time
-	clearedFields   map[string]struct{}
-	user            *string
-	cleareduser     bool
-	done            bool
-	oldValue        func(context.Context) (*Keep, error)
-	predicates      []predicate.Keep
+	op                   Op
+	typ                  string
+	id                   *string
+	title                *string
+	content              *string
+	isPublic             *bool
+	tags                 *json.RawMessage
+	appendtags           json.RawMessage
+	createdAt            *time.Time
+	updatedAt            *time.Time
+	category             *string
+	views                *int32
+	addviews             *int32
+	likes                *int32
+	addlikes             *int32
+	summary              *string
+	extraData            *json.RawMessage
+	appendextraData      json.RawMessage
+	content_vector       *json.RawMessage
+	appendcontent_vector json.RawMessage
+	summary_vector       *json.RawMessage
+	appendsummary_vector json.RawMessage
+	title_vector         *json.RawMessage
+	appendtitle_vector   json.RawMessage
+	clearedFields        map[string]struct{}
+	user                 *string
+	cleareduser          bool
+	done                 bool
+	oldValue             func(context.Context) (*Keep, error)
+	predicates           []predicate.Keep
 }
 
 var _ ent.Mutation = (*KeepMutation)(nil)
@@ -5831,42 +5927,6 @@ func (m *KeepMutation) ResetContent() {
 	m.content = nil
 }
 
-// SetSummary sets the "summary" field.
-func (m *KeepMutation) SetSummary(s string) {
-	m.summary = &s
-}
-
-// Summary returns the value of the "summary" field in the mutation.
-func (m *KeepMutation) Summary() (r string, exists bool) {
-	v := m.summary
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSummary returns the old "summary" field's value of the Keep entity.
-// If the Keep object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *KeepMutation) OldSummary(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSummary is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSummary requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSummary: %w", err)
-	}
-	return oldValue.Summary, nil
-}
-
-// ResetSummary resets all changes to the "summary" field.
-func (m *KeepMutation) ResetSummary() {
-	m.summary = nil
-}
-
 // SetIsPublic sets the "isPublic" field.
 func (m *KeepMutation) SetIsPublic(b bool) {
 	m.isPublic = &b
@@ -5952,6 +6012,163 @@ func (m *KeepMutation) AppendedTags() (json.RawMessage, bool) {
 func (m *KeepMutation) ResetTags() {
 	m.tags = nil
 	m.appendtags = nil
+}
+
+// SetCreatedAt sets the "createdAt" field.
+func (m *KeepMutation) SetCreatedAt(t time.Time) {
+	m.createdAt = &t
+}
+
+// CreatedAt returns the value of the "createdAt" field in the mutation.
+func (m *KeepMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.createdAt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "createdAt" field's value of the Keep entity.
+// If the Keep object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *KeepMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "createdAt" field.
+func (m *KeepMutation) ResetCreatedAt() {
+	m.createdAt = nil
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (m *KeepMutation) SetUpdatedAt(t time.Time) {
+	m.updatedAt = &t
+}
+
+// UpdatedAt returns the value of the "updatedAt" field in the mutation.
+func (m *KeepMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updatedAt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updatedAt" field's value of the Keep entity.
+// If the Keep object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *KeepMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updatedAt" field.
+func (m *KeepMutation) ResetUpdatedAt() {
+	m.updatedAt = nil
+}
+
+// SetOwnerId sets the "ownerId" field.
+func (m *KeepMutation) SetOwnerId(s string) {
+	m.user = &s
+}
+
+// OwnerId returns the value of the "ownerId" field in the mutation.
+func (m *KeepMutation) OwnerId() (r string, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOwnerId returns the old "ownerId" field's value of the Keep entity.
+// If the Keep object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *KeepMutation) OldOwnerId(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOwnerId is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOwnerId requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOwnerId: %w", err)
+	}
+	return oldValue.OwnerId, nil
+}
+
+// ClearOwnerId clears the value of the "ownerId" field.
+func (m *KeepMutation) ClearOwnerId() {
+	m.user = nil
+	m.clearedFields[keep.FieldOwnerId] = struct{}{}
+}
+
+// OwnerIdCleared returns if the "ownerId" field was cleared in this mutation.
+func (m *KeepMutation) OwnerIdCleared() bool {
+	_, ok := m.clearedFields[keep.FieldOwnerId]
+	return ok
+}
+
+// ResetOwnerId resets all changes to the "ownerId" field.
+func (m *KeepMutation) ResetOwnerId() {
+	m.user = nil
+	delete(m.clearedFields, keep.FieldOwnerId)
+}
+
+// SetCategory sets the "category" field.
+func (m *KeepMutation) SetCategory(s string) {
+	m.category = &s
+}
+
+// Category returns the value of the "category" field in the mutation.
+func (m *KeepMutation) Category() (r string, exists bool) {
+	v := m.category
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCategory returns the old "category" field's value of the Keep entity.
+// If the Keep object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *KeepMutation) OldCategory(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCategory requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
+	}
+	return oldValue.Category, nil
+}
+
+// ResetCategory resets all changes to the "category" field.
+func (m *KeepMutation) ResetCategory() {
+	m.category = nil
 }
 
 // SetViews sets the "views" field.
@@ -6066,6 +6283,42 @@ func (m *KeepMutation) ResetLikes() {
 	m.addlikes = nil
 }
 
+// SetSummary sets the "summary" field.
+func (m *KeepMutation) SetSummary(s string) {
+	m.summary = &s
+}
+
+// Summary returns the value of the "summary" field in the mutation.
+func (m *KeepMutation) Summary() (r string, exists bool) {
+	v := m.summary
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSummary returns the old "summary" field's value of the Keep entity.
+// If the Keep object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *KeepMutation) OldSummary(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSummary is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSummary requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSummary: %w", err)
+	}
+	return oldValue.Summary, nil
+}
+
+// ResetSummary resets all changes to the "summary" field.
+func (m *KeepMutation) ResetSummary() {
+	m.summary = nil
+}
+
 // SetExtraData sets the "extraData" field.
 func (m *KeepMutation) SetExtraData(jm json.RawMessage) {
 	m.extraData = &jm
@@ -6117,161 +6370,199 @@ func (m *KeepMutation) ResetExtraData() {
 	m.appendextraData = nil
 }
 
-// SetCategory sets the "category" field.
-func (m *KeepMutation) SetCategory(s string) {
-	m.category = &s
+// SetContentVector sets the "content_vector" field.
+func (m *KeepMutation) SetContentVector(jm json.RawMessage) {
+	m.content_vector = &jm
+	m.appendcontent_vector = nil
 }
 
-// Category returns the value of the "category" field in the mutation.
-func (m *KeepMutation) Category() (r string, exists bool) {
-	v := m.category
+// ContentVector returns the value of the "content_vector" field in the mutation.
+func (m *KeepMutation) ContentVector() (r json.RawMessage, exists bool) {
+	v := m.content_vector
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldCategory returns the old "category" field's value of the Keep entity.
+// OldContentVector returns the old "content_vector" field's value of the Keep entity.
 // If the Keep object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *KeepMutation) OldCategory(ctx context.Context) (v string, err error) {
+func (m *KeepMutation) OldContentVector(ctx context.Context) (v json.RawMessage, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
+		return v, errors.New("OldContentVector is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCategory requires an ID field in the mutation")
+		return v, errors.New("OldContentVector requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
+		return v, fmt.Errorf("querying old value for OldContentVector: %w", err)
 	}
-	return oldValue.Category, nil
+	return oldValue.ContentVector, nil
 }
 
-// ResetCategory resets all changes to the "category" field.
-func (m *KeepMutation) ResetCategory() {
-	m.category = nil
+// AppendContentVector adds jm to the "content_vector" field.
+func (m *KeepMutation) AppendContentVector(jm json.RawMessage) {
+	m.appendcontent_vector = append(m.appendcontent_vector, jm...)
 }
 
-// SetOwnerId sets the "ownerId" field.
-func (m *KeepMutation) SetOwnerId(s string) {
-	m.user = &s
-}
-
-// OwnerId returns the value of the "ownerId" field in the mutation.
-func (m *KeepMutation) OwnerId() (r string, exists bool) {
-	v := m.user
-	if v == nil {
-		return
+// AppendedContentVector returns the list of values that were appended to the "content_vector" field in this mutation.
+func (m *KeepMutation) AppendedContentVector() (json.RawMessage, bool) {
+	if len(m.appendcontent_vector) == 0 {
+		return nil, false
 	}
-	return *v, true
+	return m.appendcontent_vector, true
 }
 
-// OldOwnerId returns the old "ownerId" field's value of the Keep entity.
-// If the Keep object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *KeepMutation) OldOwnerId(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOwnerId is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOwnerId requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOwnerId: %w", err)
-	}
-	return oldValue.OwnerId, nil
+// ClearContentVector clears the value of the "content_vector" field.
+func (m *KeepMutation) ClearContentVector() {
+	m.content_vector = nil
+	m.appendcontent_vector = nil
+	m.clearedFields[keep.FieldContentVector] = struct{}{}
 }
 
-// ClearOwnerId clears the value of the "ownerId" field.
-func (m *KeepMutation) ClearOwnerId() {
-	m.user = nil
-	m.clearedFields[keep.FieldOwnerId] = struct{}{}
-}
-
-// OwnerIdCleared returns if the "ownerId" field was cleared in this mutation.
-func (m *KeepMutation) OwnerIdCleared() bool {
-	_, ok := m.clearedFields[keep.FieldOwnerId]
+// ContentVectorCleared returns if the "content_vector" field was cleared in this mutation.
+func (m *KeepMutation) ContentVectorCleared() bool {
+	_, ok := m.clearedFields[keep.FieldContentVector]
 	return ok
 }
 
-// ResetOwnerId resets all changes to the "ownerId" field.
-func (m *KeepMutation) ResetOwnerId() {
-	m.user = nil
-	delete(m.clearedFields, keep.FieldOwnerId)
+// ResetContentVector resets all changes to the "content_vector" field.
+func (m *KeepMutation) ResetContentVector() {
+	m.content_vector = nil
+	m.appendcontent_vector = nil
+	delete(m.clearedFields, keep.FieldContentVector)
 }
 
-// SetCreatedAt sets the "createdAt" field.
-func (m *KeepMutation) SetCreatedAt(t time.Time) {
-	m.createdAt = &t
+// SetSummaryVector sets the "summary_vector" field.
+func (m *KeepMutation) SetSummaryVector(jm json.RawMessage) {
+	m.summary_vector = &jm
+	m.appendsummary_vector = nil
 }
 
-// CreatedAt returns the value of the "createdAt" field in the mutation.
-func (m *KeepMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.createdAt
+// SummaryVector returns the value of the "summary_vector" field in the mutation.
+func (m *KeepMutation) SummaryVector() (r json.RawMessage, exists bool) {
+	v := m.summary_vector
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldCreatedAt returns the old "createdAt" field's value of the Keep entity.
+// OldSummaryVector returns the old "summary_vector" field's value of the Keep entity.
 // If the Keep object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *KeepMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+func (m *KeepMutation) OldSummaryVector(ctx context.Context) (v json.RawMessage, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+		return v, errors.New("OldSummaryVector is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+		return v, errors.New("OldSummaryVector requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+		return v, fmt.Errorf("querying old value for OldSummaryVector: %w", err)
 	}
-	return oldValue.CreatedAt, nil
+	return oldValue.SummaryVector, nil
 }
 
-// ResetCreatedAt resets all changes to the "createdAt" field.
-func (m *KeepMutation) ResetCreatedAt() {
-	m.createdAt = nil
+// AppendSummaryVector adds jm to the "summary_vector" field.
+func (m *KeepMutation) AppendSummaryVector(jm json.RawMessage) {
+	m.appendsummary_vector = append(m.appendsummary_vector, jm...)
 }
 
-// SetUpdatedAt sets the "updatedAt" field.
-func (m *KeepMutation) SetUpdatedAt(t time.Time) {
-	m.updatedAt = &t
+// AppendedSummaryVector returns the list of values that were appended to the "summary_vector" field in this mutation.
+func (m *KeepMutation) AppendedSummaryVector() (json.RawMessage, bool) {
+	if len(m.appendsummary_vector) == 0 {
+		return nil, false
+	}
+	return m.appendsummary_vector, true
 }
 
-// UpdatedAt returns the value of the "updatedAt" field in the mutation.
-func (m *KeepMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updatedAt
+// ClearSummaryVector clears the value of the "summary_vector" field.
+func (m *KeepMutation) ClearSummaryVector() {
+	m.summary_vector = nil
+	m.appendsummary_vector = nil
+	m.clearedFields[keep.FieldSummaryVector] = struct{}{}
+}
+
+// SummaryVectorCleared returns if the "summary_vector" field was cleared in this mutation.
+func (m *KeepMutation) SummaryVectorCleared() bool {
+	_, ok := m.clearedFields[keep.FieldSummaryVector]
+	return ok
+}
+
+// ResetSummaryVector resets all changes to the "summary_vector" field.
+func (m *KeepMutation) ResetSummaryVector() {
+	m.summary_vector = nil
+	m.appendsummary_vector = nil
+	delete(m.clearedFields, keep.FieldSummaryVector)
+}
+
+// SetTitleVector sets the "title_vector" field.
+func (m *KeepMutation) SetTitleVector(jm json.RawMessage) {
+	m.title_vector = &jm
+	m.appendtitle_vector = nil
+}
+
+// TitleVector returns the value of the "title_vector" field in the mutation.
+func (m *KeepMutation) TitleVector() (r json.RawMessage, exists bool) {
+	v := m.title_vector
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUpdatedAt returns the old "updatedAt" field's value of the Keep entity.
+// OldTitleVector returns the old "title_vector" field's value of the Keep entity.
 // If the Keep object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *KeepMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+func (m *KeepMutation) OldTitleVector(ctx context.Context) (v json.RawMessage, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+		return v, errors.New("OldTitleVector is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+		return v, errors.New("OldTitleVector requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+		return v, fmt.Errorf("querying old value for OldTitleVector: %w", err)
 	}
-	return oldValue.UpdatedAt, nil
+	return oldValue.TitleVector, nil
 }
 
-// ResetUpdatedAt resets all changes to the "updatedAt" field.
-func (m *KeepMutation) ResetUpdatedAt() {
-	m.updatedAt = nil
+// AppendTitleVector adds jm to the "title_vector" field.
+func (m *KeepMutation) AppendTitleVector(jm json.RawMessage) {
+	m.appendtitle_vector = append(m.appendtitle_vector, jm...)
+}
+
+// AppendedTitleVector returns the list of values that were appended to the "title_vector" field in this mutation.
+func (m *KeepMutation) AppendedTitleVector() (json.RawMessage, bool) {
+	if len(m.appendtitle_vector) == 0 {
+		return nil, false
+	}
+	return m.appendtitle_vector, true
+}
+
+// ClearTitleVector clears the value of the "title_vector" field.
+func (m *KeepMutation) ClearTitleVector() {
+	m.title_vector = nil
+	m.appendtitle_vector = nil
+	m.clearedFields[keep.FieldTitleVector] = struct{}{}
+}
+
+// TitleVectorCleared returns if the "title_vector" field was cleared in this mutation.
+func (m *KeepMutation) TitleVectorCleared() bool {
+	_, ok := m.clearedFields[keep.FieldTitleVector]
+	return ok
+}
+
+// ResetTitleVector resets all changes to the "title_vector" field.
+func (m *KeepMutation) ResetTitleVector() {
+	m.title_vector = nil
+	m.appendtitle_vector = nil
+	delete(m.clearedFields, keep.FieldTitleVector)
 }
 
 // SetUserID sets the "user" edge to the User entity by id.
@@ -6348,15 +6639,12 @@ func (m *KeepMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *KeepMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 15)
 	if m.title != nil {
 		fields = append(fields, keep.FieldTitle)
 	}
 	if m.content != nil {
 		fields = append(fields, keep.FieldContent)
-	}
-	if m.summary != nil {
-		fields = append(fields, keep.FieldSummary)
 	}
 	if m.isPublic != nil {
 		fields = append(fields, keep.FieldIsPublic)
@@ -6364,26 +6652,38 @@ func (m *KeepMutation) Fields() []string {
 	if m.tags != nil {
 		fields = append(fields, keep.FieldTags)
 	}
+	if m.createdAt != nil {
+		fields = append(fields, keep.FieldCreatedAt)
+	}
+	if m.updatedAt != nil {
+		fields = append(fields, keep.FieldUpdatedAt)
+	}
+	if m.user != nil {
+		fields = append(fields, keep.FieldOwnerId)
+	}
+	if m.category != nil {
+		fields = append(fields, keep.FieldCategory)
+	}
 	if m.views != nil {
 		fields = append(fields, keep.FieldViews)
 	}
 	if m.likes != nil {
 		fields = append(fields, keep.FieldLikes)
 	}
+	if m.summary != nil {
+		fields = append(fields, keep.FieldSummary)
+	}
 	if m.extraData != nil {
 		fields = append(fields, keep.FieldExtraData)
 	}
-	if m.category != nil {
-		fields = append(fields, keep.FieldCategory)
+	if m.content_vector != nil {
+		fields = append(fields, keep.FieldContentVector)
 	}
-	if m.user != nil {
-		fields = append(fields, keep.FieldOwnerId)
+	if m.summary_vector != nil {
+		fields = append(fields, keep.FieldSummaryVector)
 	}
-	if m.createdAt != nil {
-		fields = append(fields, keep.FieldCreatedAt)
-	}
-	if m.updatedAt != nil {
-		fields = append(fields, keep.FieldUpdatedAt)
+	if m.title_vector != nil {
+		fields = append(fields, keep.FieldTitleVector)
 	}
 	return fields
 }
@@ -6397,26 +6697,32 @@ func (m *KeepMutation) Field(name string) (ent.Value, bool) {
 		return m.Title()
 	case keep.FieldContent:
 		return m.Content()
-	case keep.FieldSummary:
-		return m.Summary()
 	case keep.FieldIsPublic:
 		return m.IsPublic()
 	case keep.FieldTags:
 		return m.Tags()
-	case keep.FieldViews:
-		return m.Views()
-	case keep.FieldLikes:
-		return m.Likes()
-	case keep.FieldExtraData:
-		return m.ExtraData()
-	case keep.FieldCategory:
-		return m.Category()
-	case keep.FieldOwnerId:
-		return m.OwnerId()
 	case keep.FieldCreatedAt:
 		return m.CreatedAt()
 	case keep.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case keep.FieldOwnerId:
+		return m.OwnerId()
+	case keep.FieldCategory:
+		return m.Category()
+	case keep.FieldViews:
+		return m.Views()
+	case keep.FieldLikes:
+		return m.Likes()
+	case keep.FieldSummary:
+		return m.Summary()
+	case keep.FieldExtraData:
+		return m.ExtraData()
+	case keep.FieldContentVector:
+		return m.ContentVector()
+	case keep.FieldSummaryVector:
+		return m.SummaryVector()
+	case keep.FieldTitleVector:
+		return m.TitleVector()
 	}
 	return nil, false
 }
@@ -6430,26 +6736,32 @@ func (m *KeepMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldTitle(ctx)
 	case keep.FieldContent:
 		return m.OldContent(ctx)
-	case keep.FieldSummary:
-		return m.OldSummary(ctx)
 	case keep.FieldIsPublic:
 		return m.OldIsPublic(ctx)
 	case keep.FieldTags:
 		return m.OldTags(ctx)
-	case keep.FieldViews:
-		return m.OldViews(ctx)
-	case keep.FieldLikes:
-		return m.OldLikes(ctx)
-	case keep.FieldExtraData:
-		return m.OldExtraData(ctx)
-	case keep.FieldCategory:
-		return m.OldCategory(ctx)
-	case keep.FieldOwnerId:
-		return m.OldOwnerId(ctx)
 	case keep.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case keep.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case keep.FieldOwnerId:
+		return m.OldOwnerId(ctx)
+	case keep.FieldCategory:
+		return m.OldCategory(ctx)
+	case keep.FieldViews:
+		return m.OldViews(ctx)
+	case keep.FieldLikes:
+		return m.OldLikes(ctx)
+	case keep.FieldSummary:
+		return m.OldSummary(ctx)
+	case keep.FieldExtraData:
+		return m.OldExtraData(ctx)
+	case keep.FieldContentVector:
+		return m.OldContentVector(ctx)
+	case keep.FieldSummaryVector:
+		return m.OldSummaryVector(ctx)
+	case keep.FieldTitleVector:
+		return m.OldTitleVector(ctx)
 	}
 	return nil, fmt.Errorf("unknown Keep field %s", name)
 }
@@ -6473,13 +6785,6 @@ func (m *KeepMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetContent(v)
 		return nil
-	case keep.FieldSummary:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSummary(v)
-		return nil
 	case keep.FieldIsPublic:
 		v, ok := value.(bool)
 		if !ok {
@@ -6493,6 +6798,34 @@ func (m *KeepMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTags(v)
+		return nil
+	case keep.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case keep.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case keep.FieldOwnerId:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOwnerId(v)
+		return nil
+	case keep.FieldCategory:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCategory(v)
 		return nil
 	case keep.FieldViews:
 		v, ok := value.(int32)
@@ -6508,6 +6841,13 @@ func (m *KeepMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetLikes(v)
 		return nil
+	case keep.FieldSummary:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSummary(v)
+		return nil
 	case keep.FieldExtraData:
 		v, ok := value.(json.RawMessage)
 		if !ok {
@@ -6515,33 +6855,26 @@ func (m *KeepMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetExtraData(v)
 		return nil
-	case keep.FieldCategory:
-		v, ok := value.(string)
+	case keep.FieldContentVector:
+		v, ok := value.(json.RawMessage)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetCategory(v)
+		m.SetContentVector(v)
 		return nil
-	case keep.FieldOwnerId:
-		v, ok := value.(string)
+	case keep.FieldSummaryVector:
+		v, ok := value.(json.RawMessage)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetOwnerId(v)
+		m.SetSummaryVector(v)
 		return nil
-	case keep.FieldCreatedAt:
-		v, ok := value.(time.Time)
+	case keep.FieldTitleVector:
+		v, ok := value.(json.RawMessage)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetCreatedAt(v)
-		return nil
-	case keep.FieldUpdatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdatedAt(v)
+		m.SetTitleVector(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Keep field %s", name)
@@ -6603,6 +6936,15 @@ func (m *KeepMutation) ClearedFields() []string {
 	if m.FieldCleared(keep.FieldOwnerId) {
 		fields = append(fields, keep.FieldOwnerId)
 	}
+	if m.FieldCleared(keep.FieldContentVector) {
+		fields = append(fields, keep.FieldContentVector)
+	}
+	if m.FieldCleared(keep.FieldSummaryVector) {
+		fields = append(fields, keep.FieldSummaryVector)
+	}
+	if m.FieldCleared(keep.FieldTitleVector) {
+		fields = append(fields, keep.FieldTitleVector)
+	}
 	return fields
 }
 
@@ -6620,6 +6962,15 @@ func (m *KeepMutation) ClearField(name string) error {
 	case keep.FieldOwnerId:
 		m.ClearOwnerId()
 		return nil
+	case keep.FieldContentVector:
+		m.ClearContentVector()
+		return nil
+	case keep.FieldSummaryVector:
+		m.ClearSummaryVector()
+		return nil
+	case keep.FieldTitleVector:
+		m.ClearTitleVector()
+		return nil
 	}
 	return fmt.Errorf("unknown Keep nullable field %s", name)
 }
@@ -6634,14 +6985,23 @@ func (m *KeepMutation) ResetField(name string) error {
 	case keep.FieldContent:
 		m.ResetContent()
 		return nil
-	case keep.FieldSummary:
-		m.ResetSummary()
-		return nil
 	case keep.FieldIsPublic:
 		m.ResetIsPublic()
 		return nil
 	case keep.FieldTags:
 		m.ResetTags()
+		return nil
+	case keep.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case keep.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case keep.FieldOwnerId:
+		m.ResetOwnerId()
+		return nil
+	case keep.FieldCategory:
+		m.ResetCategory()
 		return nil
 	case keep.FieldViews:
 		m.ResetViews()
@@ -6649,20 +7009,20 @@ func (m *KeepMutation) ResetField(name string) error {
 	case keep.FieldLikes:
 		m.ResetLikes()
 		return nil
+	case keep.FieldSummary:
+		m.ResetSummary()
+		return nil
 	case keep.FieldExtraData:
 		m.ResetExtraData()
 		return nil
-	case keep.FieldCategory:
-		m.ResetCategory()
+	case keep.FieldContentVector:
+		m.ResetContentVector()
 		return nil
-	case keep.FieldOwnerId:
-		m.ResetOwnerId()
+	case keep.FieldSummaryVector:
+		m.ResetSummaryVector()
 		return nil
-	case keep.FieldCreatedAt:
-		m.ResetCreatedAt()
-		return nil
-	case keep.FieldUpdatedAt:
-		m.ResetUpdatedAt()
+	case keep.FieldTitleVector:
+		m.ResetTitleVector()
 		return nil
 	}
 	return fmt.Errorf("unknown Keep field %s", name)
@@ -6751,19 +7111,19 @@ type MindmapMutation struct {
 	title           *string
 	content         *json.RawMessage
 	appendcontent   json.RawMessage
-	summary         *string
 	isPublic        *bool
 	tags            *json.RawMessage
 	appendtags      json.RawMessage
+	createdAt       *time.Time
+	updatedAt       *time.Time
 	views           *int32
 	addviews        *int32
 	likes           *int32
 	addlikes        *int32
+	summary         *string
 	extraData       *json.RawMessage
 	appendextraData json.RawMessage
 	category        *string
-	createdAt       *time.Time
-	updatedAt       *time.Time
 	clearedFields   map[string]struct{}
 	user            *string
 	cleareduser     bool
@@ -6963,42 +7323,6 @@ func (m *MindmapMutation) ResetContent() {
 	m.appendcontent = nil
 }
 
-// SetSummary sets the "summary" field.
-func (m *MindmapMutation) SetSummary(s string) {
-	m.summary = &s
-}
-
-// Summary returns the value of the "summary" field in the mutation.
-func (m *MindmapMutation) Summary() (r string, exists bool) {
-	v := m.summary
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSummary returns the old "summary" field's value of the Mindmap entity.
-// If the Mindmap object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MindmapMutation) OldSummary(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSummary is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSummary requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSummary: %w", err)
-	}
-	return oldValue.Summary, nil
-}
-
-// ResetSummary resets all changes to the "summary" field.
-func (m *MindmapMutation) ResetSummary() {
-	m.summary = nil
-}
-
 // SetIsPublic sets the "isPublic" field.
 func (m *MindmapMutation) SetIsPublic(b bool) {
 	m.isPublic = &b
@@ -7084,6 +7408,127 @@ func (m *MindmapMutation) AppendedTags() (json.RawMessage, bool) {
 func (m *MindmapMutation) ResetTags() {
 	m.tags = nil
 	m.appendtags = nil
+}
+
+// SetCreatedAt sets the "createdAt" field.
+func (m *MindmapMutation) SetCreatedAt(t time.Time) {
+	m.createdAt = &t
+}
+
+// CreatedAt returns the value of the "createdAt" field in the mutation.
+func (m *MindmapMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.createdAt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "createdAt" field's value of the Mindmap entity.
+// If the Mindmap object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MindmapMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "createdAt" field.
+func (m *MindmapMutation) ResetCreatedAt() {
+	m.createdAt = nil
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (m *MindmapMutation) SetUpdatedAt(t time.Time) {
+	m.updatedAt = &t
+}
+
+// UpdatedAt returns the value of the "updatedAt" field in the mutation.
+func (m *MindmapMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updatedAt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updatedAt" field's value of the Mindmap entity.
+// If the Mindmap object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MindmapMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updatedAt" field.
+func (m *MindmapMutation) ResetUpdatedAt() {
+	m.updatedAt = nil
+}
+
+// SetOwnerId sets the "ownerId" field.
+func (m *MindmapMutation) SetOwnerId(s string) {
+	m.user = &s
+}
+
+// OwnerId returns the value of the "ownerId" field in the mutation.
+func (m *MindmapMutation) OwnerId() (r string, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOwnerId returns the old "ownerId" field's value of the Mindmap entity.
+// If the Mindmap object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MindmapMutation) OldOwnerId(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOwnerId is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOwnerId requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOwnerId: %w", err)
+	}
+	return oldValue.OwnerId, nil
+}
+
+// ClearOwnerId clears the value of the "ownerId" field.
+func (m *MindmapMutation) ClearOwnerId() {
+	m.user = nil
+	m.clearedFields[mindmap.FieldOwnerId] = struct{}{}
+}
+
+// OwnerIdCleared returns if the "ownerId" field was cleared in this mutation.
+func (m *MindmapMutation) OwnerIdCleared() bool {
+	_, ok := m.clearedFields[mindmap.FieldOwnerId]
+	return ok
+}
+
+// ResetOwnerId resets all changes to the "ownerId" field.
+func (m *MindmapMutation) ResetOwnerId() {
+	m.user = nil
+	delete(m.clearedFields, mindmap.FieldOwnerId)
 }
 
 // SetViews sets the "views" field.
@@ -7198,6 +7643,42 @@ func (m *MindmapMutation) ResetLikes() {
 	m.addlikes = nil
 }
 
+// SetSummary sets the "summary" field.
+func (m *MindmapMutation) SetSummary(s string) {
+	m.summary = &s
+}
+
+// Summary returns the value of the "summary" field in the mutation.
+func (m *MindmapMutation) Summary() (r string, exists bool) {
+	v := m.summary
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSummary returns the old "summary" field's value of the Mindmap entity.
+// If the Mindmap object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MindmapMutation) OldSummary(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSummary is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSummary requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSummary: %w", err)
+	}
+	return oldValue.Summary, nil
+}
+
+// ResetSummary resets all changes to the "summary" field.
+func (m *MindmapMutation) ResetSummary() {
+	m.summary = nil
+}
+
 // SetExtraData sets the "extraData" field.
 func (m *MindmapMutation) SetExtraData(jm json.RawMessage) {
 	m.extraData = &jm
@@ -7285,127 +7766,6 @@ func (m *MindmapMutation) ResetCategory() {
 	m.category = nil
 }
 
-// SetOwnerId sets the "ownerId" field.
-func (m *MindmapMutation) SetOwnerId(s string) {
-	m.user = &s
-}
-
-// OwnerId returns the value of the "ownerId" field in the mutation.
-func (m *MindmapMutation) OwnerId() (r string, exists bool) {
-	v := m.user
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOwnerId returns the old "ownerId" field's value of the Mindmap entity.
-// If the Mindmap object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MindmapMutation) OldOwnerId(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOwnerId is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOwnerId requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOwnerId: %w", err)
-	}
-	return oldValue.OwnerId, nil
-}
-
-// ClearOwnerId clears the value of the "ownerId" field.
-func (m *MindmapMutation) ClearOwnerId() {
-	m.user = nil
-	m.clearedFields[mindmap.FieldOwnerId] = struct{}{}
-}
-
-// OwnerIdCleared returns if the "ownerId" field was cleared in this mutation.
-func (m *MindmapMutation) OwnerIdCleared() bool {
-	_, ok := m.clearedFields[mindmap.FieldOwnerId]
-	return ok
-}
-
-// ResetOwnerId resets all changes to the "ownerId" field.
-func (m *MindmapMutation) ResetOwnerId() {
-	m.user = nil
-	delete(m.clearedFields, mindmap.FieldOwnerId)
-}
-
-// SetCreatedAt sets the "createdAt" field.
-func (m *MindmapMutation) SetCreatedAt(t time.Time) {
-	m.createdAt = &t
-}
-
-// CreatedAt returns the value of the "createdAt" field in the mutation.
-func (m *MindmapMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.createdAt
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "createdAt" field's value of the Mindmap entity.
-// If the Mindmap object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MindmapMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "createdAt" field.
-func (m *MindmapMutation) ResetCreatedAt() {
-	m.createdAt = nil
-}
-
-// SetUpdatedAt sets the "updatedAt" field.
-func (m *MindmapMutation) SetUpdatedAt(t time.Time) {
-	m.updatedAt = &t
-}
-
-// UpdatedAt returns the value of the "updatedAt" field in the mutation.
-func (m *MindmapMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updatedAt
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updatedAt" field's value of the Mindmap entity.
-// If the Mindmap object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MindmapMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updatedAt" field.
-func (m *MindmapMutation) ResetUpdatedAt() {
-	m.updatedAt = nil
-}
-
 // SetUserID sets the "user" edge to the User entity by id.
 func (m *MindmapMutation) SetUserID(id string) {
 	m.user = &id
@@ -7487,14 +7847,20 @@ func (m *MindmapMutation) Fields() []string {
 	if m.content != nil {
 		fields = append(fields, mindmap.FieldContent)
 	}
-	if m.summary != nil {
-		fields = append(fields, mindmap.FieldSummary)
-	}
 	if m.isPublic != nil {
 		fields = append(fields, mindmap.FieldIsPublic)
 	}
 	if m.tags != nil {
 		fields = append(fields, mindmap.FieldTags)
+	}
+	if m.createdAt != nil {
+		fields = append(fields, mindmap.FieldCreatedAt)
+	}
+	if m.updatedAt != nil {
+		fields = append(fields, mindmap.FieldUpdatedAt)
+	}
+	if m.user != nil {
+		fields = append(fields, mindmap.FieldOwnerId)
 	}
 	if m.views != nil {
 		fields = append(fields, mindmap.FieldViews)
@@ -7502,20 +7868,14 @@ func (m *MindmapMutation) Fields() []string {
 	if m.likes != nil {
 		fields = append(fields, mindmap.FieldLikes)
 	}
+	if m.summary != nil {
+		fields = append(fields, mindmap.FieldSummary)
+	}
 	if m.extraData != nil {
 		fields = append(fields, mindmap.FieldExtraData)
 	}
 	if m.category != nil {
 		fields = append(fields, mindmap.FieldCategory)
-	}
-	if m.user != nil {
-		fields = append(fields, mindmap.FieldOwnerId)
-	}
-	if m.createdAt != nil {
-		fields = append(fields, mindmap.FieldCreatedAt)
-	}
-	if m.updatedAt != nil {
-		fields = append(fields, mindmap.FieldUpdatedAt)
 	}
 	return fields
 }
@@ -7529,26 +7889,26 @@ func (m *MindmapMutation) Field(name string) (ent.Value, bool) {
 		return m.Title()
 	case mindmap.FieldContent:
 		return m.Content()
-	case mindmap.FieldSummary:
-		return m.Summary()
 	case mindmap.FieldIsPublic:
 		return m.IsPublic()
 	case mindmap.FieldTags:
 		return m.Tags()
-	case mindmap.FieldViews:
-		return m.Views()
-	case mindmap.FieldLikes:
-		return m.Likes()
-	case mindmap.FieldExtraData:
-		return m.ExtraData()
-	case mindmap.FieldCategory:
-		return m.Category()
-	case mindmap.FieldOwnerId:
-		return m.OwnerId()
 	case mindmap.FieldCreatedAt:
 		return m.CreatedAt()
 	case mindmap.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case mindmap.FieldOwnerId:
+		return m.OwnerId()
+	case mindmap.FieldViews:
+		return m.Views()
+	case mindmap.FieldLikes:
+		return m.Likes()
+	case mindmap.FieldSummary:
+		return m.Summary()
+	case mindmap.FieldExtraData:
+		return m.ExtraData()
+	case mindmap.FieldCategory:
+		return m.Category()
 	}
 	return nil, false
 }
@@ -7562,26 +7922,26 @@ func (m *MindmapMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldTitle(ctx)
 	case mindmap.FieldContent:
 		return m.OldContent(ctx)
-	case mindmap.FieldSummary:
-		return m.OldSummary(ctx)
 	case mindmap.FieldIsPublic:
 		return m.OldIsPublic(ctx)
 	case mindmap.FieldTags:
 		return m.OldTags(ctx)
-	case mindmap.FieldViews:
-		return m.OldViews(ctx)
-	case mindmap.FieldLikes:
-		return m.OldLikes(ctx)
-	case mindmap.FieldExtraData:
-		return m.OldExtraData(ctx)
-	case mindmap.FieldCategory:
-		return m.OldCategory(ctx)
-	case mindmap.FieldOwnerId:
-		return m.OldOwnerId(ctx)
 	case mindmap.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case mindmap.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case mindmap.FieldOwnerId:
+		return m.OldOwnerId(ctx)
+	case mindmap.FieldViews:
+		return m.OldViews(ctx)
+	case mindmap.FieldLikes:
+		return m.OldLikes(ctx)
+	case mindmap.FieldSummary:
+		return m.OldSummary(ctx)
+	case mindmap.FieldExtraData:
+		return m.OldExtraData(ctx)
+	case mindmap.FieldCategory:
+		return m.OldCategory(ctx)
 	}
 	return nil, fmt.Errorf("unknown Mindmap field %s", name)
 }
@@ -7605,13 +7965,6 @@ func (m *MindmapMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetContent(v)
 		return nil
-	case mindmap.FieldSummary:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSummary(v)
-		return nil
 	case mindmap.FieldIsPublic:
 		v, ok := value.(bool)
 		if !ok {
@@ -7625,6 +7978,27 @@ func (m *MindmapMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTags(v)
+		return nil
+	case mindmap.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case mindmap.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case mindmap.FieldOwnerId:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOwnerId(v)
 		return nil
 	case mindmap.FieldViews:
 		v, ok := value.(int32)
@@ -7640,6 +8014,13 @@ func (m *MindmapMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetLikes(v)
 		return nil
+	case mindmap.FieldSummary:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSummary(v)
+		return nil
 	case mindmap.FieldExtraData:
 		v, ok := value.(json.RawMessage)
 		if !ok {
@@ -7653,27 +8034,6 @@ func (m *MindmapMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCategory(v)
-		return nil
-	case mindmap.FieldOwnerId:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOwnerId(v)
-		return nil
-	case mindmap.FieldCreatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreatedAt(v)
-		return nil
-	case mindmap.FieldUpdatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdatedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Mindmap field %s", name)
@@ -7766,14 +8126,20 @@ func (m *MindmapMutation) ResetField(name string) error {
 	case mindmap.FieldContent:
 		m.ResetContent()
 		return nil
-	case mindmap.FieldSummary:
-		m.ResetSummary()
-		return nil
 	case mindmap.FieldIsPublic:
 		m.ResetIsPublic()
 		return nil
 	case mindmap.FieldTags:
 		m.ResetTags()
+		return nil
+	case mindmap.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case mindmap.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case mindmap.FieldOwnerId:
+		m.ResetOwnerId()
 		return nil
 	case mindmap.FieldViews:
 		m.ResetViews()
@@ -7781,20 +8147,14 @@ func (m *MindmapMutation) ResetField(name string) error {
 	case mindmap.FieldLikes:
 		m.ResetLikes()
 		return nil
+	case mindmap.FieldSummary:
+		m.ResetSummary()
+		return nil
 	case mindmap.FieldExtraData:
 		m.ResetExtraData()
 		return nil
 	case mindmap.FieldCategory:
 		m.ResetCategory()
-		return nil
-	case mindmap.FieldOwnerId:
-		m.ResetOwnerId()
-		return nil
-	case mindmap.FieldCreatedAt:
-		m.ResetCreatedAt()
-		return nil
-	case mindmap.FieldUpdatedAt:
-		m.ResetUpdatedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Mindmap field %s", name)
@@ -7881,18 +8241,20 @@ type MomentMutation struct {
 	typ                  string
 	id                   *string
 	content              *string
+	category             *string
+	createdAt            *time.Time
+	updatedAt            *time.Time
 	isPublic             *bool
+	likes                *int32
+	addlikes             *int32
 	tags                 *json.RawMessage
 	appendtags           json.RawMessage
 	views                *int32
 	addviews             *int32
-	likes                *int32
-	addlikes             *int32
 	extraData            *json.RawMessage
 	appendextraData      json.RawMessage
-	category             *string
-	createdAt            *time.Time
-	updatedAt            *time.Time
+	content_vector       *json.RawMessage
+	appendcontent_vector json.RawMessage
 	clearedFields        map[string]struct{}
 	moment_images        map[uint]struct{}
 	removedmoment_images map[uint]struct{}
@@ -8047,6 +8409,163 @@ func (m *MomentMutation) ResetContent() {
 	m.content = nil
 }
 
+// SetCategory sets the "category" field.
+func (m *MomentMutation) SetCategory(s string) {
+	m.category = &s
+}
+
+// Category returns the value of the "category" field in the mutation.
+func (m *MomentMutation) Category() (r string, exists bool) {
+	v := m.category
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCategory returns the old "category" field's value of the Moment entity.
+// If the Moment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MomentMutation) OldCategory(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCategory requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
+	}
+	return oldValue.Category, nil
+}
+
+// ResetCategory resets all changes to the "category" field.
+func (m *MomentMutation) ResetCategory() {
+	m.category = nil
+}
+
+// SetCreatedAt sets the "createdAt" field.
+func (m *MomentMutation) SetCreatedAt(t time.Time) {
+	m.createdAt = &t
+}
+
+// CreatedAt returns the value of the "createdAt" field in the mutation.
+func (m *MomentMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.createdAt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "createdAt" field's value of the Moment entity.
+// If the Moment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MomentMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "createdAt" field.
+func (m *MomentMutation) ResetCreatedAt() {
+	m.createdAt = nil
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (m *MomentMutation) SetUpdatedAt(t time.Time) {
+	m.updatedAt = &t
+}
+
+// UpdatedAt returns the value of the "updatedAt" field in the mutation.
+func (m *MomentMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updatedAt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updatedAt" field's value of the Moment entity.
+// If the Moment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MomentMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updatedAt" field.
+func (m *MomentMutation) ResetUpdatedAt() {
+	m.updatedAt = nil
+}
+
+// SetOwnerId sets the "ownerId" field.
+func (m *MomentMutation) SetOwnerId(s string) {
+	m.user = &s
+}
+
+// OwnerId returns the value of the "ownerId" field in the mutation.
+func (m *MomentMutation) OwnerId() (r string, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOwnerId returns the old "ownerId" field's value of the Moment entity.
+// If the Moment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MomentMutation) OldOwnerId(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOwnerId is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOwnerId requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOwnerId: %w", err)
+	}
+	return oldValue.OwnerId, nil
+}
+
+// ClearOwnerId clears the value of the "ownerId" field.
+func (m *MomentMutation) ClearOwnerId() {
+	m.user = nil
+	m.clearedFields[moment.FieldOwnerId] = struct{}{}
+}
+
+// OwnerIdCleared returns if the "ownerId" field was cleared in this mutation.
+func (m *MomentMutation) OwnerIdCleared() bool {
+	_, ok := m.clearedFields[moment.FieldOwnerId]
+	return ok
+}
+
+// ResetOwnerId resets all changes to the "ownerId" field.
+func (m *MomentMutation) ResetOwnerId() {
+	m.user = nil
+	delete(m.clearedFields, moment.FieldOwnerId)
+}
+
 // SetIsPublic sets the "isPublic" field.
 func (m *MomentMutation) SetIsPublic(b bool) {
 	m.isPublic = &b
@@ -8081,6 +8600,62 @@ func (m *MomentMutation) OldIsPublic(ctx context.Context) (v bool, err error) {
 // ResetIsPublic resets all changes to the "isPublic" field.
 func (m *MomentMutation) ResetIsPublic() {
 	m.isPublic = nil
+}
+
+// SetLikes sets the "likes" field.
+func (m *MomentMutation) SetLikes(i int32) {
+	m.likes = &i
+	m.addlikes = nil
+}
+
+// Likes returns the value of the "likes" field in the mutation.
+func (m *MomentMutation) Likes() (r int32, exists bool) {
+	v := m.likes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLikes returns the old "likes" field's value of the Moment entity.
+// If the Moment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MomentMutation) OldLikes(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLikes is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLikes requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLikes: %w", err)
+	}
+	return oldValue.Likes, nil
+}
+
+// AddLikes adds i to the "likes" field.
+func (m *MomentMutation) AddLikes(i int32) {
+	if m.addlikes != nil {
+		*m.addlikes += i
+	} else {
+		m.addlikes = &i
+	}
+}
+
+// AddedLikes returns the value that was added to the "likes" field in this mutation.
+func (m *MomentMutation) AddedLikes() (r int32, exists bool) {
+	v := m.addlikes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetLikes resets all changes to the "likes" field.
+func (m *MomentMutation) ResetLikes() {
+	m.likes = nil
+	m.addlikes = nil
 }
 
 // SetTags sets the "tags" field.
@@ -8190,62 +8765,6 @@ func (m *MomentMutation) ResetViews() {
 	m.addviews = nil
 }
 
-// SetLikes sets the "likes" field.
-func (m *MomentMutation) SetLikes(i int32) {
-	m.likes = &i
-	m.addlikes = nil
-}
-
-// Likes returns the value of the "likes" field in the mutation.
-func (m *MomentMutation) Likes() (r int32, exists bool) {
-	v := m.likes
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldLikes returns the old "likes" field's value of the Moment entity.
-// If the Moment object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MomentMutation) OldLikes(ctx context.Context) (v int32, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldLikes is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldLikes requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldLikes: %w", err)
-	}
-	return oldValue.Likes, nil
-}
-
-// AddLikes adds i to the "likes" field.
-func (m *MomentMutation) AddLikes(i int32) {
-	if m.addlikes != nil {
-		*m.addlikes += i
-	} else {
-		m.addlikes = &i
-	}
-}
-
-// AddedLikes returns the value that was added to the "likes" field in this mutation.
-func (m *MomentMutation) AddedLikes() (r int32, exists bool) {
-	v := m.addlikes
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetLikes resets all changes to the "likes" field.
-func (m *MomentMutation) ResetLikes() {
-	m.likes = nil
-	m.addlikes = nil
-}
-
 // SetExtraData sets the "extraData" field.
 func (m *MomentMutation) SetExtraData(jm json.RawMessage) {
 	m.extraData = &jm
@@ -8297,161 +8816,69 @@ func (m *MomentMutation) ResetExtraData() {
 	m.appendextraData = nil
 }
 
-// SetCategory sets the "category" field.
-func (m *MomentMutation) SetCategory(s string) {
-	m.category = &s
+// SetContentVector sets the "content_vector" field.
+func (m *MomentMutation) SetContentVector(jm json.RawMessage) {
+	m.content_vector = &jm
+	m.appendcontent_vector = nil
 }
 
-// Category returns the value of the "category" field in the mutation.
-func (m *MomentMutation) Category() (r string, exists bool) {
-	v := m.category
+// ContentVector returns the value of the "content_vector" field in the mutation.
+func (m *MomentMutation) ContentVector() (r json.RawMessage, exists bool) {
+	v := m.content_vector
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldCategory returns the old "category" field's value of the Moment entity.
+// OldContentVector returns the old "content_vector" field's value of the Moment entity.
 // If the Moment object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MomentMutation) OldCategory(ctx context.Context) (v string, err error) {
+func (m *MomentMutation) OldContentVector(ctx context.Context) (v json.RawMessage, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
+		return v, errors.New("OldContentVector is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCategory requires an ID field in the mutation")
+		return v, errors.New("OldContentVector requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
+		return v, fmt.Errorf("querying old value for OldContentVector: %w", err)
 	}
-	return oldValue.Category, nil
+	return oldValue.ContentVector, nil
 }
 
-// ResetCategory resets all changes to the "category" field.
-func (m *MomentMutation) ResetCategory() {
-	m.category = nil
+// AppendContentVector adds jm to the "content_vector" field.
+func (m *MomentMutation) AppendContentVector(jm json.RawMessage) {
+	m.appendcontent_vector = append(m.appendcontent_vector, jm...)
 }
 
-// SetOwnerId sets the "ownerId" field.
-func (m *MomentMutation) SetOwnerId(s string) {
-	m.user = &s
-}
-
-// OwnerId returns the value of the "ownerId" field in the mutation.
-func (m *MomentMutation) OwnerId() (r string, exists bool) {
-	v := m.user
-	if v == nil {
-		return
+// AppendedContentVector returns the list of values that were appended to the "content_vector" field in this mutation.
+func (m *MomentMutation) AppendedContentVector() (json.RawMessage, bool) {
+	if len(m.appendcontent_vector) == 0 {
+		return nil, false
 	}
-	return *v, true
+	return m.appendcontent_vector, true
 }
 
-// OldOwnerId returns the old "ownerId" field's value of the Moment entity.
-// If the Moment object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MomentMutation) OldOwnerId(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOwnerId is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOwnerId requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOwnerId: %w", err)
-	}
-	return oldValue.OwnerId, nil
+// ClearContentVector clears the value of the "content_vector" field.
+func (m *MomentMutation) ClearContentVector() {
+	m.content_vector = nil
+	m.appendcontent_vector = nil
+	m.clearedFields[moment.FieldContentVector] = struct{}{}
 }
 
-// ClearOwnerId clears the value of the "ownerId" field.
-func (m *MomentMutation) ClearOwnerId() {
-	m.user = nil
-	m.clearedFields[moment.FieldOwnerId] = struct{}{}
-}
-
-// OwnerIdCleared returns if the "ownerId" field was cleared in this mutation.
-func (m *MomentMutation) OwnerIdCleared() bool {
-	_, ok := m.clearedFields[moment.FieldOwnerId]
+// ContentVectorCleared returns if the "content_vector" field was cleared in this mutation.
+func (m *MomentMutation) ContentVectorCleared() bool {
+	_, ok := m.clearedFields[moment.FieldContentVector]
 	return ok
 }
 
-// ResetOwnerId resets all changes to the "ownerId" field.
-func (m *MomentMutation) ResetOwnerId() {
-	m.user = nil
-	delete(m.clearedFields, moment.FieldOwnerId)
-}
-
-// SetCreatedAt sets the "createdAt" field.
-func (m *MomentMutation) SetCreatedAt(t time.Time) {
-	m.createdAt = &t
-}
-
-// CreatedAt returns the value of the "createdAt" field in the mutation.
-func (m *MomentMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.createdAt
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "createdAt" field's value of the Moment entity.
-// If the Moment object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MomentMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "createdAt" field.
-func (m *MomentMutation) ResetCreatedAt() {
-	m.createdAt = nil
-}
-
-// SetUpdatedAt sets the "updatedAt" field.
-func (m *MomentMutation) SetUpdatedAt(t time.Time) {
-	m.updatedAt = &t
-}
-
-// UpdatedAt returns the value of the "updatedAt" field in the mutation.
-func (m *MomentMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updatedAt
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updatedAt" field's value of the Moment entity.
-// If the Moment object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MomentMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updatedAt" field.
-func (m *MomentMutation) ResetUpdatedAt() {
-	m.updatedAt = nil
+// ResetContentVector resets all changes to the "content_vector" field.
+func (m *MomentMutation) ResetContentVector() {
+	m.content_vector = nil
+	m.appendcontent_vector = nil
+	delete(m.clearedFields, moment.FieldContentVector)
 }
 
 // AddMomentImageIDs adds the "moment_images" edge to the MomentImage entity by ids.
@@ -8636,12 +9063,27 @@ func (m *MomentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *MomentMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.content != nil {
 		fields = append(fields, moment.FieldContent)
 	}
+	if m.category != nil {
+		fields = append(fields, moment.FieldCategory)
+	}
+	if m.createdAt != nil {
+		fields = append(fields, moment.FieldCreatedAt)
+	}
+	if m.updatedAt != nil {
+		fields = append(fields, moment.FieldUpdatedAt)
+	}
+	if m.user != nil {
+		fields = append(fields, moment.FieldOwnerId)
+	}
 	if m.isPublic != nil {
 		fields = append(fields, moment.FieldIsPublic)
+	}
+	if m.likes != nil {
+		fields = append(fields, moment.FieldLikes)
 	}
 	if m.tags != nil {
 		fields = append(fields, moment.FieldTags)
@@ -8649,23 +9091,11 @@ func (m *MomentMutation) Fields() []string {
 	if m.views != nil {
 		fields = append(fields, moment.FieldViews)
 	}
-	if m.likes != nil {
-		fields = append(fields, moment.FieldLikes)
-	}
 	if m.extraData != nil {
 		fields = append(fields, moment.FieldExtraData)
 	}
-	if m.category != nil {
-		fields = append(fields, moment.FieldCategory)
-	}
-	if m.user != nil {
-		fields = append(fields, moment.FieldOwnerId)
-	}
-	if m.createdAt != nil {
-		fields = append(fields, moment.FieldCreatedAt)
-	}
-	if m.updatedAt != nil {
-		fields = append(fields, moment.FieldUpdatedAt)
+	if m.content_vector != nil {
+		fields = append(fields, moment.FieldContentVector)
 	}
 	return fields
 }
@@ -8677,24 +9107,26 @@ func (m *MomentMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case moment.FieldContent:
 		return m.Content()
-	case moment.FieldIsPublic:
-		return m.IsPublic()
-	case moment.FieldTags:
-		return m.Tags()
-	case moment.FieldViews:
-		return m.Views()
-	case moment.FieldLikes:
-		return m.Likes()
-	case moment.FieldExtraData:
-		return m.ExtraData()
 	case moment.FieldCategory:
 		return m.Category()
-	case moment.FieldOwnerId:
-		return m.OwnerId()
 	case moment.FieldCreatedAt:
 		return m.CreatedAt()
 	case moment.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case moment.FieldOwnerId:
+		return m.OwnerId()
+	case moment.FieldIsPublic:
+		return m.IsPublic()
+	case moment.FieldLikes:
+		return m.Likes()
+	case moment.FieldTags:
+		return m.Tags()
+	case moment.FieldViews:
+		return m.Views()
+	case moment.FieldExtraData:
+		return m.ExtraData()
+	case moment.FieldContentVector:
+		return m.ContentVector()
 	}
 	return nil, false
 }
@@ -8706,24 +9138,26 @@ func (m *MomentMutation) OldField(ctx context.Context, name string) (ent.Value, 
 	switch name {
 	case moment.FieldContent:
 		return m.OldContent(ctx)
-	case moment.FieldIsPublic:
-		return m.OldIsPublic(ctx)
-	case moment.FieldTags:
-		return m.OldTags(ctx)
-	case moment.FieldViews:
-		return m.OldViews(ctx)
-	case moment.FieldLikes:
-		return m.OldLikes(ctx)
-	case moment.FieldExtraData:
-		return m.OldExtraData(ctx)
 	case moment.FieldCategory:
 		return m.OldCategory(ctx)
-	case moment.FieldOwnerId:
-		return m.OldOwnerId(ctx)
 	case moment.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case moment.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case moment.FieldOwnerId:
+		return m.OldOwnerId(ctx)
+	case moment.FieldIsPublic:
+		return m.OldIsPublic(ctx)
+	case moment.FieldLikes:
+		return m.OldLikes(ctx)
+	case moment.FieldTags:
+		return m.OldTags(ctx)
+	case moment.FieldViews:
+		return m.OldViews(ctx)
+	case moment.FieldExtraData:
+		return m.OldExtraData(ctx)
+	case moment.FieldContentVector:
+		return m.OldContentVector(ctx)
 	}
 	return nil, fmt.Errorf("unknown Moment field %s", name)
 }
@@ -8740,54 +9174,12 @@ func (m *MomentMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetContent(v)
 		return nil
-	case moment.FieldIsPublic:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetIsPublic(v)
-		return nil
-	case moment.FieldTags:
-		v, ok := value.(json.RawMessage)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetTags(v)
-		return nil
-	case moment.FieldViews:
-		v, ok := value.(int32)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetViews(v)
-		return nil
-	case moment.FieldLikes:
-		v, ok := value.(int32)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetLikes(v)
-		return nil
-	case moment.FieldExtraData:
-		v, ok := value.(json.RawMessage)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetExtraData(v)
-		return nil
 	case moment.FieldCategory:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCategory(v)
-		return nil
-	case moment.FieldOwnerId:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOwnerId(v)
 		return nil
 	case moment.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -8803,6 +9195,55 @@ func (m *MomentMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUpdatedAt(v)
 		return nil
+	case moment.FieldOwnerId:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOwnerId(v)
+		return nil
+	case moment.FieldIsPublic:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsPublic(v)
+		return nil
+	case moment.FieldLikes:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLikes(v)
+		return nil
+	case moment.FieldTags:
+		v, ok := value.(json.RawMessage)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTags(v)
+		return nil
+	case moment.FieldViews:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetViews(v)
+		return nil
+	case moment.FieldExtraData:
+		v, ok := value.(json.RawMessage)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExtraData(v)
+		return nil
+	case moment.FieldContentVector:
+		v, ok := value.(json.RawMessage)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetContentVector(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Moment field %s", name)
 }
@@ -8811,11 +9252,11 @@ func (m *MomentMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *MomentMutation) AddedFields() []string {
 	var fields []string
-	if m.addviews != nil {
-		fields = append(fields, moment.FieldViews)
-	}
 	if m.addlikes != nil {
 		fields = append(fields, moment.FieldLikes)
+	}
+	if m.addviews != nil {
+		fields = append(fields, moment.FieldViews)
 	}
 	return fields
 }
@@ -8825,10 +9266,10 @@ func (m *MomentMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *MomentMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case moment.FieldViews:
-		return m.AddedViews()
 	case moment.FieldLikes:
 		return m.AddedLikes()
+	case moment.FieldViews:
+		return m.AddedViews()
 	}
 	return nil, false
 }
@@ -8838,19 +9279,19 @@ func (m *MomentMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *MomentMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case moment.FieldViews:
-		v, ok := value.(int32)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddViews(v)
-		return nil
 	case moment.FieldLikes:
 		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddLikes(v)
+		return nil
+	case moment.FieldViews:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddViews(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Moment numeric field %s", name)
@@ -8862,6 +9303,9 @@ func (m *MomentMutation) ClearedFields() []string {
 	var fields []string
 	if m.FieldCleared(moment.FieldOwnerId) {
 		fields = append(fields, moment.FieldOwnerId)
+	}
+	if m.FieldCleared(moment.FieldContentVector) {
+		fields = append(fields, moment.FieldContentVector)
 	}
 	return fields
 }
@@ -8880,6 +9324,9 @@ func (m *MomentMutation) ClearField(name string) error {
 	case moment.FieldOwnerId:
 		m.ClearOwnerId()
 		return nil
+	case moment.FieldContentVector:
+		m.ClearContentVector()
+		return nil
 	}
 	return fmt.Errorf("unknown Moment nullable field %s", name)
 }
@@ -8891,8 +9338,23 @@ func (m *MomentMutation) ResetField(name string) error {
 	case moment.FieldContent:
 		m.ResetContent()
 		return nil
+	case moment.FieldCategory:
+		m.ResetCategory()
+		return nil
+	case moment.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case moment.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case moment.FieldOwnerId:
+		m.ResetOwnerId()
+		return nil
 	case moment.FieldIsPublic:
 		m.ResetIsPublic()
+		return nil
+	case moment.FieldLikes:
+		m.ResetLikes()
 		return nil
 	case moment.FieldTags:
 		m.ResetTags()
@@ -8900,23 +9362,11 @@ func (m *MomentMutation) ResetField(name string) error {
 	case moment.FieldViews:
 		m.ResetViews()
 		return nil
-	case moment.FieldLikes:
-		m.ResetLikes()
-		return nil
 	case moment.FieldExtraData:
 		m.ResetExtraData()
 		return nil
-	case moment.FieldCategory:
-		m.ResetCategory()
-		return nil
-	case moment.FieldOwnerId:
-		m.ResetOwnerId()
-		return nil
-	case moment.FieldCreatedAt:
-		m.ResetCreatedAt()
-		return nil
-	case moment.FieldUpdatedAt:
-		m.ResetUpdatedAt()
+	case moment.FieldContentVector:
+		m.ResetContentVector()
 		return nil
 	}
 	return fmt.Errorf("unknown Moment field %s", name)
@@ -10566,11 +11016,11 @@ type TodoMutation struct {
 	dueDate         *time.Time
 	isPublic        *bool
 	pinned          *bool
+	createdAt       *time.Time
+	updatedAt       *time.Time
 	extraData       *json.RawMessage
 	appendextraData json.RawMessage
 	category        *string
-	createdAt       *time.Time
-	updatedAt       *time.Time
 	clearedFields   map[string]struct{}
 	user            *string
 	cleareduser     bool
@@ -10981,93 +11431,6 @@ func (m *TodoMutation) ResetPinned() {
 	m.pinned = nil
 }
 
-// SetExtraData sets the "extraData" field.
-func (m *TodoMutation) SetExtraData(jm json.RawMessage) {
-	m.extraData = &jm
-	m.appendextraData = nil
-}
-
-// ExtraData returns the value of the "extraData" field in the mutation.
-func (m *TodoMutation) ExtraData() (r json.RawMessage, exists bool) {
-	v := m.extraData
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldExtraData returns the old "extraData" field's value of the Todo entity.
-// If the Todo object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TodoMutation) OldExtraData(ctx context.Context) (v json.RawMessage, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldExtraData is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldExtraData requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldExtraData: %w", err)
-	}
-	return oldValue.ExtraData, nil
-}
-
-// AppendExtraData adds jm to the "extraData" field.
-func (m *TodoMutation) AppendExtraData(jm json.RawMessage) {
-	m.appendextraData = append(m.appendextraData, jm...)
-}
-
-// AppendedExtraData returns the list of values that were appended to the "extraData" field in this mutation.
-func (m *TodoMutation) AppendedExtraData() (json.RawMessage, bool) {
-	if len(m.appendextraData) == 0 {
-		return nil, false
-	}
-	return m.appendextraData, true
-}
-
-// ResetExtraData resets all changes to the "extraData" field.
-func (m *TodoMutation) ResetExtraData() {
-	m.extraData = nil
-	m.appendextraData = nil
-}
-
-// SetCategory sets the "category" field.
-func (m *TodoMutation) SetCategory(s string) {
-	m.category = &s
-}
-
-// Category returns the value of the "category" field in the mutation.
-func (m *TodoMutation) Category() (r string, exists bool) {
-	v := m.category
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCategory returns the old "category" field's value of the Todo entity.
-// If the Todo object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TodoMutation) OldCategory(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCategory requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
-	}
-	return oldValue.Category, nil
-}
-
-// ResetCategory resets all changes to the "category" field.
-func (m *TodoMutation) ResetCategory() {
-	m.category = nil
-}
-
 // SetOwnerId sets the "ownerId" field.
 func (m *TodoMutation) SetOwnerId(s string) {
 	m.user = &s
@@ -11189,6 +11552,93 @@ func (m *TodoMutation) ResetUpdatedAt() {
 	m.updatedAt = nil
 }
 
+// SetExtraData sets the "extraData" field.
+func (m *TodoMutation) SetExtraData(jm json.RawMessage) {
+	m.extraData = &jm
+	m.appendextraData = nil
+}
+
+// ExtraData returns the value of the "extraData" field in the mutation.
+func (m *TodoMutation) ExtraData() (r json.RawMessage, exists bool) {
+	v := m.extraData
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExtraData returns the old "extraData" field's value of the Todo entity.
+// If the Todo object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TodoMutation) OldExtraData(ctx context.Context) (v json.RawMessage, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExtraData is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExtraData requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExtraData: %w", err)
+	}
+	return oldValue.ExtraData, nil
+}
+
+// AppendExtraData adds jm to the "extraData" field.
+func (m *TodoMutation) AppendExtraData(jm json.RawMessage) {
+	m.appendextraData = append(m.appendextraData, jm...)
+}
+
+// AppendedExtraData returns the list of values that were appended to the "extraData" field in this mutation.
+func (m *TodoMutation) AppendedExtraData() (json.RawMessage, bool) {
+	if len(m.appendextraData) == 0 {
+		return nil, false
+	}
+	return m.appendextraData, true
+}
+
+// ResetExtraData resets all changes to the "extraData" field.
+func (m *TodoMutation) ResetExtraData() {
+	m.extraData = nil
+	m.appendextraData = nil
+}
+
+// SetCategory sets the "category" field.
+func (m *TodoMutation) SetCategory(s string) {
+	m.category = &s
+}
+
+// Category returns the value of the "category" field in the mutation.
+func (m *TodoMutation) Category() (r string, exists bool) {
+	v := m.category
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCategory returns the old "category" field's value of the Todo entity.
+// If the Todo object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TodoMutation) OldCategory(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCategory requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
+	}
+	return oldValue.Category, nil
+}
+
+// ResetCategory resets all changes to the "category" field.
+func (m *TodoMutation) ResetCategory() {
+	m.category = nil
+}
+
 // SetUserID sets the "user" edge to the User entity by id.
 func (m *TodoMutation) SetUserID(id string) {
 	m.user = &id
@@ -11285,12 +11735,6 @@ func (m *TodoMutation) Fields() []string {
 	if m.pinned != nil {
 		fields = append(fields, todo.FieldPinned)
 	}
-	if m.extraData != nil {
-		fields = append(fields, todo.FieldExtraData)
-	}
-	if m.category != nil {
-		fields = append(fields, todo.FieldCategory)
-	}
 	if m.user != nil {
 		fields = append(fields, todo.FieldOwnerId)
 	}
@@ -11299,6 +11743,12 @@ func (m *TodoMutation) Fields() []string {
 	}
 	if m.updatedAt != nil {
 		fields = append(fields, todo.FieldUpdatedAt)
+	}
+	if m.extraData != nil {
+		fields = append(fields, todo.FieldExtraData)
+	}
+	if m.category != nil {
+		fields = append(fields, todo.FieldCategory)
 	}
 	return fields
 }
@@ -11322,16 +11772,16 @@ func (m *TodoMutation) Field(name string) (ent.Value, bool) {
 		return m.IsPublic()
 	case todo.FieldPinned:
 		return m.Pinned()
-	case todo.FieldExtraData:
-		return m.ExtraData()
-	case todo.FieldCategory:
-		return m.Category()
 	case todo.FieldOwnerId:
 		return m.OwnerId()
 	case todo.FieldCreatedAt:
 		return m.CreatedAt()
 	case todo.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case todo.FieldExtraData:
+		return m.ExtraData()
+	case todo.FieldCategory:
+		return m.Category()
 	}
 	return nil, false
 }
@@ -11355,16 +11805,16 @@ func (m *TodoMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldIsPublic(ctx)
 	case todo.FieldPinned:
 		return m.OldPinned(ctx)
-	case todo.FieldExtraData:
-		return m.OldExtraData(ctx)
-	case todo.FieldCategory:
-		return m.OldCategory(ctx)
 	case todo.FieldOwnerId:
 		return m.OldOwnerId(ctx)
 	case todo.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case todo.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case todo.FieldExtraData:
+		return m.OldExtraData(ctx)
+	case todo.FieldCategory:
+		return m.OldCategory(ctx)
 	}
 	return nil, fmt.Errorf("unknown Todo field %s", name)
 }
@@ -11423,20 +11873,6 @@ func (m *TodoMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPinned(v)
 		return nil
-	case todo.FieldExtraData:
-		v, ok := value.(json.RawMessage)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetExtraData(v)
-		return nil
-	case todo.FieldCategory:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCategory(v)
-		return nil
 	case todo.FieldOwnerId:
 		v, ok := value.(string)
 		if !ok {
@@ -11457,6 +11893,20 @@ func (m *TodoMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
+		return nil
+	case todo.FieldExtraData:
+		v, ok := value.(json.RawMessage)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExtraData(v)
+		return nil
+	case todo.FieldCategory:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCategory(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Todo field %s", name)
@@ -11564,12 +12014,6 @@ func (m *TodoMutation) ResetField(name string) error {
 	case todo.FieldPinned:
 		m.ResetPinned()
 		return nil
-	case todo.FieldExtraData:
-		m.ResetExtraData()
-		return nil
-	case todo.FieldCategory:
-		m.ResetCategory()
-		return nil
 	case todo.FieldOwnerId:
 		m.ResetOwnerId()
 		return nil
@@ -11578,6 +12022,12 @@ func (m *TodoMutation) ResetField(name string) error {
 		return nil
 	case todo.FieldUpdatedAt:
 		m.ResetUpdatedAt()
+		return nil
+	case todo.FieldExtraData:
+		m.ResetExtraData()
+		return nil
+	case todo.FieldCategory:
+		m.ResetCategory()
 		return nil
 	}
 	return fmt.Errorf("unknown Todo field %s", name)
@@ -11668,10 +12118,10 @@ type UserMutation struct {
 	avatar          *string
 	bio             *string
 	isAdmin         *bool
-	lastLoginAt     *time.Time
 	lastLoginIp     *string
 	createdAt       *time.Time
 	updatedAt       *time.Time
+	lastLoginAt     *time.Time
 	clearedFields   map[string]struct{}
 	buckets         map[string]struct{}
 	removedbuckets  map[string]struct{}
@@ -11988,42 +12438,6 @@ func (m *UserMutation) ResetIsAdmin() {
 	m.isAdmin = nil
 }
 
-// SetLastLoginAt sets the "lastLoginAt" field.
-func (m *UserMutation) SetLastLoginAt(t time.Time) {
-	m.lastLoginAt = &t
-}
-
-// LastLoginAt returns the value of the "lastLoginAt" field in the mutation.
-func (m *UserMutation) LastLoginAt() (r time.Time, exists bool) {
-	v := m.lastLoginAt
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldLastLoginAt returns the old "lastLoginAt" field's value of the User entity.
-// If the User object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldLastLoginAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldLastLoginAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldLastLoginAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldLastLoginAt: %w", err)
-	}
-	return oldValue.LastLoginAt, nil
-}
-
-// ResetLastLoginAt resets all changes to the "lastLoginAt" field.
-func (m *UserMutation) ResetLastLoginAt() {
-	m.lastLoginAt = nil
-}
-
 // SetLastLoginIp sets the "lastLoginIp" field.
 func (m *UserMutation) SetLastLoginIp(s string) {
 	m.lastLoginIp = &s
@@ -12179,6 +12593,42 @@ func (m *UserMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error
 // ResetUpdatedAt resets all changes to the "updatedAt" field.
 func (m *UserMutation) ResetUpdatedAt() {
 	m.updatedAt = nil
+}
+
+// SetLastLoginAt sets the "lastLoginAt" field.
+func (m *UserMutation) SetLastLoginAt(t time.Time) {
+	m.lastLoginAt = &t
+}
+
+// LastLoginAt returns the value of the "lastLoginAt" field in the mutation.
+func (m *UserMutation) LastLoginAt() (r time.Time, exists bool) {
+	v := m.lastLoginAt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLastLoginAt returns the old "lastLoginAt" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldLastLoginAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLastLoginAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLastLoginAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLastLoginAt: %w", err)
+	}
+	return oldValue.LastLoginAt, nil
+}
+
+// ResetLastLoginAt resets all changes to the "lastLoginAt" field.
+func (m *UserMutation) ResetLastLoginAt() {
+	m.lastLoginAt = nil
 }
 
 // AddBucketIDs adds the "buckets" edge to the Bucket entity by ids.
@@ -12703,9 +13153,6 @@ func (m *UserMutation) Fields() []string {
 	if m.isAdmin != nil {
 		fields = append(fields, user.FieldIsAdmin)
 	}
-	if m.lastLoginAt != nil {
-		fields = append(fields, user.FieldLastLoginAt)
-	}
 	if m.lastLoginIp != nil {
 		fields = append(fields, user.FieldLastLoginIp)
 	}
@@ -12717,6 +13164,9 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.updatedAt != nil {
 		fields = append(fields, user.FieldUpdatedAt)
+	}
+	if m.lastLoginAt != nil {
+		fields = append(fields, user.FieldLastLoginAt)
 	}
 	return fields
 }
@@ -12736,8 +13186,6 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Bio()
 	case user.FieldIsAdmin:
 		return m.IsAdmin()
-	case user.FieldLastLoginAt:
-		return m.LastLoginAt()
 	case user.FieldLastLoginIp:
 		return m.LastLoginIp()
 	case user.FieldGroupId:
@@ -12746,6 +13194,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case user.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case user.FieldLastLoginAt:
+		return m.LastLoginAt()
 	}
 	return nil, false
 }
@@ -12765,8 +13215,6 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldBio(ctx)
 	case user.FieldIsAdmin:
 		return m.OldIsAdmin(ctx)
-	case user.FieldLastLoginAt:
-		return m.OldLastLoginAt(ctx)
 	case user.FieldLastLoginIp:
 		return m.OldLastLoginIp(ctx)
 	case user.FieldGroupId:
@@ -12775,6 +13223,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldCreatedAt(ctx)
 	case user.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case user.FieldLastLoginAt:
+		return m.OldLastLoginAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -12819,13 +13269,6 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetIsAdmin(v)
 		return nil
-	case user.FieldLastLoginAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetLastLoginAt(v)
-		return nil
 	case user.FieldLastLoginIp:
 		v, ok := value.(string)
 		if !ok {
@@ -12853,6 +13296,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
+		return nil
+	case user.FieldLastLoginAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLastLoginAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -12927,9 +13377,6 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldIsAdmin:
 		m.ResetIsAdmin()
 		return nil
-	case user.FieldLastLoginAt:
-		m.ResetLastLoginAt()
-		return nil
 	case user.FieldLastLoginIp:
 		m.ResetLastLoginIp()
 		return nil
@@ -12941,6 +13388,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldUpdatedAt:
 		m.ResetUpdatedAt()
+		return nil
+	case user.FieldLastLoginAt:
+		m.ResetLastLoginAt()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -13236,19 +13686,19 @@ type VideoMutation struct {
 	op                   Op
 	typ                  string
 	id                   *string
-	name                 *string
-	_type                *string
+	hash                 *string
 	size                 *int
 	addsize              *int
-	hash                 *string
+	isPublic             *bool
+	createdAt            *time.Time
+	updatedAt            *time.Time
 	duration             *int32
 	addduration          *int32
-	isPublic             *bool
+	name                 *string
+	_type                *string
 	extraData            *json.RawMessage
 	appendextraData      json.RawMessage
 	category             *string
-	createdAt            *time.Time
-	updatedAt            *time.Time
 	clearedFields        map[string]struct{}
 	moment_videos        map[uint]struct{}
 	removedmoment_videos map[uint]struct{}
@@ -13368,76 +13818,40 @@ func (m *VideoMutation) IDs(ctx context.Context) ([]string, error) {
 	}
 }
 
-// SetName sets the "name" field.
-func (m *VideoMutation) SetName(s string) {
-	m.name = &s
+// SetHash sets the "hash" field.
+func (m *VideoMutation) SetHash(s string) {
+	m.hash = &s
 }
 
-// Name returns the value of the "name" field in the mutation.
-func (m *VideoMutation) Name() (r string, exists bool) {
-	v := m.name
+// Hash returns the value of the "hash" field in the mutation.
+func (m *VideoMutation) Hash() (r string, exists bool) {
+	v := m.hash
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldName returns the old "name" field's value of the Video entity.
+// OldHash returns the old "hash" field's value of the Video entity.
 // If the Video object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *VideoMutation) OldName(ctx context.Context) (v string, err error) {
+func (m *VideoMutation) OldHash(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldName is only allowed on UpdateOne operations")
+		return v, errors.New("OldHash is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldName requires an ID field in the mutation")
+		return v, errors.New("OldHash requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldName: %w", err)
+		return v, fmt.Errorf("querying old value for OldHash: %w", err)
 	}
-	return oldValue.Name, nil
+	return oldValue.Hash, nil
 }
 
-// ResetName resets all changes to the "name" field.
-func (m *VideoMutation) ResetName() {
-	m.name = nil
-}
-
-// SetType sets the "type" field.
-func (m *VideoMutation) SetType(s string) {
-	m._type = &s
-}
-
-// GetType returns the value of the "type" field in the mutation.
-func (m *VideoMutation) GetType() (r string, exists bool) {
-	v := m._type
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldType returns the old "type" field's value of the Video entity.
-// If the Video object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *VideoMutation) OldType(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldType is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldType requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldType: %w", err)
-	}
-	return oldValue.Type, nil
-}
-
-// ResetType resets all changes to the "type" field.
-func (m *VideoMutation) ResetType() {
-	m._type = nil
+// ResetHash resets all changes to the "hash" field.
+func (m *VideoMutation) ResetHash() {
+	m.hash = nil
 }
 
 // SetSize sets the "size" field.
@@ -13496,98 +13910,6 @@ func (m *VideoMutation) ResetSize() {
 	m.addsize = nil
 }
 
-// SetHash sets the "hash" field.
-func (m *VideoMutation) SetHash(s string) {
-	m.hash = &s
-}
-
-// Hash returns the value of the "hash" field in the mutation.
-func (m *VideoMutation) Hash() (r string, exists bool) {
-	v := m.hash
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldHash returns the old "hash" field's value of the Video entity.
-// If the Video object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *VideoMutation) OldHash(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldHash is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldHash requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldHash: %w", err)
-	}
-	return oldValue.Hash, nil
-}
-
-// ResetHash resets all changes to the "hash" field.
-func (m *VideoMutation) ResetHash() {
-	m.hash = nil
-}
-
-// SetDuration sets the "duration" field.
-func (m *VideoMutation) SetDuration(i int32) {
-	m.duration = &i
-	m.addduration = nil
-}
-
-// Duration returns the value of the "duration" field in the mutation.
-func (m *VideoMutation) Duration() (r int32, exists bool) {
-	v := m.duration
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDuration returns the old "duration" field's value of the Video entity.
-// If the Video object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *VideoMutation) OldDuration(ctx context.Context) (v int32, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDuration is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDuration requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDuration: %w", err)
-	}
-	return oldValue.Duration, nil
-}
-
-// AddDuration adds i to the "duration" field.
-func (m *VideoMutation) AddDuration(i int32) {
-	if m.addduration != nil {
-		*m.addduration += i
-	} else {
-		m.addduration = &i
-	}
-}
-
-// AddedDuration returns the value that was added to the "duration" field in this mutation.
-func (m *VideoMutation) AddedDuration() (r int32, exists bool) {
-	v := m.addduration
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetDuration resets all changes to the "duration" field.
-func (m *VideoMutation) ResetDuration() {
-	m.duration = nil
-	m.addduration = nil
-}
-
 // SetIsPublic sets the "isPublic" field.
 func (m *VideoMutation) SetIsPublic(b bool) {
 	m.isPublic = &b
@@ -13622,93 +13944,6 @@ func (m *VideoMutation) OldIsPublic(ctx context.Context) (v bool, err error) {
 // ResetIsPublic resets all changes to the "isPublic" field.
 func (m *VideoMutation) ResetIsPublic() {
 	m.isPublic = nil
-}
-
-// SetExtraData sets the "extraData" field.
-func (m *VideoMutation) SetExtraData(jm json.RawMessage) {
-	m.extraData = &jm
-	m.appendextraData = nil
-}
-
-// ExtraData returns the value of the "extraData" field in the mutation.
-func (m *VideoMutation) ExtraData() (r json.RawMessage, exists bool) {
-	v := m.extraData
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldExtraData returns the old "extraData" field's value of the Video entity.
-// If the Video object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *VideoMutation) OldExtraData(ctx context.Context) (v json.RawMessage, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldExtraData is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldExtraData requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldExtraData: %w", err)
-	}
-	return oldValue.ExtraData, nil
-}
-
-// AppendExtraData adds jm to the "extraData" field.
-func (m *VideoMutation) AppendExtraData(jm json.RawMessage) {
-	m.appendextraData = append(m.appendextraData, jm...)
-}
-
-// AppendedExtraData returns the list of values that were appended to the "extraData" field in this mutation.
-func (m *VideoMutation) AppendedExtraData() (json.RawMessage, bool) {
-	if len(m.appendextraData) == 0 {
-		return nil, false
-	}
-	return m.appendextraData, true
-}
-
-// ResetExtraData resets all changes to the "extraData" field.
-func (m *VideoMutation) ResetExtraData() {
-	m.extraData = nil
-	m.appendextraData = nil
-}
-
-// SetCategory sets the "category" field.
-func (m *VideoMutation) SetCategory(s string) {
-	m.category = &s
-}
-
-// Category returns the value of the "category" field in the mutation.
-func (m *VideoMutation) Category() (r string, exists bool) {
-	v := m.category
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCategory returns the old "category" field's value of the Video entity.
-// If the Video object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *VideoMutation) OldCategory(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCategory requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
-	}
-	return oldValue.Category, nil
-}
-
-// ResetCategory resets all changes to the "category" field.
-func (m *VideoMutation) ResetCategory() {
-	m.category = nil
 }
 
 // SetPosterId sets the "posterId" field.
@@ -13930,6 +14165,221 @@ func (m *VideoMutation) ResetUpdatedAt() {
 	m.updatedAt = nil
 }
 
+// SetDuration sets the "duration" field.
+func (m *VideoMutation) SetDuration(i int32) {
+	m.duration = &i
+	m.addduration = nil
+}
+
+// Duration returns the value of the "duration" field in the mutation.
+func (m *VideoMutation) Duration() (r int32, exists bool) {
+	v := m.duration
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDuration returns the old "duration" field's value of the Video entity.
+// If the Video object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VideoMutation) OldDuration(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDuration is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDuration requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDuration: %w", err)
+	}
+	return oldValue.Duration, nil
+}
+
+// AddDuration adds i to the "duration" field.
+func (m *VideoMutation) AddDuration(i int32) {
+	if m.addduration != nil {
+		*m.addduration += i
+	} else {
+		m.addduration = &i
+	}
+}
+
+// AddedDuration returns the value that was added to the "duration" field in this mutation.
+func (m *VideoMutation) AddedDuration() (r int32, exists bool) {
+	v := m.addduration
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDuration resets all changes to the "duration" field.
+func (m *VideoMutation) ResetDuration() {
+	m.duration = nil
+	m.addduration = nil
+}
+
+// SetName sets the "name" field.
+func (m *VideoMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *VideoMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Video entity.
+// If the Video object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VideoMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *VideoMutation) ResetName() {
+	m.name = nil
+}
+
+// SetType sets the "type" field.
+func (m *VideoMutation) SetType(s string) {
+	m._type = &s
+}
+
+// GetType returns the value of the "type" field in the mutation.
+func (m *VideoMutation) GetType() (r string, exists bool) {
+	v := m._type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldType returns the old "type" field's value of the Video entity.
+// If the Video object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VideoMutation) OldType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
+	}
+	return oldValue.Type, nil
+}
+
+// ResetType resets all changes to the "type" field.
+func (m *VideoMutation) ResetType() {
+	m._type = nil
+}
+
+// SetExtraData sets the "extraData" field.
+func (m *VideoMutation) SetExtraData(jm json.RawMessage) {
+	m.extraData = &jm
+	m.appendextraData = nil
+}
+
+// ExtraData returns the value of the "extraData" field in the mutation.
+func (m *VideoMutation) ExtraData() (r json.RawMessage, exists bool) {
+	v := m.extraData
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExtraData returns the old "extraData" field's value of the Video entity.
+// If the Video object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VideoMutation) OldExtraData(ctx context.Context) (v json.RawMessage, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExtraData is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExtraData requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExtraData: %w", err)
+	}
+	return oldValue.ExtraData, nil
+}
+
+// AppendExtraData adds jm to the "extraData" field.
+func (m *VideoMutation) AppendExtraData(jm json.RawMessage) {
+	m.appendextraData = append(m.appendextraData, jm...)
+}
+
+// AppendedExtraData returns the list of values that were appended to the "extraData" field in this mutation.
+func (m *VideoMutation) AppendedExtraData() (json.RawMessage, bool) {
+	if len(m.appendextraData) == 0 {
+		return nil, false
+	}
+	return m.appendextraData, true
+}
+
+// ResetExtraData resets all changes to the "extraData" field.
+func (m *VideoMutation) ResetExtraData() {
+	m.extraData = nil
+	m.appendextraData = nil
+}
+
+// SetCategory sets the "category" field.
+func (m *VideoMutation) SetCategory(s string) {
+	m.category = &s
+}
+
+// Category returns the value of the "category" field in the mutation.
+func (m *VideoMutation) Category() (r string, exists bool) {
+	v := m.category
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCategory returns the old "category" field's value of the Video entity.
+// If the Video object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VideoMutation) OldCategory(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCategory requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
+	}
+	return oldValue.Category, nil
+}
+
+// ResetCategory resets all changes to the "category" field.
+func (m *VideoMutation) ResetCategory() {
+	m.category = nil
+}
+
 // AddMomentVideoIDs adds the "moment_videos" edge to the MomentVideo entity by ids.
 func (m *VideoMutation) AddMomentVideoIDs(ids ...uint) {
 	if m.moment_videos == nil {
@@ -14139,29 +14589,14 @@ func (m *VideoMutation) Type() string {
 // AddedFields().
 func (m *VideoMutation) Fields() []string {
 	fields := make([]string, 0, 13)
-	if m.name != nil {
-		fields = append(fields, video.FieldName)
-	}
-	if m._type != nil {
-		fields = append(fields, video.FieldType)
+	if m.hash != nil {
+		fields = append(fields, video.FieldHash)
 	}
 	if m.size != nil {
 		fields = append(fields, video.FieldSize)
 	}
-	if m.hash != nil {
-		fields = append(fields, video.FieldHash)
-	}
-	if m.duration != nil {
-		fields = append(fields, video.FieldDuration)
-	}
 	if m.isPublic != nil {
 		fields = append(fields, video.FieldIsPublic)
-	}
-	if m.extraData != nil {
-		fields = append(fields, video.FieldExtraData)
-	}
-	if m.category != nil {
-		fields = append(fields, video.FieldCategory)
 	}
 	if m.poster != nil {
 		fields = append(fields, video.FieldPosterId)
@@ -14178,6 +14613,21 @@ func (m *VideoMutation) Fields() []string {
 	if m.updatedAt != nil {
 		fields = append(fields, video.FieldUpdatedAt)
 	}
+	if m.duration != nil {
+		fields = append(fields, video.FieldDuration)
+	}
+	if m.name != nil {
+		fields = append(fields, video.FieldName)
+	}
+	if m._type != nil {
+		fields = append(fields, video.FieldType)
+	}
+	if m.extraData != nil {
+		fields = append(fields, video.FieldExtraData)
+	}
+	if m.category != nil {
+		fields = append(fields, video.FieldCategory)
+	}
 	return fields
 }
 
@@ -14186,22 +14636,12 @@ func (m *VideoMutation) Fields() []string {
 // schema.
 func (m *VideoMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case video.FieldName:
-		return m.Name()
-	case video.FieldType:
-		return m.GetType()
-	case video.FieldSize:
-		return m.Size()
 	case video.FieldHash:
 		return m.Hash()
-	case video.FieldDuration:
-		return m.Duration()
+	case video.FieldSize:
+		return m.Size()
 	case video.FieldIsPublic:
 		return m.IsPublic()
-	case video.FieldExtraData:
-		return m.ExtraData()
-	case video.FieldCategory:
-		return m.Category()
 	case video.FieldPosterId:
 		return m.PosterId()
 	case video.FieldFileId:
@@ -14212,6 +14652,16 @@ func (m *VideoMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case video.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case video.FieldDuration:
+		return m.Duration()
+	case video.FieldName:
+		return m.Name()
+	case video.FieldType:
+		return m.GetType()
+	case video.FieldExtraData:
+		return m.ExtraData()
+	case video.FieldCategory:
+		return m.Category()
 	}
 	return nil, false
 }
@@ -14221,22 +14671,12 @@ func (m *VideoMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *VideoMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case video.FieldName:
-		return m.OldName(ctx)
-	case video.FieldType:
-		return m.OldType(ctx)
-	case video.FieldSize:
-		return m.OldSize(ctx)
 	case video.FieldHash:
 		return m.OldHash(ctx)
-	case video.FieldDuration:
-		return m.OldDuration(ctx)
+	case video.FieldSize:
+		return m.OldSize(ctx)
 	case video.FieldIsPublic:
 		return m.OldIsPublic(ctx)
-	case video.FieldExtraData:
-		return m.OldExtraData(ctx)
-	case video.FieldCategory:
-		return m.OldCategory(ctx)
 	case video.FieldPosterId:
 		return m.OldPosterId(ctx)
 	case video.FieldFileId:
@@ -14247,6 +14687,16 @@ func (m *VideoMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldCreatedAt(ctx)
 	case video.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case video.FieldDuration:
+		return m.OldDuration(ctx)
+	case video.FieldName:
+		return m.OldName(ctx)
+	case video.FieldType:
+		return m.OldType(ctx)
+	case video.FieldExtraData:
+		return m.OldExtraData(ctx)
+	case video.FieldCategory:
+		return m.OldCategory(ctx)
 	}
 	return nil, fmt.Errorf("unknown Video field %s", name)
 }
@@ -14256,19 +14706,12 @@ func (m *VideoMutation) OldField(ctx context.Context, name string) (ent.Value, e
 // type.
 func (m *VideoMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case video.FieldName:
+	case video.FieldHash:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetName(v)
-		return nil
-	case video.FieldType:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetType(v)
+		m.SetHash(v)
 		return nil
 	case video.FieldSize:
 		v, ok := value.(int)
@@ -14277,40 +14720,12 @@ func (m *VideoMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetSize(v)
 		return nil
-	case video.FieldHash:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetHash(v)
-		return nil
-	case video.FieldDuration:
-		v, ok := value.(int32)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDuration(v)
-		return nil
 	case video.FieldIsPublic:
 		v, ok := value.(bool)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIsPublic(v)
-		return nil
-	case video.FieldExtraData:
-		v, ok := value.(json.RawMessage)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetExtraData(v)
-		return nil
-	case video.FieldCategory:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCategory(v)
 		return nil
 	case video.FieldPosterId:
 		v, ok := value.(string)
@@ -14346,6 +14761,41 @@ func (m *VideoMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
+		return nil
+	case video.FieldDuration:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDuration(v)
+		return nil
+	case video.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case video.FieldType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetType(v)
+		return nil
+	case video.FieldExtraData:
+		v, ok := value.(json.RawMessage)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExtraData(v)
+		return nil
+	case video.FieldCategory:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCategory(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Video field %s", name)
@@ -14444,29 +14894,14 @@ func (m *VideoMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *VideoMutation) ResetField(name string) error {
 	switch name {
-	case video.FieldName:
-		m.ResetName()
-		return nil
-	case video.FieldType:
-		m.ResetType()
+	case video.FieldHash:
+		m.ResetHash()
 		return nil
 	case video.FieldSize:
 		m.ResetSize()
 		return nil
-	case video.FieldHash:
-		m.ResetHash()
-		return nil
-	case video.FieldDuration:
-		m.ResetDuration()
-		return nil
 	case video.FieldIsPublic:
 		m.ResetIsPublic()
-		return nil
-	case video.FieldExtraData:
-		m.ResetExtraData()
-		return nil
-	case video.FieldCategory:
-		m.ResetCategory()
 		return nil
 	case video.FieldPosterId:
 		m.ResetPosterId()
@@ -14482,6 +14917,21 @@ func (m *VideoMutation) ResetField(name string) error {
 		return nil
 	case video.FieldUpdatedAt:
 		m.ResetUpdatedAt()
+		return nil
+	case video.FieldDuration:
+		m.ResetDuration()
+		return nil
+	case video.FieldName:
+		m.ResetName()
+		return nil
+	case video.FieldType:
+		m.ResetType()
+		return nil
+	case video.FieldExtraData:
+		m.ResetExtraData()
+		return nil
+	case video.FieldCategory:
+		m.ResetCategory()
 		return nil
 	}
 	return fmt.Errorf("unknown Video field %s", name)

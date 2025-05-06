@@ -32,16 +32,16 @@ const (
 	FieldSecretKey = "secretKey"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
-	// FieldExtraData holds the string denoting the extradata field in the database.
-	FieldExtraData = "extraData"
-	// FieldCategory holds the string denoting the category field in the database.
-	FieldCategory = "category"
-	// FieldOwnerId holds the string denoting the ownerid field in the database.
-	FieldOwnerId = "ownerId"
 	// FieldCreatedAt holds the string denoting the createdat field in the database.
 	FieldCreatedAt = "createdAt"
 	// FieldUpdatedAt holds the string denoting the updatedat field in the database.
 	FieldUpdatedAt = "updatedAt"
+	// FieldOwnerId holds the string denoting the ownerid field in the database.
+	FieldOwnerId = "ownerId"
+	// FieldExtraData holds the string denoting the extradata field in the database.
+	FieldExtraData = "extraData"
+	// FieldCategory holds the string denoting the category field in the database.
+	FieldCategory = "category"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// EdgeFiles holds the string denoting the files edge name in mutations.
@@ -76,11 +76,11 @@ var Columns = []string{
 	FieldAccessKey,
 	FieldSecretKey,
 	FieldDescription,
-	FieldExtraData,
-	FieldCategory,
-	FieldOwnerId,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldOwnerId,
+	FieldExtraData,
+	FieldCategory,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -170,16 +170,6 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
-// ByCategory orders the results by the category field.
-func ByCategory(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCategory, opts...).ToFunc()
-}
-
-// ByOwnerId orders the results by the ownerId field.
-func ByOwnerId(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOwnerId, opts...).ToFunc()
-}
-
 // ByCreatedAt orders the results by the createdAt field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
@@ -188,6 +178,16 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updatedAt field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByOwnerId orders the results by the ownerId field.
+func ByOwnerId(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOwnerId, opts...).ToFunc()
+}
+
+// ByCategory orders the results by the category field.
+func ByCategory(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCategory, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

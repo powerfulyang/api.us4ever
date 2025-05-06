@@ -30,39 +30,21 @@ func (mc *MomentCreate) SetContent(s string) *MomentCreate {
 	return mc
 }
 
-// SetIsPublic sets the "isPublic" field.
-func (mc *MomentCreate) SetIsPublic(b bool) *MomentCreate {
-	mc.mutation.SetIsPublic(b)
-	return mc
-}
-
-// SetTags sets the "tags" field.
-func (mc *MomentCreate) SetTags(jm json.RawMessage) *MomentCreate {
-	mc.mutation.SetTags(jm)
-	return mc
-}
-
-// SetViews sets the "views" field.
-func (mc *MomentCreate) SetViews(i int32) *MomentCreate {
-	mc.mutation.SetViews(i)
-	return mc
-}
-
-// SetLikes sets the "likes" field.
-func (mc *MomentCreate) SetLikes(i int32) *MomentCreate {
-	mc.mutation.SetLikes(i)
-	return mc
-}
-
-// SetExtraData sets the "extraData" field.
-func (mc *MomentCreate) SetExtraData(jm json.RawMessage) *MomentCreate {
-	mc.mutation.SetExtraData(jm)
-	return mc
-}
-
 // SetCategory sets the "category" field.
 func (mc *MomentCreate) SetCategory(s string) *MomentCreate {
 	mc.mutation.SetCategory(s)
+	return mc
+}
+
+// SetCreatedAt sets the "createdAt" field.
+func (mc *MomentCreate) SetCreatedAt(t time.Time) *MomentCreate {
+	mc.mutation.SetCreatedAt(t)
+	return mc
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (mc *MomentCreate) SetUpdatedAt(t time.Time) *MomentCreate {
+	mc.mutation.SetUpdatedAt(t)
 	return mc
 }
 
@@ -80,15 +62,39 @@ func (mc *MomentCreate) SetNillableOwnerId(s *string) *MomentCreate {
 	return mc
 }
 
-// SetCreatedAt sets the "createdAt" field.
-func (mc *MomentCreate) SetCreatedAt(t time.Time) *MomentCreate {
-	mc.mutation.SetCreatedAt(t)
+// SetIsPublic sets the "isPublic" field.
+func (mc *MomentCreate) SetIsPublic(b bool) *MomentCreate {
+	mc.mutation.SetIsPublic(b)
 	return mc
 }
 
-// SetUpdatedAt sets the "updatedAt" field.
-func (mc *MomentCreate) SetUpdatedAt(t time.Time) *MomentCreate {
-	mc.mutation.SetUpdatedAt(t)
+// SetLikes sets the "likes" field.
+func (mc *MomentCreate) SetLikes(i int32) *MomentCreate {
+	mc.mutation.SetLikes(i)
+	return mc
+}
+
+// SetTags sets the "tags" field.
+func (mc *MomentCreate) SetTags(jm json.RawMessage) *MomentCreate {
+	mc.mutation.SetTags(jm)
+	return mc
+}
+
+// SetViews sets the "views" field.
+func (mc *MomentCreate) SetViews(i int32) *MomentCreate {
+	mc.mutation.SetViews(i)
+	return mc
+}
+
+// SetExtraData sets the "extraData" field.
+func (mc *MomentCreate) SetExtraData(jm json.RawMessage) *MomentCreate {
+	mc.mutation.SetExtraData(jm)
+	return mc
+}
+
+// SetContentVector sets the "content_vector" field.
+func (mc *MomentCreate) SetContentVector(jm json.RawMessage) *MomentCreate {
+	mc.mutation.SetContentVector(jm)
 	return mc
 }
 
@@ -184,21 +190,6 @@ func (mc *MomentCreate) check() error {
 	if _, ok := mc.mutation.Content(); !ok {
 		return &ValidationError{Name: "content", err: errors.New(`ent: missing required field "Moment.content"`)}
 	}
-	if _, ok := mc.mutation.IsPublic(); !ok {
-		return &ValidationError{Name: "isPublic", err: errors.New(`ent: missing required field "Moment.isPublic"`)}
-	}
-	if _, ok := mc.mutation.Tags(); !ok {
-		return &ValidationError{Name: "tags", err: errors.New(`ent: missing required field "Moment.tags"`)}
-	}
-	if _, ok := mc.mutation.Views(); !ok {
-		return &ValidationError{Name: "views", err: errors.New(`ent: missing required field "Moment.views"`)}
-	}
-	if _, ok := mc.mutation.Likes(); !ok {
-		return &ValidationError{Name: "likes", err: errors.New(`ent: missing required field "Moment.likes"`)}
-	}
-	if _, ok := mc.mutation.ExtraData(); !ok {
-		return &ValidationError{Name: "extraData", err: errors.New(`ent: missing required field "Moment.extraData"`)}
-	}
 	if _, ok := mc.mutation.Category(); !ok {
 		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "Moment.category"`)}
 	}
@@ -207,6 +198,21 @@ func (mc *MomentCreate) check() error {
 	}
 	if _, ok := mc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updatedAt", err: errors.New(`ent: missing required field "Moment.updatedAt"`)}
+	}
+	if _, ok := mc.mutation.IsPublic(); !ok {
+		return &ValidationError{Name: "isPublic", err: errors.New(`ent: missing required field "Moment.isPublic"`)}
+	}
+	if _, ok := mc.mutation.Likes(); !ok {
+		return &ValidationError{Name: "likes", err: errors.New(`ent: missing required field "Moment.likes"`)}
+	}
+	if _, ok := mc.mutation.Tags(); !ok {
+		return &ValidationError{Name: "tags", err: errors.New(`ent: missing required field "Moment.tags"`)}
+	}
+	if _, ok := mc.mutation.Views(); !ok {
+		return &ValidationError{Name: "views", err: errors.New(`ent: missing required field "Moment.views"`)}
+	}
+	if _, ok := mc.mutation.ExtraData(); !ok {
+		return &ValidationError{Name: "extraData", err: errors.New(`ent: missing required field "Moment.extraData"`)}
 	}
 	return nil
 }
@@ -247,26 +253,6 @@ func (mc *MomentCreate) createSpec() (*Moment, *sqlgraph.CreateSpec) {
 		_spec.SetField(moment.FieldContent, field.TypeString, value)
 		_node.Content = value
 	}
-	if value, ok := mc.mutation.IsPublic(); ok {
-		_spec.SetField(moment.FieldIsPublic, field.TypeBool, value)
-		_node.IsPublic = value
-	}
-	if value, ok := mc.mutation.Tags(); ok {
-		_spec.SetField(moment.FieldTags, field.TypeJSON, value)
-		_node.Tags = value
-	}
-	if value, ok := mc.mutation.Views(); ok {
-		_spec.SetField(moment.FieldViews, field.TypeInt32, value)
-		_node.Views = value
-	}
-	if value, ok := mc.mutation.Likes(); ok {
-		_spec.SetField(moment.FieldLikes, field.TypeInt32, value)
-		_node.Likes = value
-	}
-	if value, ok := mc.mutation.ExtraData(); ok {
-		_spec.SetField(moment.FieldExtraData, field.TypeJSON, value)
-		_node.ExtraData = value
-	}
 	if value, ok := mc.mutation.Category(); ok {
 		_spec.SetField(moment.FieldCategory, field.TypeString, value)
 		_node.Category = value
@@ -278,6 +264,30 @@ func (mc *MomentCreate) createSpec() (*Moment, *sqlgraph.CreateSpec) {
 	if value, ok := mc.mutation.UpdatedAt(); ok {
 		_spec.SetField(moment.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := mc.mutation.IsPublic(); ok {
+		_spec.SetField(moment.FieldIsPublic, field.TypeBool, value)
+		_node.IsPublic = value
+	}
+	if value, ok := mc.mutation.Likes(); ok {
+		_spec.SetField(moment.FieldLikes, field.TypeInt32, value)
+		_node.Likes = value
+	}
+	if value, ok := mc.mutation.Tags(); ok {
+		_spec.SetField(moment.FieldTags, field.TypeJSON, value)
+		_node.Tags = value
+	}
+	if value, ok := mc.mutation.Views(); ok {
+		_spec.SetField(moment.FieldViews, field.TypeInt32, value)
+		_node.Views = value
+	}
+	if value, ok := mc.mutation.ExtraData(); ok {
+		_spec.SetField(moment.FieldExtraData, field.TypeJSON, value)
+		_node.ExtraData = value
+	}
+	if value, ok := mc.mutation.ContentVector(); ok {
+		_spec.SetField(moment.FieldContentVector, field.TypeJSON, value)
+		_node.ContentVector = value
 	}
 	if nodes := mc.mutation.MomentImagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

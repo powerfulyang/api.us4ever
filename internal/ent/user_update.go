@@ -107,20 +107,6 @@ func (uu *UserUpdate) SetNillableIsAdmin(b *bool) *UserUpdate {
 	return uu
 }
 
-// SetLastLoginAt sets the "lastLoginAt" field.
-func (uu *UserUpdate) SetLastLoginAt(t time.Time) *UserUpdate {
-	uu.mutation.SetLastLoginAt(t)
-	return uu
-}
-
-// SetNillableLastLoginAt sets the "lastLoginAt" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableLastLoginAt(t *time.Time) *UserUpdate {
-	if t != nil {
-		uu.SetLastLoginAt(*t)
-	}
-	return uu
-}
-
 // SetLastLoginIp sets the "lastLoginIp" field.
 func (uu *UserUpdate) SetLastLoginIp(s string) *UserUpdate {
 	uu.mutation.SetLastLoginIp(s)
@@ -179,6 +165,20 @@ func (uu *UserUpdate) SetUpdatedAt(t time.Time) *UserUpdate {
 func (uu *UserUpdate) SetNillableUpdatedAt(t *time.Time) *UserUpdate {
 	if t != nil {
 		uu.SetUpdatedAt(*t)
+	}
+	return uu
+}
+
+// SetLastLoginAt sets the "lastLoginAt" field.
+func (uu *UserUpdate) SetLastLoginAt(t time.Time) *UserUpdate {
+	uu.mutation.SetLastLoginAt(t)
+	return uu
+}
+
+// SetNillableLastLoginAt sets the "lastLoginAt" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableLastLoginAt(t *time.Time) *UserUpdate {
+	if t != nil {
+		uu.SetLastLoginAt(*t)
 	}
 	return uu
 }
@@ -552,9 +552,6 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := uu.mutation.IsAdmin(); ok {
 		_spec.SetField(user.FieldIsAdmin, field.TypeBool, value)
 	}
-	if value, ok := uu.mutation.LastLoginAt(); ok {
-		_spec.SetField(user.FieldLastLoginAt, field.TypeTime, value)
-	}
 	if value, ok := uu.mutation.LastLoginIp(); ok {
 		_spec.SetField(user.FieldLastLoginIp, field.TypeString, value)
 	}
@@ -563,6 +560,9 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := uu.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := uu.mutation.LastLoginAt(); ok {
+		_spec.SetField(user.FieldLastLoginAt, field.TypeTime, value)
 	}
 	if uu.mutation.BucketsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1043,20 +1043,6 @@ func (uuo *UserUpdateOne) SetNillableIsAdmin(b *bool) *UserUpdateOne {
 	return uuo
 }
 
-// SetLastLoginAt sets the "lastLoginAt" field.
-func (uuo *UserUpdateOne) SetLastLoginAt(t time.Time) *UserUpdateOne {
-	uuo.mutation.SetLastLoginAt(t)
-	return uuo
-}
-
-// SetNillableLastLoginAt sets the "lastLoginAt" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableLastLoginAt(t *time.Time) *UserUpdateOne {
-	if t != nil {
-		uuo.SetLastLoginAt(*t)
-	}
-	return uuo
-}
-
 // SetLastLoginIp sets the "lastLoginIp" field.
 func (uuo *UserUpdateOne) SetLastLoginIp(s string) *UserUpdateOne {
 	uuo.mutation.SetLastLoginIp(s)
@@ -1115,6 +1101,20 @@ func (uuo *UserUpdateOne) SetUpdatedAt(t time.Time) *UserUpdateOne {
 func (uuo *UserUpdateOne) SetNillableUpdatedAt(t *time.Time) *UserUpdateOne {
 	if t != nil {
 		uuo.SetUpdatedAt(*t)
+	}
+	return uuo
+}
+
+// SetLastLoginAt sets the "lastLoginAt" field.
+func (uuo *UserUpdateOne) SetLastLoginAt(t time.Time) *UserUpdateOne {
+	uuo.mutation.SetLastLoginAt(t)
+	return uuo
+}
+
+// SetNillableLastLoginAt sets the "lastLoginAt" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableLastLoginAt(t *time.Time) *UserUpdateOne {
+	if t != nil {
+		uuo.SetLastLoginAt(*t)
 	}
 	return uuo
 }
@@ -1518,9 +1518,6 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if value, ok := uuo.mutation.IsAdmin(); ok {
 		_spec.SetField(user.FieldIsAdmin, field.TypeBool, value)
 	}
-	if value, ok := uuo.mutation.LastLoginAt(); ok {
-		_spec.SetField(user.FieldLastLoginAt, field.TypeTime, value)
-	}
 	if value, ok := uuo.mutation.LastLoginIp(); ok {
 		_spec.SetField(user.FieldLastLoginIp, field.TypeString, value)
 	}
@@ -1529,6 +1526,9 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if value, ok := uuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := uuo.mutation.LastLoginAt(); ok {
+		_spec.SetField(user.FieldLastLoginAt, field.TypeTime, value)
 	}
 	if uuo.mutation.BucketsCleared() {
 		edge := &sqlgraph.EdgeSpec{

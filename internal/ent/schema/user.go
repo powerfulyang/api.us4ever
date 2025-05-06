@@ -14,7 +14,7 @@ type User struct {
 }
 
 func (User) Fields() []ent.Field {
-	return []ent.Field{field.String("id").StorageKey("id"), field.String("email").Unique().StorageKey("email"), field.String("nickname").StorageKey("nickname"), field.String("avatar").StorageKey("avatar"), field.String("bio").StorageKey("bio"), field.Bool("isAdmin").StorageKey("isAdmin"), field.Time("lastLoginAt").StorageKey("lastLoginAt"), field.String("lastLoginIp").StorageKey("lastLoginIp"), field.String("groupId").Optional().StorageKey("groupId"), field.Time("createdAt").StorageKey("createdAt"), field.Time("updatedAt").StorageKey("updatedAt")}
+	return []ent.Field{field.String("id").StorageKey("id"), field.String("email").Unique().StorageKey("email"), field.String("nickname").StorageKey("nickname"), field.String("avatar").StorageKey("avatar"), field.String("bio").StorageKey("bio"), field.Bool("isAdmin").StorageKey("isAdmin"), field.String("lastLoginIp").StorageKey("lastLoginIp"), field.String("groupId").Optional().StorageKey("groupId"), field.Time("createdAt").StorageKey("createdAt"), field.Time("updatedAt").StorageKey("updatedAt"), field.Time("lastLoginAt").StorageKey("lastLoginAt")}
 }
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{edge.To("buckets", Bucket.Type), edge.To("files", File.Type), edge.To("images", Image.Type), edge.To("keeps", Keep.Type), edge.To("mindmaps", Mindmap.Type), edge.To("moments", Moment.Type), edge.To("todos", Todo.Type), edge.From("group", Group.Type).Ref("users").Unique().Field("groupId"), edge.To("videos", Video.Type)}

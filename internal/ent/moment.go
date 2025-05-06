@@ -21,24 +21,26 @@ type Moment struct {
 	ID string `json:"id,omitempty"`
 	// Content holds the value of the "content" field.
 	Content string `json:"content,omitempty"`
-	// IsPublic holds the value of the "isPublic" field.
-	IsPublic bool `json:"isPublic,omitempty"`
-	// Tags holds the value of the "tags" field.
-	Tags json.RawMessage `json:"tags,omitempty"`
-	// Views holds the value of the "views" field.
-	Views int32 `json:"views,omitempty"`
-	// Likes holds the value of the "likes" field.
-	Likes int32 `json:"likes,omitempty"`
-	// ExtraData holds the value of the "extraData" field.
-	ExtraData json.RawMessage `json:"extraData,omitempty"`
 	// Category holds the value of the "category" field.
 	Category string `json:"category,omitempty"`
-	// OwnerId holds the value of the "ownerId" field.
-	OwnerId string `json:"ownerId,omitempty"`
 	// CreatedAt holds the value of the "createdAt" field.
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 	// UpdatedAt holds the value of the "updatedAt" field.
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
+	// OwnerId holds the value of the "ownerId" field.
+	OwnerId string `json:"ownerId,omitempty"`
+	// IsPublic holds the value of the "isPublic" field.
+	IsPublic bool `json:"isPublic,omitempty"`
+	// Likes holds the value of the "likes" field.
+	Likes int32 `json:"likes,omitempty"`
+	// Tags holds the value of the "tags" field.
+	Tags json.RawMessage `json:"tags,omitempty"`
+	// Views holds the value of the "views" field.
+	Views int32 `json:"views,omitempty"`
+	// ExtraData holds the value of the "extraData" field.
+	ExtraData json.RawMessage `json:"extraData,omitempty"`
+	// ContentVector holds the value of the "content_vector" field.
+	ContentVector json.RawMessage `json:"content_vector,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the MomentQuery when eager-loading is set.
 	Edges        MomentEdges `json:"edges"`
@@ -92,11 +94,11 @@ func (*Moment) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case moment.FieldTags, moment.FieldExtraData:
+		case moment.FieldTags, moment.FieldExtraData, moment.FieldContentVector:
 			values[i] = new([]byte)
 		case moment.FieldIsPublic:
 			values[i] = new(sql.NullBool)
-		case moment.FieldViews, moment.FieldLikes:
+		case moment.FieldLikes, moment.FieldViews:
 			values[i] = new(sql.NullInt64)
 		case moment.FieldID, moment.FieldContent, moment.FieldCategory, moment.FieldOwnerId:
 			values[i] = new(sql.NullString)
@@ -129,11 +131,41 @@ func (m *Moment) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				m.Content = value.String
 			}
+		case moment.FieldCategory:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field category", values[i])
+			} else if value.Valid {
+				m.Category = value.String
+			}
+		case moment.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field createdAt", values[i])
+			} else if value.Valid {
+				m.CreatedAt = value.Time
+			}
+		case moment.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updatedAt", values[i])
+			} else if value.Valid {
+				m.UpdatedAt = value.Time
+			}
+		case moment.FieldOwnerId:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field ownerId", values[i])
+			} else if value.Valid {
+				m.OwnerId = value.String
+			}
 		case moment.FieldIsPublic:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field isPublic", values[i])
 			} else if value.Valid {
 				m.IsPublic = value.Bool
+			}
+		case moment.FieldLikes:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field likes", values[i])
+			} else if value.Valid {
+				m.Likes = int32(value.Int64)
 			}
 		case moment.FieldTags:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -149,12 +181,6 @@ func (m *Moment) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				m.Views = int32(value.Int64)
 			}
-		case moment.FieldLikes:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field likes", values[i])
-			} else if value.Valid {
-				m.Likes = int32(value.Int64)
-			}
 		case moment.FieldExtraData:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field extraData", values[i])
@@ -163,29 +189,13 @@ func (m *Moment) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field extraData: %w", err)
 				}
 			}
-		case moment.FieldCategory:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field category", values[i])
-			} else if value.Valid {
-				m.Category = value.String
-			}
-		case moment.FieldOwnerId:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field ownerId", values[i])
-			} else if value.Valid {
-				m.OwnerId = value.String
-			}
-		case moment.FieldCreatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field createdAt", values[i])
-			} else if value.Valid {
-				m.CreatedAt = value.Time
-			}
-		case moment.FieldUpdatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field updatedAt", values[i])
-			} else if value.Valid {
-				m.UpdatedAt = value.Time
+		case moment.FieldContentVector:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field content_vector", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &m.ContentVector); err != nil {
+					return fmt.Errorf("unmarshal field content_vector: %w", err)
+				}
 			}
 		default:
 			m.selectValues.Set(columns[i], values[i])
@@ -241,8 +251,23 @@ func (m *Moment) String() string {
 	builder.WriteString("content=")
 	builder.WriteString(m.Content)
 	builder.WriteString(", ")
+	builder.WriteString("category=")
+	builder.WriteString(m.Category)
+	builder.WriteString(", ")
+	builder.WriteString("createdAt=")
+	builder.WriteString(m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updatedAt=")
+	builder.WriteString(m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("ownerId=")
+	builder.WriteString(m.OwnerId)
+	builder.WriteString(", ")
 	builder.WriteString("isPublic=")
 	builder.WriteString(fmt.Sprintf("%v", m.IsPublic))
+	builder.WriteString(", ")
+	builder.WriteString("likes=")
+	builder.WriteString(fmt.Sprintf("%v", m.Likes))
 	builder.WriteString(", ")
 	builder.WriteString("tags=")
 	builder.WriteString(fmt.Sprintf("%v", m.Tags))
@@ -250,23 +275,11 @@ func (m *Moment) String() string {
 	builder.WriteString("views=")
 	builder.WriteString(fmt.Sprintf("%v", m.Views))
 	builder.WriteString(", ")
-	builder.WriteString("likes=")
-	builder.WriteString(fmt.Sprintf("%v", m.Likes))
-	builder.WriteString(", ")
 	builder.WriteString("extraData=")
 	builder.WriteString(fmt.Sprintf("%v", m.ExtraData))
 	builder.WriteString(", ")
-	builder.WriteString("category=")
-	builder.WriteString(m.Category)
-	builder.WriteString(", ")
-	builder.WriteString("ownerId=")
-	builder.WriteString(m.OwnerId)
-	builder.WriteString(", ")
-	builder.WriteString("createdAt=")
-	builder.WriteString(m.CreatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("updatedAt=")
-	builder.WriteString(m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString("content_vector=")
+	builder.WriteString(fmt.Sprintf("%v", m.ContentVector))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -16,7 +16,7 @@ type Keep struct {
 }
 
 func (Keep) Fields() []ent.Field {
-	return []ent.Field{field.String("id").StorageKey("id"), field.String("title").StorageKey("title"), field.String("content").StorageKey("content"), field.String("summary").StorageKey("summary"), field.Bool("isPublic").StorageKey("isPublic"), field.JSON("tags", json.RawMessage{}).StorageKey("tags"), field.Int32("views").StorageKey("views"), field.Int32("likes").StorageKey("likes"), field.JSON("extraData", json.RawMessage{}).StorageKey("extraData"), field.String("category").StorageKey("category"), field.String("ownerId").Optional().StorageKey("ownerId"), field.Time("createdAt").StorageKey("createdAt"), field.Time("updatedAt").StorageKey("updatedAt")}
+	return []ent.Field{field.String("id").StorageKey("id"), field.String("title").StorageKey("title"), field.String("content").StorageKey("content"), field.Bool("isPublic").StorageKey("isPublic"), field.JSON("tags", json.RawMessage{}).StorageKey("tags"), field.Time("createdAt").StorageKey("createdAt"), field.Time("updatedAt").StorageKey("updatedAt"), field.String("ownerId").Optional().StorageKey("ownerId"), field.String("category").StorageKey("category"), field.Int32("views").StorageKey("views"), field.Int32("likes").StorageKey("likes"), field.String("summary").StorageKey("summary"), field.JSON("extraData", json.RawMessage{}).StorageKey("extraData"), field.JSON("content_vector", json.RawMessage{}).Optional().StorageKey("content_vector"), field.JSON("summary_vector", json.RawMessage{}).Optional().StorageKey("summary_vector"), field.JSON("title_vector", json.RawMessage{}).Optional().StorageKey("title_vector")}
 
 }
 func (Keep) Edges() []ent.Edge {

@@ -148,32 +148,6 @@ func (tu *TodoUpdate) SetNillablePinned(b *bool) *TodoUpdate {
 	return tu
 }
 
-// SetExtraData sets the "extraData" field.
-func (tu *TodoUpdate) SetExtraData(jm json.RawMessage) *TodoUpdate {
-	tu.mutation.SetExtraData(jm)
-	return tu
-}
-
-// AppendExtraData appends jm to the "extraData" field.
-func (tu *TodoUpdate) AppendExtraData(jm json.RawMessage) *TodoUpdate {
-	tu.mutation.AppendExtraData(jm)
-	return tu
-}
-
-// SetCategory sets the "category" field.
-func (tu *TodoUpdate) SetCategory(s string) *TodoUpdate {
-	tu.mutation.SetCategory(s)
-	return tu
-}
-
-// SetNillableCategory sets the "category" field if the given value is not nil.
-func (tu *TodoUpdate) SetNillableCategory(s *string) *TodoUpdate {
-	if s != nil {
-		tu.SetCategory(*s)
-	}
-	return tu
-}
-
 // SetOwnerId sets the "ownerId" field.
 func (tu *TodoUpdate) SetOwnerId(s string) *TodoUpdate {
 	tu.mutation.SetOwnerId(s)
@@ -218,6 +192,32 @@ func (tu *TodoUpdate) SetUpdatedAt(t time.Time) *TodoUpdate {
 func (tu *TodoUpdate) SetNillableUpdatedAt(t *time.Time) *TodoUpdate {
 	if t != nil {
 		tu.SetUpdatedAt(*t)
+	}
+	return tu
+}
+
+// SetExtraData sets the "extraData" field.
+func (tu *TodoUpdate) SetExtraData(jm json.RawMessage) *TodoUpdate {
+	tu.mutation.SetExtraData(jm)
+	return tu
+}
+
+// AppendExtraData appends jm to the "extraData" field.
+func (tu *TodoUpdate) AppendExtraData(jm json.RawMessage) *TodoUpdate {
+	tu.mutation.AppendExtraData(jm)
+	return tu
+}
+
+// SetCategory sets the "category" field.
+func (tu *TodoUpdate) SetCategory(s string) *TodoUpdate {
+	tu.mutation.SetCategory(s)
+	return tu
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (tu *TodoUpdate) SetNillableCategory(s *string) *TodoUpdate {
+	if s != nil {
+		tu.SetCategory(*s)
 	}
 	return tu
 }
@@ -318,6 +318,12 @@ func (tu *TodoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := tu.mutation.Pinned(); ok {
 		_spec.SetField(todo.FieldPinned, field.TypeBool, value)
 	}
+	if value, ok := tu.mutation.CreatedAt(); ok {
+		_spec.SetField(todo.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := tu.mutation.UpdatedAt(); ok {
+		_spec.SetField(todo.FieldUpdatedAt, field.TypeTime, value)
+	}
 	if value, ok := tu.mutation.ExtraData(); ok {
 		_spec.SetField(todo.FieldExtraData, field.TypeJSON, value)
 	}
@@ -328,12 +334,6 @@ func (tu *TodoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := tu.mutation.Category(); ok {
 		_spec.SetField(todo.FieldCategory, field.TypeString, value)
-	}
-	if value, ok := tu.mutation.CreatedAt(); ok {
-		_spec.SetField(todo.FieldCreatedAt, field.TypeTime, value)
-	}
-	if value, ok := tu.mutation.UpdatedAt(); ok {
-		_spec.SetField(todo.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if tu.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -501,32 +501,6 @@ func (tuo *TodoUpdateOne) SetNillablePinned(b *bool) *TodoUpdateOne {
 	return tuo
 }
 
-// SetExtraData sets the "extraData" field.
-func (tuo *TodoUpdateOne) SetExtraData(jm json.RawMessage) *TodoUpdateOne {
-	tuo.mutation.SetExtraData(jm)
-	return tuo
-}
-
-// AppendExtraData appends jm to the "extraData" field.
-func (tuo *TodoUpdateOne) AppendExtraData(jm json.RawMessage) *TodoUpdateOne {
-	tuo.mutation.AppendExtraData(jm)
-	return tuo
-}
-
-// SetCategory sets the "category" field.
-func (tuo *TodoUpdateOne) SetCategory(s string) *TodoUpdateOne {
-	tuo.mutation.SetCategory(s)
-	return tuo
-}
-
-// SetNillableCategory sets the "category" field if the given value is not nil.
-func (tuo *TodoUpdateOne) SetNillableCategory(s *string) *TodoUpdateOne {
-	if s != nil {
-		tuo.SetCategory(*s)
-	}
-	return tuo
-}
-
 // SetOwnerId sets the "ownerId" field.
 func (tuo *TodoUpdateOne) SetOwnerId(s string) *TodoUpdateOne {
 	tuo.mutation.SetOwnerId(s)
@@ -571,6 +545,32 @@ func (tuo *TodoUpdateOne) SetUpdatedAt(t time.Time) *TodoUpdateOne {
 func (tuo *TodoUpdateOne) SetNillableUpdatedAt(t *time.Time) *TodoUpdateOne {
 	if t != nil {
 		tuo.SetUpdatedAt(*t)
+	}
+	return tuo
+}
+
+// SetExtraData sets the "extraData" field.
+func (tuo *TodoUpdateOne) SetExtraData(jm json.RawMessage) *TodoUpdateOne {
+	tuo.mutation.SetExtraData(jm)
+	return tuo
+}
+
+// AppendExtraData appends jm to the "extraData" field.
+func (tuo *TodoUpdateOne) AppendExtraData(jm json.RawMessage) *TodoUpdateOne {
+	tuo.mutation.AppendExtraData(jm)
+	return tuo
+}
+
+// SetCategory sets the "category" field.
+func (tuo *TodoUpdateOne) SetCategory(s string) *TodoUpdateOne {
+	tuo.mutation.SetCategory(s)
+	return tuo
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (tuo *TodoUpdateOne) SetNillableCategory(s *string) *TodoUpdateOne {
+	if s != nil {
+		tuo.SetCategory(*s)
 	}
 	return tuo
 }
@@ -701,6 +701,12 @@ func (tuo *TodoUpdateOne) sqlSave(ctx context.Context) (_node *Todo, err error) 
 	if value, ok := tuo.mutation.Pinned(); ok {
 		_spec.SetField(todo.FieldPinned, field.TypeBool, value)
 	}
+	if value, ok := tuo.mutation.CreatedAt(); ok {
+		_spec.SetField(todo.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := tuo.mutation.UpdatedAt(); ok {
+		_spec.SetField(todo.FieldUpdatedAt, field.TypeTime, value)
+	}
 	if value, ok := tuo.mutation.ExtraData(); ok {
 		_spec.SetField(todo.FieldExtraData, field.TypeJSON, value)
 	}
@@ -711,12 +717,6 @@ func (tuo *TodoUpdateOne) sqlSave(ctx context.Context) (_node *Todo, err error) 
 	}
 	if value, ok := tuo.mutation.Category(); ok {
 		_spec.SetField(todo.FieldCategory, field.TypeString, value)
-	}
-	if value, ok := tuo.mutation.CreatedAt(); ok {
-		_spec.SetField(todo.FieldCreatedAt, field.TypeTime, value)
-	}
-	if value, ok := tuo.mutation.UpdatedAt(); ok {
-		_spec.SetField(todo.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if tuo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

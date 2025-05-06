@@ -110,11 +110,6 @@ func Description(v string) predicate.Image {
 	return predicate.Image(sql.FieldEQ(FieldDescription, v))
 }
 
-// Category applies equality check predicate on the "category" field. It's identical to CategoryEQ.
-func Category(v string) predicate.Image {
-	return predicate.Image(sql.FieldEQ(FieldCategory, v))
-}
-
 // Thumbnail10x applies equality check predicate on the "thumbnail_10x" field. It's identical to Thumbnail10xEQ.
 func Thumbnail10x(v []byte) predicate.Image {
 	return predicate.Image(sql.FieldEQ(FieldThumbnail10x, v))
@@ -140,11 +135,6 @@ func OriginalID(v string) predicate.Image {
 	return predicate.Image(sql.FieldEQ(FieldOriginalID, v))
 }
 
-// UploadedBy applies equality check predicate on the "uploadedBy" field. It's identical to UploadedByEQ.
-func UploadedBy(v string) predicate.Image {
-	return predicate.Image(sql.FieldEQ(FieldUploadedBy, v))
-}
-
 // CreatedAt applies equality check predicate on the "createdAt" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Image {
 	return predicate.Image(sql.FieldEQ(FieldCreatedAt, v))
@@ -153,6 +143,16 @@ func CreatedAt(v time.Time) predicate.Image {
 // UpdatedAt applies equality check predicate on the "updatedAt" field. It's identical to UpdatedAtEQ.
 func UpdatedAt(v time.Time) predicate.Image {
 	return predicate.Image(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// UploadedBy applies equality check predicate on the "uploadedBy" field. It's identical to UploadedByEQ.
+func UploadedBy(v string) predicate.Image {
+	return predicate.Image(sql.FieldEQ(FieldUploadedBy, v))
+}
+
+// Category applies equality check predicate on the "category" field. It's identical to CategoryEQ.
+func Category(v string) predicate.Image {
+	return predicate.Image(sql.FieldEQ(FieldCategory, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.
@@ -610,71 +610,6 @@ func DescriptionContainsFold(v string) predicate.Image {
 	return predicate.Image(sql.FieldContainsFold(FieldDescription, v))
 }
 
-// CategoryEQ applies the EQ predicate on the "category" field.
-func CategoryEQ(v string) predicate.Image {
-	return predicate.Image(sql.FieldEQ(FieldCategory, v))
-}
-
-// CategoryNEQ applies the NEQ predicate on the "category" field.
-func CategoryNEQ(v string) predicate.Image {
-	return predicate.Image(sql.FieldNEQ(FieldCategory, v))
-}
-
-// CategoryIn applies the In predicate on the "category" field.
-func CategoryIn(vs ...string) predicate.Image {
-	return predicate.Image(sql.FieldIn(FieldCategory, vs...))
-}
-
-// CategoryNotIn applies the NotIn predicate on the "category" field.
-func CategoryNotIn(vs ...string) predicate.Image {
-	return predicate.Image(sql.FieldNotIn(FieldCategory, vs...))
-}
-
-// CategoryGT applies the GT predicate on the "category" field.
-func CategoryGT(v string) predicate.Image {
-	return predicate.Image(sql.FieldGT(FieldCategory, v))
-}
-
-// CategoryGTE applies the GTE predicate on the "category" field.
-func CategoryGTE(v string) predicate.Image {
-	return predicate.Image(sql.FieldGTE(FieldCategory, v))
-}
-
-// CategoryLT applies the LT predicate on the "category" field.
-func CategoryLT(v string) predicate.Image {
-	return predicate.Image(sql.FieldLT(FieldCategory, v))
-}
-
-// CategoryLTE applies the LTE predicate on the "category" field.
-func CategoryLTE(v string) predicate.Image {
-	return predicate.Image(sql.FieldLTE(FieldCategory, v))
-}
-
-// CategoryContains applies the Contains predicate on the "category" field.
-func CategoryContains(v string) predicate.Image {
-	return predicate.Image(sql.FieldContains(FieldCategory, v))
-}
-
-// CategoryHasPrefix applies the HasPrefix predicate on the "category" field.
-func CategoryHasPrefix(v string) predicate.Image {
-	return predicate.Image(sql.FieldHasPrefix(FieldCategory, v))
-}
-
-// CategoryHasSuffix applies the HasSuffix predicate on the "category" field.
-func CategoryHasSuffix(v string) predicate.Image {
-	return predicate.Image(sql.FieldHasSuffix(FieldCategory, v))
-}
-
-// CategoryEqualFold applies the EqualFold predicate on the "category" field.
-func CategoryEqualFold(v string) predicate.Image {
-	return predicate.Image(sql.FieldEqualFold(FieldCategory, v))
-}
-
-// CategoryContainsFold applies the ContainsFold predicate on the "category" field.
-func CategoryContainsFold(v string) predicate.Image {
-	return predicate.Image(sql.FieldContainsFold(FieldCategory, v))
-}
-
 // Thumbnail10xEQ applies the EQ predicate on the "thumbnail_10x" field.
 func Thumbnail10xEQ(v []byte) predicate.Image {
 	return predicate.Image(sql.FieldEQ(FieldThumbnail10x, v))
@@ -1015,81 +950,6 @@ func OriginalIDContainsFold(v string) predicate.Image {
 	return predicate.Image(sql.FieldContainsFold(FieldOriginalID, v))
 }
 
-// UploadedByEQ applies the EQ predicate on the "uploadedBy" field.
-func UploadedByEQ(v string) predicate.Image {
-	return predicate.Image(sql.FieldEQ(FieldUploadedBy, v))
-}
-
-// UploadedByNEQ applies the NEQ predicate on the "uploadedBy" field.
-func UploadedByNEQ(v string) predicate.Image {
-	return predicate.Image(sql.FieldNEQ(FieldUploadedBy, v))
-}
-
-// UploadedByIn applies the In predicate on the "uploadedBy" field.
-func UploadedByIn(vs ...string) predicate.Image {
-	return predicate.Image(sql.FieldIn(FieldUploadedBy, vs...))
-}
-
-// UploadedByNotIn applies the NotIn predicate on the "uploadedBy" field.
-func UploadedByNotIn(vs ...string) predicate.Image {
-	return predicate.Image(sql.FieldNotIn(FieldUploadedBy, vs...))
-}
-
-// UploadedByGT applies the GT predicate on the "uploadedBy" field.
-func UploadedByGT(v string) predicate.Image {
-	return predicate.Image(sql.FieldGT(FieldUploadedBy, v))
-}
-
-// UploadedByGTE applies the GTE predicate on the "uploadedBy" field.
-func UploadedByGTE(v string) predicate.Image {
-	return predicate.Image(sql.FieldGTE(FieldUploadedBy, v))
-}
-
-// UploadedByLT applies the LT predicate on the "uploadedBy" field.
-func UploadedByLT(v string) predicate.Image {
-	return predicate.Image(sql.FieldLT(FieldUploadedBy, v))
-}
-
-// UploadedByLTE applies the LTE predicate on the "uploadedBy" field.
-func UploadedByLTE(v string) predicate.Image {
-	return predicate.Image(sql.FieldLTE(FieldUploadedBy, v))
-}
-
-// UploadedByContains applies the Contains predicate on the "uploadedBy" field.
-func UploadedByContains(v string) predicate.Image {
-	return predicate.Image(sql.FieldContains(FieldUploadedBy, v))
-}
-
-// UploadedByHasPrefix applies the HasPrefix predicate on the "uploadedBy" field.
-func UploadedByHasPrefix(v string) predicate.Image {
-	return predicate.Image(sql.FieldHasPrefix(FieldUploadedBy, v))
-}
-
-// UploadedByHasSuffix applies the HasSuffix predicate on the "uploadedBy" field.
-func UploadedByHasSuffix(v string) predicate.Image {
-	return predicate.Image(sql.FieldHasSuffix(FieldUploadedBy, v))
-}
-
-// UploadedByIsNil applies the IsNil predicate on the "uploadedBy" field.
-func UploadedByIsNil() predicate.Image {
-	return predicate.Image(sql.FieldIsNull(FieldUploadedBy))
-}
-
-// UploadedByNotNil applies the NotNil predicate on the "uploadedBy" field.
-func UploadedByNotNil() predicate.Image {
-	return predicate.Image(sql.FieldNotNull(FieldUploadedBy))
-}
-
-// UploadedByEqualFold applies the EqualFold predicate on the "uploadedBy" field.
-func UploadedByEqualFold(v string) predicate.Image {
-	return predicate.Image(sql.FieldEqualFold(FieldUploadedBy, v))
-}
-
-// UploadedByContainsFold applies the ContainsFold predicate on the "uploadedBy" field.
-func UploadedByContainsFold(v string) predicate.Image {
-	return predicate.Image(sql.FieldContainsFold(FieldUploadedBy, v))
-}
-
 // CreatedAtEQ applies the EQ predicate on the "createdAt" field.
 func CreatedAtEQ(v time.Time) predicate.Image {
 	return predicate.Image(sql.FieldEQ(FieldCreatedAt, v))
@@ -1168,6 +1028,156 @@ func UpdatedAtLT(v time.Time) predicate.Image {
 // UpdatedAtLTE applies the LTE predicate on the "updatedAt" field.
 func UpdatedAtLTE(v time.Time) predicate.Image {
 	return predicate.Image(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// UploadedByEQ applies the EQ predicate on the "uploadedBy" field.
+func UploadedByEQ(v string) predicate.Image {
+	return predicate.Image(sql.FieldEQ(FieldUploadedBy, v))
+}
+
+// UploadedByNEQ applies the NEQ predicate on the "uploadedBy" field.
+func UploadedByNEQ(v string) predicate.Image {
+	return predicate.Image(sql.FieldNEQ(FieldUploadedBy, v))
+}
+
+// UploadedByIn applies the In predicate on the "uploadedBy" field.
+func UploadedByIn(vs ...string) predicate.Image {
+	return predicate.Image(sql.FieldIn(FieldUploadedBy, vs...))
+}
+
+// UploadedByNotIn applies the NotIn predicate on the "uploadedBy" field.
+func UploadedByNotIn(vs ...string) predicate.Image {
+	return predicate.Image(sql.FieldNotIn(FieldUploadedBy, vs...))
+}
+
+// UploadedByGT applies the GT predicate on the "uploadedBy" field.
+func UploadedByGT(v string) predicate.Image {
+	return predicate.Image(sql.FieldGT(FieldUploadedBy, v))
+}
+
+// UploadedByGTE applies the GTE predicate on the "uploadedBy" field.
+func UploadedByGTE(v string) predicate.Image {
+	return predicate.Image(sql.FieldGTE(FieldUploadedBy, v))
+}
+
+// UploadedByLT applies the LT predicate on the "uploadedBy" field.
+func UploadedByLT(v string) predicate.Image {
+	return predicate.Image(sql.FieldLT(FieldUploadedBy, v))
+}
+
+// UploadedByLTE applies the LTE predicate on the "uploadedBy" field.
+func UploadedByLTE(v string) predicate.Image {
+	return predicate.Image(sql.FieldLTE(FieldUploadedBy, v))
+}
+
+// UploadedByContains applies the Contains predicate on the "uploadedBy" field.
+func UploadedByContains(v string) predicate.Image {
+	return predicate.Image(sql.FieldContains(FieldUploadedBy, v))
+}
+
+// UploadedByHasPrefix applies the HasPrefix predicate on the "uploadedBy" field.
+func UploadedByHasPrefix(v string) predicate.Image {
+	return predicate.Image(sql.FieldHasPrefix(FieldUploadedBy, v))
+}
+
+// UploadedByHasSuffix applies the HasSuffix predicate on the "uploadedBy" field.
+func UploadedByHasSuffix(v string) predicate.Image {
+	return predicate.Image(sql.FieldHasSuffix(FieldUploadedBy, v))
+}
+
+// UploadedByIsNil applies the IsNil predicate on the "uploadedBy" field.
+func UploadedByIsNil() predicate.Image {
+	return predicate.Image(sql.FieldIsNull(FieldUploadedBy))
+}
+
+// UploadedByNotNil applies the NotNil predicate on the "uploadedBy" field.
+func UploadedByNotNil() predicate.Image {
+	return predicate.Image(sql.FieldNotNull(FieldUploadedBy))
+}
+
+// UploadedByEqualFold applies the EqualFold predicate on the "uploadedBy" field.
+func UploadedByEqualFold(v string) predicate.Image {
+	return predicate.Image(sql.FieldEqualFold(FieldUploadedBy, v))
+}
+
+// UploadedByContainsFold applies the ContainsFold predicate on the "uploadedBy" field.
+func UploadedByContainsFold(v string) predicate.Image {
+	return predicate.Image(sql.FieldContainsFold(FieldUploadedBy, v))
+}
+
+// CategoryEQ applies the EQ predicate on the "category" field.
+func CategoryEQ(v string) predicate.Image {
+	return predicate.Image(sql.FieldEQ(FieldCategory, v))
+}
+
+// CategoryNEQ applies the NEQ predicate on the "category" field.
+func CategoryNEQ(v string) predicate.Image {
+	return predicate.Image(sql.FieldNEQ(FieldCategory, v))
+}
+
+// CategoryIn applies the In predicate on the "category" field.
+func CategoryIn(vs ...string) predicate.Image {
+	return predicate.Image(sql.FieldIn(FieldCategory, vs...))
+}
+
+// CategoryNotIn applies the NotIn predicate on the "category" field.
+func CategoryNotIn(vs ...string) predicate.Image {
+	return predicate.Image(sql.FieldNotIn(FieldCategory, vs...))
+}
+
+// CategoryGT applies the GT predicate on the "category" field.
+func CategoryGT(v string) predicate.Image {
+	return predicate.Image(sql.FieldGT(FieldCategory, v))
+}
+
+// CategoryGTE applies the GTE predicate on the "category" field.
+func CategoryGTE(v string) predicate.Image {
+	return predicate.Image(sql.FieldGTE(FieldCategory, v))
+}
+
+// CategoryLT applies the LT predicate on the "category" field.
+func CategoryLT(v string) predicate.Image {
+	return predicate.Image(sql.FieldLT(FieldCategory, v))
+}
+
+// CategoryLTE applies the LTE predicate on the "category" field.
+func CategoryLTE(v string) predicate.Image {
+	return predicate.Image(sql.FieldLTE(FieldCategory, v))
+}
+
+// CategoryContains applies the Contains predicate on the "category" field.
+func CategoryContains(v string) predicate.Image {
+	return predicate.Image(sql.FieldContains(FieldCategory, v))
+}
+
+// CategoryHasPrefix applies the HasPrefix predicate on the "category" field.
+func CategoryHasPrefix(v string) predicate.Image {
+	return predicate.Image(sql.FieldHasPrefix(FieldCategory, v))
+}
+
+// CategoryHasSuffix applies the HasSuffix predicate on the "category" field.
+func CategoryHasSuffix(v string) predicate.Image {
+	return predicate.Image(sql.FieldHasSuffix(FieldCategory, v))
+}
+
+// CategoryEqualFold applies the EqualFold predicate on the "category" field.
+func CategoryEqualFold(v string) predicate.Image {
+	return predicate.Image(sql.FieldEqualFold(FieldCategory, v))
+}
+
+// CategoryContainsFold applies the ContainsFold predicate on the "category" field.
+func CategoryContainsFold(v string) predicate.Image {
+	return predicate.Image(sql.FieldContainsFold(FieldCategory, v))
+}
+
+// DescriptionVectorIsNil applies the IsNil predicate on the "description_vector" field.
+func DescriptionVectorIsNil() predicate.Image {
+	return predicate.Image(sql.FieldIsNull(FieldDescriptionVector))
+}
+
+// DescriptionVectorNotNil applies the NotNil predicate on the "description_vector" field.
+func DescriptionVectorNotNil() predicate.Image {
+	return predicate.Image(sql.FieldNotNull(FieldDescriptionVector))
 }
 
 // HasCompressed applies the HasEdge predicate on the "compressed" edge.

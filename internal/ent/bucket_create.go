@@ -77,15 +77,15 @@ func (bc *BucketCreate) SetDescription(s string) *BucketCreate {
 	return bc
 }
 
-// SetExtraData sets the "extraData" field.
-func (bc *BucketCreate) SetExtraData(jm json.RawMessage) *BucketCreate {
-	bc.mutation.SetExtraData(jm)
+// SetCreatedAt sets the "createdAt" field.
+func (bc *BucketCreate) SetCreatedAt(t time.Time) *BucketCreate {
+	bc.mutation.SetCreatedAt(t)
 	return bc
 }
 
-// SetCategory sets the "category" field.
-func (bc *BucketCreate) SetCategory(s string) *BucketCreate {
-	bc.mutation.SetCategory(s)
+// SetUpdatedAt sets the "updatedAt" field.
+func (bc *BucketCreate) SetUpdatedAt(t time.Time) *BucketCreate {
+	bc.mutation.SetUpdatedAt(t)
 	return bc
 }
 
@@ -103,15 +103,15 @@ func (bc *BucketCreate) SetNillableOwnerId(s *string) *BucketCreate {
 	return bc
 }
 
-// SetCreatedAt sets the "createdAt" field.
-func (bc *BucketCreate) SetCreatedAt(t time.Time) *BucketCreate {
-	bc.mutation.SetCreatedAt(t)
+// SetExtraData sets the "extraData" field.
+func (bc *BucketCreate) SetExtraData(jm json.RawMessage) *BucketCreate {
+	bc.mutation.SetExtraData(jm)
 	return bc
 }
 
-// SetUpdatedAt sets the "updatedAt" field.
-func (bc *BucketCreate) SetUpdatedAt(t time.Time) *BucketCreate {
-	bc.mutation.SetUpdatedAt(t)
+// SetCategory sets the "category" field.
+func (bc *BucketCreate) SetCategory(s string) *BucketCreate {
+	bc.mutation.SetCategory(s)
 	return bc
 }
 
@@ -221,17 +221,17 @@ func (bc *BucketCreate) check() error {
 	if _, ok := bc.mutation.Description(); !ok {
 		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Bucket.description"`)}
 	}
-	if _, ok := bc.mutation.ExtraData(); !ok {
-		return &ValidationError{Name: "extraData", err: errors.New(`ent: missing required field "Bucket.extraData"`)}
-	}
-	if _, ok := bc.mutation.Category(); !ok {
-		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "Bucket.category"`)}
-	}
 	if _, ok := bc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "createdAt", err: errors.New(`ent: missing required field "Bucket.createdAt"`)}
 	}
 	if _, ok := bc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updatedAt", err: errors.New(`ent: missing required field "Bucket.updatedAt"`)}
+	}
+	if _, ok := bc.mutation.ExtraData(); !ok {
+		return &ValidationError{Name: "extraData", err: errors.New(`ent: missing required field "Bucket.extraData"`)}
+	}
+	if _, ok := bc.mutation.Category(); !ok {
+		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "Bucket.category"`)}
 	}
 	return nil
 }
@@ -304,14 +304,6 @@ func (bc *BucketCreate) createSpec() (*Bucket, *sqlgraph.CreateSpec) {
 		_spec.SetField(bucket.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := bc.mutation.ExtraData(); ok {
-		_spec.SetField(bucket.FieldExtraData, field.TypeJSON, value)
-		_node.ExtraData = value
-	}
-	if value, ok := bc.mutation.Category(); ok {
-		_spec.SetField(bucket.FieldCategory, field.TypeString, value)
-		_node.Category = value
-	}
 	if value, ok := bc.mutation.CreatedAt(); ok {
 		_spec.SetField(bucket.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -319,6 +311,14 @@ func (bc *BucketCreate) createSpec() (*Bucket, *sqlgraph.CreateSpec) {
 	if value, ok := bc.mutation.UpdatedAt(); ok {
 		_spec.SetField(bucket.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := bc.mutation.ExtraData(); ok {
+		_spec.SetField(bucket.FieldExtraData, field.TypeJSON, value)
+		_node.ExtraData = value
+	}
+	if value, ok := bc.mutation.Category(); ok {
+		_spec.SetField(bucket.FieldCategory, field.TypeString, value)
+		_node.Category = value
 	}
 	if nodes := bc.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

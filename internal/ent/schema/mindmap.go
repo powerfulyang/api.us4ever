@@ -16,7 +16,7 @@ type Mindmap struct {
 }
 
 func (Mindmap) Fields() []ent.Field {
-	return []ent.Field{field.String("id").StorageKey("id"), field.String("title").StorageKey("title"), field.JSON("content", json.RawMessage{}).StorageKey("content"), field.String("summary").StorageKey("summary"), field.Bool("isPublic").StorageKey("isPublic"), field.JSON("tags", json.RawMessage{}).StorageKey("tags"), field.Int32("views").StorageKey("views"), field.Int32("likes").StorageKey("likes"), field.JSON("extraData", json.RawMessage{}).StorageKey("extraData"), field.String("category").StorageKey("category"), field.String("ownerId").Optional().StorageKey("ownerId"), field.Time("createdAt").StorageKey("createdAt"), field.Time("updatedAt").StorageKey("updatedAt")}
+	return []ent.Field{field.String("id").StorageKey("id"), field.String("title").StorageKey("title"), field.JSON("content", json.RawMessage{}).StorageKey("content"), field.Bool("isPublic").StorageKey("isPublic"), field.JSON("tags", json.RawMessage{}).StorageKey("tags"), field.Time("createdAt").StorageKey("createdAt"), field.Time("updatedAt").StorageKey("updatedAt"), field.String("ownerId").Optional().StorageKey("ownerId"), field.Int32("views").StorageKey("views"), field.Int32("likes").StorageKey("likes"), field.String("summary").StorageKey("summary"), field.JSON("extraData", json.RawMessage{}).StorageKey("extraData"), field.String("category").StorageKey("category")}
 
 }
 func (Mindmap) Edges() []ent.Edge {

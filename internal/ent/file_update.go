@@ -145,6 +145,26 @@ func (fu *FileUpdate) SetNillableIsPublic(b *bool) *FileUpdate {
 	return fu
 }
 
+// SetUploadedBy sets the "uploadedBy" field.
+func (fu *FileUpdate) SetUploadedBy(s string) *FileUpdate {
+	fu.mutation.SetUploadedBy(s)
+	return fu
+}
+
+// SetNillableUploadedBy sets the "uploadedBy" field if the given value is not nil.
+func (fu *FileUpdate) SetNillableUploadedBy(s *string) *FileUpdate {
+	if s != nil {
+		fu.SetUploadedBy(*s)
+	}
+	return fu
+}
+
+// ClearUploadedBy clears the value of the "uploadedBy" field.
+func (fu *FileUpdate) ClearUploadedBy() *FileUpdate {
+	fu.mutation.ClearUploadedBy()
+	return fu
+}
+
 // SetDescription sets the "description" field.
 func (fu *FileUpdate) SetDescription(s string) *FileUpdate {
 	fu.mutation.SetDescription(s)
@@ -168,52 +188,6 @@ func (fu *FileUpdate) SetTags(jm json.RawMessage) *FileUpdate {
 // AppendTags appends jm to the "tags" field.
 func (fu *FileUpdate) AppendTags(jm json.RawMessage) *FileUpdate {
 	fu.mutation.AppendTags(jm)
-	return fu
-}
-
-// SetExtraData sets the "extraData" field.
-func (fu *FileUpdate) SetExtraData(jm json.RawMessage) *FileUpdate {
-	fu.mutation.SetExtraData(jm)
-	return fu
-}
-
-// AppendExtraData appends jm to the "extraData" field.
-func (fu *FileUpdate) AppendExtraData(jm json.RawMessage) *FileUpdate {
-	fu.mutation.AppendExtraData(jm)
-	return fu
-}
-
-// SetCategory sets the "category" field.
-func (fu *FileUpdate) SetCategory(s string) *FileUpdate {
-	fu.mutation.SetCategory(s)
-	return fu
-}
-
-// SetNillableCategory sets the "category" field if the given value is not nil.
-func (fu *FileUpdate) SetNillableCategory(s *string) *FileUpdate {
-	if s != nil {
-		fu.SetCategory(*s)
-	}
-	return fu
-}
-
-// SetUploadedBy sets the "uploadedBy" field.
-func (fu *FileUpdate) SetUploadedBy(s string) *FileUpdate {
-	fu.mutation.SetUploadedBy(s)
-	return fu
-}
-
-// SetNillableUploadedBy sets the "uploadedBy" field if the given value is not nil.
-func (fu *FileUpdate) SetNillableUploadedBy(s *string) *FileUpdate {
-	if s != nil {
-		fu.SetUploadedBy(*s)
-	}
-	return fu
-}
-
-// ClearUploadedBy clears the value of the "uploadedBy" field.
-func (fu *FileUpdate) ClearUploadedBy() *FileUpdate {
-	fu.mutation.ClearUploadedBy()
 	return fu
 }
 
@@ -241,6 +215,32 @@ func (fu *FileUpdate) SetUpdatedAt(t time.Time) *FileUpdate {
 func (fu *FileUpdate) SetNillableUpdatedAt(t *time.Time) *FileUpdate {
 	if t != nil {
 		fu.SetUpdatedAt(*t)
+	}
+	return fu
+}
+
+// SetExtraData sets the "extraData" field.
+func (fu *FileUpdate) SetExtraData(jm json.RawMessage) *FileUpdate {
+	fu.mutation.SetExtraData(jm)
+	return fu
+}
+
+// AppendExtraData appends jm to the "extraData" field.
+func (fu *FileUpdate) AppendExtraData(jm json.RawMessage) *FileUpdate {
+	fu.mutation.AppendExtraData(jm)
+	return fu
+}
+
+// SetCategory sets the "category" field.
+func (fu *FileUpdate) SetCategory(s string) *FileUpdate {
+	fu.mutation.SetCategory(s)
+	return fu
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (fu *FileUpdate) SetNillableCategory(s *string) *FileUpdate {
+	if s != nil {
+		fu.SetCategory(*s)
 	}
 	return fu
 }
@@ -584,6 +584,12 @@ func (fu *FileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			sqljson.Append(u, file.FieldTags, value)
 		})
 	}
+	if value, ok := fu.mutation.CreatedAt(); ok {
+		_spec.SetField(file.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := fu.mutation.UpdatedAt(); ok {
+		_spec.SetField(file.FieldUpdatedAt, field.TypeTime, value)
+	}
 	if value, ok := fu.mutation.ExtraData(); ok {
 		_spec.SetField(file.FieldExtraData, field.TypeJSON, value)
 	}
@@ -594,12 +600,6 @@ func (fu *FileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := fu.mutation.Category(); ok {
 		_spec.SetField(file.FieldCategory, field.TypeString, value)
-	}
-	if value, ok := fu.mutation.CreatedAt(); ok {
-		_spec.SetField(file.FieldCreatedAt, field.TypeTime, value)
-	}
-	if value, ok := fu.mutation.UpdatedAt(); ok {
-		_spec.SetField(file.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if fu.mutation.BucketCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1060,6 +1060,26 @@ func (fuo *FileUpdateOne) SetNillableIsPublic(b *bool) *FileUpdateOne {
 	return fuo
 }
 
+// SetUploadedBy sets the "uploadedBy" field.
+func (fuo *FileUpdateOne) SetUploadedBy(s string) *FileUpdateOne {
+	fuo.mutation.SetUploadedBy(s)
+	return fuo
+}
+
+// SetNillableUploadedBy sets the "uploadedBy" field if the given value is not nil.
+func (fuo *FileUpdateOne) SetNillableUploadedBy(s *string) *FileUpdateOne {
+	if s != nil {
+		fuo.SetUploadedBy(*s)
+	}
+	return fuo
+}
+
+// ClearUploadedBy clears the value of the "uploadedBy" field.
+func (fuo *FileUpdateOne) ClearUploadedBy() *FileUpdateOne {
+	fuo.mutation.ClearUploadedBy()
+	return fuo
+}
+
 // SetDescription sets the "description" field.
 func (fuo *FileUpdateOne) SetDescription(s string) *FileUpdateOne {
 	fuo.mutation.SetDescription(s)
@@ -1083,52 +1103,6 @@ func (fuo *FileUpdateOne) SetTags(jm json.RawMessage) *FileUpdateOne {
 // AppendTags appends jm to the "tags" field.
 func (fuo *FileUpdateOne) AppendTags(jm json.RawMessage) *FileUpdateOne {
 	fuo.mutation.AppendTags(jm)
-	return fuo
-}
-
-// SetExtraData sets the "extraData" field.
-func (fuo *FileUpdateOne) SetExtraData(jm json.RawMessage) *FileUpdateOne {
-	fuo.mutation.SetExtraData(jm)
-	return fuo
-}
-
-// AppendExtraData appends jm to the "extraData" field.
-func (fuo *FileUpdateOne) AppendExtraData(jm json.RawMessage) *FileUpdateOne {
-	fuo.mutation.AppendExtraData(jm)
-	return fuo
-}
-
-// SetCategory sets the "category" field.
-func (fuo *FileUpdateOne) SetCategory(s string) *FileUpdateOne {
-	fuo.mutation.SetCategory(s)
-	return fuo
-}
-
-// SetNillableCategory sets the "category" field if the given value is not nil.
-func (fuo *FileUpdateOne) SetNillableCategory(s *string) *FileUpdateOne {
-	if s != nil {
-		fuo.SetCategory(*s)
-	}
-	return fuo
-}
-
-// SetUploadedBy sets the "uploadedBy" field.
-func (fuo *FileUpdateOne) SetUploadedBy(s string) *FileUpdateOne {
-	fuo.mutation.SetUploadedBy(s)
-	return fuo
-}
-
-// SetNillableUploadedBy sets the "uploadedBy" field if the given value is not nil.
-func (fuo *FileUpdateOne) SetNillableUploadedBy(s *string) *FileUpdateOne {
-	if s != nil {
-		fuo.SetUploadedBy(*s)
-	}
-	return fuo
-}
-
-// ClearUploadedBy clears the value of the "uploadedBy" field.
-func (fuo *FileUpdateOne) ClearUploadedBy() *FileUpdateOne {
-	fuo.mutation.ClearUploadedBy()
 	return fuo
 }
 
@@ -1156,6 +1130,32 @@ func (fuo *FileUpdateOne) SetUpdatedAt(t time.Time) *FileUpdateOne {
 func (fuo *FileUpdateOne) SetNillableUpdatedAt(t *time.Time) *FileUpdateOne {
 	if t != nil {
 		fuo.SetUpdatedAt(*t)
+	}
+	return fuo
+}
+
+// SetExtraData sets the "extraData" field.
+func (fuo *FileUpdateOne) SetExtraData(jm json.RawMessage) *FileUpdateOne {
+	fuo.mutation.SetExtraData(jm)
+	return fuo
+}
+
+// AppendExtraData appends jm to the "extraData" field.
+func (fuo *FileUpdateOne) AppendExtraData(jm json.RawMessage) *FileUpdateOne {
+	fuo.mutation.AppendExtraData(jm)
+	return fuo
+}
+
+// SetCategory sets the "category" field.
+func (fuo *FileUpdateOne) SetCategory(s string) *FileUpdateOne {
+	fuo.mutation.SetCategory(s)
+	return fuo
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (fuo *FileUpdateOne) SetNillableCategory(s *string) *FileUpdateOne {
+	if s != nil {
+		fuo.SetCategory(*s)
 	}
 	return fuo
 }
@@ -1529,6 +1529,12 @@ func (fuo *FileUpdateOne) sqlSave(ctx context.Context) (_node *File, err error) 
 			sqljson.Append(u, file.FieldTags, value)
 		})
 	}
+	if value, ok := fuo.mutation.CreatedAt(); ok {
+		_spec.SetField(file.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := fuo.mutation.UpdatedAt(); ok {
+		_spec.SetField(file.FieldUpdatedAt, field.TypeTime, value)
+	}
 	if value, ok := fuo.mutation.ExtraData(); ok {
 		_spec.SetField(file.FieldExtraData, field.TypeJSON, value)
 	}
@@ -1539,12 +1545,6 @@ func (fuo *FileUpdateOne) sqlSave(ctx context.Context) (_node *File, err error) 
 	}
 	if value, ok := fuo.mutation.Category(); ok {
 		_spec.SetField(file.FieldCategory, field.TypeString, value)
-	}
-	if value, ok := fuo.mutation.CreatedAt(); ok {
-		_spec.SetField(file.FieldCreatedAt, field.TypeTime, value)
-	}
-	if value, ok := fuo.mutation.UpdatedAt(); ok {
-		_spec.SetField(file.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if fuo.mutation.BucketCleared() {
 		edge := &sqlgraph.EdgeSpec{

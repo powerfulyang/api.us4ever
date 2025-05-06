@@ -16,7 +16,7 @@ type Todo struct {
 }
 
 func (Todo) Fields() []ent.Field {
-	return []ent.Field{field.String("id").StorageKey("id"), field.String("title").StorageKey("title"), field.String("content").Optional().StorageKey("content"), field.Bool("status").StorageKey("status"), field.Int32("priority").StorageKey("priority"), field.Time("dueDate").Optional().StorageKey("dueDate"), field.Bool("isPublic").StorageKey("isPublic"), field.Bool("pinned").StorageKey("pinned"), field.JSON("extraData", json.RawMessage{}).StorageKey("extraData"), field.String("category").StorageKey("category"), field.String("ownerId").Optional().StorageKey("ownerId"), field.Time("createdAt").StorageKey("createdAt"), field.Time("updatedAt").StorageKey("updatedAt")}
+	return []ent.Field{field.String("id").StorageKey("id"), field.String("title").StorageKey("title"), field.String("content").Optional().StorageKey("content"), field.Bool("status").StorageKey("status"), field.Int32("priority").StorageKey("priority"), field.Time("dueDate").Optional().StorageKey("dueDate"), field.Bool("isPublic").StorageKey("isPublic"), field.Bool("pinned").StorageKey("pinned"), field.String("ownerId").Optional().StorageKey("ownerId"), field.Time("createdAt").StorageKey("createdAt"), field.Time("updatedAt").StorageKey("updatedAt"), field.JSON("extraData", json.RawMessage{}).StorageKey("extraData"), field.String("category").StorageKey("category")}
 
 }
 func (Todo) Edges() []ent.Edge {

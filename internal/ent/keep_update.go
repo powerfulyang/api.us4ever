@@ -59,20 +59,6 @@ func (ku *KeepUpdate) SetNillableContent(s *string) *KeepUpdate {
 	return ku
 }
 
-// SetSummary sets the "summary" field.
-func (ku *KeepUpdate) SetSummary(s string) *KeepUpdate {
-	ku.mutation.SetSummary(s)
-	return ku
-}
-
-// SetNillableSummary sets the "summary" field if the given value is not nil.
-func (ku *KeepUpdate) SetNillableSummary(s *string) *KeepUpdate {
-	if s != nil {
-		ku.SetSummary(*s)
-	}
-	return ku
-}
-
 // SetIsPublic sets the "isPublic" field.
 func (ku *KeepUpdate) SetIsPublic(b bool) *KeepUpdate {
 	ku.mutation.SetIsPublic(b)
@@ -96,6 +82,68 @@ func (ku *KeepUpdate) SetTags(jm json.RawMessage) *KeepUpdate {
 // AppendTags appends jm to the "tags" field.
 func (ku *KeepUpdate) AppendTags(jm json.RawMessage) *KeepUpdate {
 	ku.mutation.AppendTags(jm)
+	return ku
+}
+
+// SetCreatedAt sets the "createdAt" field.
+func (ku *KeepUpdate) SetCreatedAt(t time.Time) *KeepUpdate {
+	ku.mutation.SetCreatedAt(t)
+	return ku
+}
+
+// SetNillableCreatedAt sets the "createdAt" field if the given value is not nil.
+func (ku *KeepUpdate) SetNillableCreatedAt(t *time.Time) *KeepUpdate {
+	if t != nil {
+		ku.SetCreatedAt(*t)
+	}
+	return ku
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (ku *KeepUpdate) SetUpdatedAt(t time.Time) *KeepUpdate {
+	ku.mutation.SetUpdatedAt(t)
+	return ku
+}
+
+// SetNillableUpdatedAt sets the "updatedAt" field if the given value is not nil.
+func (ku *KeepUpdate) SetNillableUpdatedAt(t *time.Time) *KeepUpdate {
+	if t != nil {
+		ku.SetUpdatedAt(*t)
+	}
+	return ku
+}
+
+// SetOwnerId sets the "ownerId" field.
+func (ku *KeepUpdate) SetOwnerId(s string) *KeepUpdate {
+	ku.mutation.SetOwnerId(s)
+	return ku
+}
+
+// SetNillableOwnerId sets the "ownerId" field if the given value is not nil.
+func (ku *KeepUpdate) SetNillableOwnerId(s *string) *KeepUpdate {
+	if s != nil {
+		ku.SetOwnerId(*s)
+	}
+	return ku
+}
+
+// ClearOwnerId clears the value of the "ownerId" field.
+func (ku *KeepUpdate) ClearOwnerId() *KeepUpdate {
+	ku.mutation.ClearOwnerId()
+	return ku
+}
+
+// SetCategory sets the "category" field.
+func (ku *KeepUpdate) SetCategory(s string) *KeepUpdate {
+	ku.mutation.SetCategory(s)
+	return ku
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (ku *KeepUpdate) SetNillableCategory(s *string) *KeepUpdate {
+	if s != nil {
+		ku.SetCategory(*s)
+	}
 	return ku
 }
 
@@ -141,6 +189,20 @@ func (ku *KeepUpdate) AddLikes(i int32) *KeepUpdate {
 	return ku
 }
 
+// SetSummary sets the "summary" field.
+func (ku *KeepUpdate) SetSummary(s string) *KeepUpdate {
+	ku.mutation.SetSummary(s)
+	return ku
+}
+
+// SetNillableSummary sets the "summary" field if the given value is not nil.
+func (ku *KeepUpdate) SetNillableSummary(s *string) *KeepUpdate {
+	if s != nil {
+		ku.SetSummary(*s)
+	}
+	return ku
+}
+
 // SetExtraData sets the "extraData" field.
 func (ku *KeepUpdate) SetExtraData(jm json.RawMessage) *KeepUpdate {
 	ku.mutation.SetExtraData(jm)
@@ -153,65 +215,57 @@ func (ku *KeepUpdate) AppendExtraData(jm json.RawMessage) *KeepUpdate {
 	return ku
 }
 
-// SetCategory sets the "category" field.
-func (ku *KeepUpdate) SetCategory(s string) *KeepUpdate {
-	ku.mutation.SetCategory(s)
+// SetContentVector sets the "content_vector" field.
+func (ku *KeepUpdate) SetContentVector(jm json.RawMessage) *KeepUpdate {
+	ku.mutation.SetContentVector(jm)
 	return ku
 }
 
-// SetNillableCategory sets the "category" field if the given value is not nil.
-func (ku *KeepUpdate) SetNillableCategory(s *string) *KeepUpdate {
-	if s != nil {
-		ku.SetCategory(*s)
-	}
+// AppendContentVector appends jm to the "content_vector" field.
+func (ku *KeepUpdate) AppendContentVector(jm json.RawMessage) *KeepUpdate {
+	ku.mutation.AppendContentVector(jm)
 	return ku
 }
 
-// SetOwnerId sets the "ownerId" field.
-func (ku *KeepUpdate) SetOwnerId(s string) *KeepUpdate {
-	ku.mutation.SetOwnerId(s)
+// ClearContentVector clears the value of the "content_vector" field.
+func (ku *KeepUpdate) ClearContentVector() *KeepUpdate {
+	ku.mutation.ClearContentVector()
 	return ku
 }
 
-// SetNillableOwnerId sets the "ownerId" field if the given value is not nil.
-func (ku *KeepUpdate) SetNillableOwnerId(s *string) *KeepUpdate {
-	if s != nil {
-		ku.SetOwnerId(*s)
-	}
+// SetSummaryVector sets the "summary_vector" field.
+func (ku *KeepUpdate) SetSummaryVector(jm json.RawMessage) *KeepUpdate {
+	ku.mutation.SetSummaryVector(jm)
 	return ku
 }
 
-// ClearOwnerId clears the value of the "ownerId" field.
-func (ku *KeepUpdate) ClearOwnerId() *KeepUpdate {
-	ku.mutation.ClearOwnerId()
+// AppendSummaryVector appends jm to the "summary_vector" field.
+func (ku *KeepUpdate) AppendSummaryVector(jm json.RawMessage) *KeepUpdate {
+	ku.mutation.AppendSummaryVector(jm)
 	return ku
 }
 
-// SetCreatedAt sets the "createdAt" field.
-func (ku *KeepUpdate) SetCreatedAt(t time.Time) *KeepUpdate {
-	ku.mutation.SetCreatedAt(t)
+// ClearSummaryVector clears the value of the "summary_vector" field.
+func (ku *KeepUpdate) ClearSummaryVector() *KeepUpdate {
+	ku.mutation.ClearSummaryVector()
 	return ku
 }
 
-// SetNillableCreatedAt sets the "createdAt" field if the given value is not nil.
-func (ku *KeepUpdate) SetNillableCreatedAt(t *time.Time) *KeepUpdate {
-	if t != nil {
-		ku.SetCreatedAt(*t)
-	}
+// SetTitleVector sets the "title_vector" field.
+func (ku *KeepUpdate) SetTitleVector(jm json.RawMessage) *KeepUpdate {
+	ku.mutation.SetTitleVector(jm)
 	return ku
 }
 
-// SetUpdatedAt sets the "updatedAt" field.
-func (ku *KeepUpdate) SetUpdatedAt(t time.Time) *KeepUpdate {
-	ku.mutation.SetUpdatedAt(t)
+// AppendTitleVector appends jm to the "title_vector" field.
+func (ku *KeepUpdate) AppendTitleVector(jm json.RawMessage) *KeepUpdate {
+	ku.mutation.AppendTitleVector(jm)
 	return ku
 }
 
-// SetNillableUpdatedAt sets the "updatedAt" field if the given value is not nil.
-func (ku *KeepUpdate) SetNillableUpdatedAt(t *time.Time) *KeepUpdate {
-	if t != nil {
-		ku.SetUpdatedAt(*t)
-	}
+// ClearTitleVector clears the value of the "title_vector" field.
+func (ku *KeepUpdate) ClearTitleVector() *KeepUpdate {
+	ku.mutation.ClearTitleVector()
 	return ku
 }
 
@@ -287,9 +341,6 @@ func (ku *KeepUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ku.mutation.Content(); ok {
 		_spec.SetField(keep.FieldContent, field.TypeString, value)
 	}
-	if value, ok := ku.mutation.Summary(); ok {
-		_spec.SetField(keep.FieldSummary, field.TypeString, value)
-	}
 	if value, ok := ku.mutation.IsPublic(); ok {
 		_spec.SetField(keep.FieldIsPublic, field.TypeBool, value)
 	}
@@ -300,6 +351,15 @@ func (ku *KeepUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, keep.FieldTags, value)
 		})
+	}
+	if value, ok := ku.mutation.CreatedAt(); ok {
+		_spec.SetField(keep.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := ku.mutation.UpdatedAt(); ok {
+		_spec.SetField(keep.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := ku.mutation.Category(); ok {
+		_spec.SetField(keep.FieldCategory, field.TypeString, value)
 	}
 	if value, ok := ku.mutation.Views(); ok {
 		_spec.SetField(keep.FieldViews, field.TypeInt32, value)
@@ -313,6 +373,9 @@ func (ku *KeepUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ku.mutation.AddedLikes(); ok {
 		_spec.AddField(keep.FieldLikes, field.TypeInt32, value)
 	}
+	if value, ok := ku.mutation.Summary(); ok {
+		_spec.SetField(keep.FieldSummary, field.TypeString, value)
+	}
 	if value, ok := ku.mutation.ExtraData(); ok {
 		_spec.SetField(keep.FieldExtraData, field.TypeJSON, value)
 	}
@@ -321,14 +384,38 @@ func (ku *KeepUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			sqljson.Append(u, keep.FieldExtraData, value)
 		})
 	}
-	if value, ok := ku.mutation.Category(); ok {
-		_spec.SetField(keep.FieldCategory, field.TypeString, value)
+	if value, ok := ku.mutation.ContentVector(); ok {
+		_spec.SetField(keep.FieldContentVector, field.TypeJSON, value)
 	}
-	if value, ok := ku.mutation.CreatedAt(); ok {
-		_spec.SetField(keep.FieldCreatedAt, field.TypeTime, value)
+	if value, ok := ku.mutation.AppendedContentVector(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, keep.FieldContentVector, value)
+		})
 	}
-	if value, ok := ku.mutation.UpdatedAt(); ok {
-		_spec.SetField(keep.FieldUpdatedAt, field.TypeTime, value)
+	if ku.mutation.ContentVectorCleared() {
+		_spec.ClearField(keep.FieldContentVector, field.TypeJSON)
+	}
+	if value, ok := ku.mutation.SummaryVector(); ok {
+		_spec.SetField(keep.FieldSummaryVector, field.TypeJSON, value)
+	}
+	if value, ok := ku.mutation.AppendedSummaryVector(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, keep.FieldSummaryVector, value)
+		})
+	}
+	if ku.mutation.SummaryVectorCleared() {
+		_spec.ClearField(keep.FieldSummaryVector, field.TypeJSON)
+	}
+	if value, ok := ku.mutation.TitleVector(); ok {
+		_spec.SetField(keep.FieldTitleVector, field.TypeJSON, value)
+	}
+	if value, ok := ku.mutation.AppendedTitleVector(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, keep.FieldTitleVector, value)
+		})
+	}
+	if ku.mutation.TitleVectorCleared() {
+		_spec.ClearField(keep.FieldTitleVector, field.TypeJSON)
 	}
 	if ku.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -407,20 +494,6 @@ func (kuo *KeepUpdateOne) SetNillableContent(s *string) *KeepUpdateOne {
 	return kuo
 }
 
-// SetSummary sets the "summary" field.
-func (kuo *KeepUpdateOne) SetSummary(s string) *KeepUpdateOne {
-	kuo.mutation.SetSummary(s)
-	return kuo
-}
-
-// SetNillableSummary sets the "summary" field if the given value is not nil.
-func (kuo *KeepUpdateOne) SetNillableSummary(s *string) *KeepUpdateOne {
-	if s != nil {
-		kuo.SetSummary(*s)
-	}
-	return kuo
-}
-
 // SetIsPublic sets the "isPublic" field.
 func (kuo *KeepUpdateOne) SetIsPublic(b bool) *KeepUpdateOne {
 	kuo.mutation.SetIsPublic(b)
@@ -444,6 +517,68 @@ func (kuo *KeepUpdateOne) SetTags(jm json.RawMessage) *KeepUpdateOne {
 // AppendTags appends jm to the "tags" field.
 func (kuo *KeepUpdateOne) AppendTags(jm json.RawMessage) *KeepUpdateOne {
 	kuo.mutation.AppendTags(jm)
+	return kuo
+}
+
+// SetCreatedAt sets the "createdAt" field.
+func (kuo *KeepUpdateOne) SetCreatedAt(t time.Time) *KeepUpdateOne {
+	kuo.mutation.SetCreatedAt(t)
+	return kuo
+}
+
+// SetNillableCreatedAt sets the "createdAt" field if the given value is not nil.
+func (kuo *KeepUpdateOne) SetNillableCreatedAt(t *time.Time) *KeepUpdateOne {
+	if t != nil {
+		kuo.SetCreatedAt(*t)
+	}
+	return kuo
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (kuo *KeepUpdateOne) SetUpdatedAt(t time.Time) *KeepUpdateOne {
+	kuo.mutation.SetUpdatedAt(t)
+	return kuo
+}
+
+// SetNillableUpdatedAt sets the "updatedAt" field if the given value is not nil.
+func (kuo *KeepUpdateOne) SetNillableUpdatedAt(t *time.Time) *KeepUpdateOne {
+	if t != nil {
+		kuo.SetUpdatedAt(*t)
+	}
+	return kuo
+}
+
+// SetOwnerId sets the "ownerId" field.
+func (kuo *KeepUpdateOne) SetOwnerId(s string) *KeepUpdateOne {
+	kuo.mutation.SetOwnerId(s)
+	return kuo
+}
+
+// SetNillableOwnerId sets the "ownerId" field if the given value is not nil.
+func (kuo *KeepUpdateOne) SetNillableOwnerId(s *string) *KeepUpdateOne {
+	if s != nil {
+		kuo.SetOwnerId(*s)
+	}
+	return kuo
+}
+
+// ClearOwnerId clears the value of the "ownerId" field.
+func (kuo *KeepUpdateOne) ClearOwnerId() *KeepUpdateOne {
+	kuo.mutation.ClearOwnerId()
+	return kuo
+}
+
+// SetCategory sets the "category" field.
+func (kuo *KeepUpdateOne) SetCategory(s string) *KeepUpdateOne {
+	kuo.mutation.SetCategory(s)
+	return kuo
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (kuo *KeepUpdateOne) SetNillableCategory(s *string) *KeepUpdateOne {
+	if s != nil {
+		kuo.SetCategory(*s)
+	}
 	return kuo
 }
 
@@ -489,6 +624,20 @@ func (kuo *KeepUpdateOne) AddLikes(i int32) *KeepUpdateOne {
 	return kuo
 }
 
+// SetSummary sets the "summary" field.
+func (kuo *KeepUpdateOne) SetSummary(s string) *KeepUpdateOne {
+	kuo.mutation.SetSummary(s)
+	return kuo
+}
+
+// SetNillableSummary sets the "summary" field if the given value is not nil.
+func (kuo *KeepUpdateOne) SetNillableSummary(s *string) *KeepUpdateOne {
+	if s != nil {
+		kuo.SetSummary(*s)
+	}
+	return kuo
+}
+
 // SetExtraData sets the "extraData" field.
 func (kuo *KeepUpdateOne) SetExtraData(jm json.RawMessage) *KeepUpdateOne {
 	kuo.mutation.SetExtraData(jm)
@@ -501,65 +650,57 @@ func (kuo *KeepUpdateOne) AppendExtraData(jm json.RawMessage) *KeepUpdateOne {
 	return kuo
 }
 
-// SetCategory sets the "category" field.
-func (kuo *KeepUpdateOne) SetCategory(s string) *KeepUpdateOne {
-	kuo.mutation.SetCategory(s)
+// SetContentVector sets the "content_vector" field.
+func (kuo *KeepUpdateOne) SetContentVector(jm json.RawMessage) *KeepUpdateOne {
+	kuo.mutation.SetContentVector(jm)
 	return kuo
 }
 
-// SetNillableCategory sets the "category" field if the given value is not nil.
-func (kuo *KeepUpdateOne) SetNillableCategory(s *string) *KeepUpdateOne {
-	if s != nil {
-		kuo.SetCategory(*s)
-	}
+// AppendContentVector appends jm to the "content_vector" field.
+func (kuo *KeepUpdateOne) AppendContentVector(jm json.RawMessage) *KeepUpdateOne {
+	kuo.mutation.AppendContentVector(jm)
 	return kuo
 }
 
-// SetOwnerId sets the "ownerId" field.
-func (kuo *KeepUpdateOne) SetOwnerId(s string) *KeepUpdateOne {
-	kuo.mutation.SetOwnerId(s)
+// ClearContentVector clears the value of the "content_vector" field.
+func (kuo *KeepUpdateOne) ClearContentVector() *KeepUpdateOne {
+	kuo.mutation.ClearContentVector()
 	return kuo
 }
 
-// SetNillableOwnerId sets the "ownerId" field if the given value is not nil.
-func (kuo *KeepUpdateOne) SetNillableOwnerId(s *string) *KeepUpdateOne {
-	if s != nil {
-		kuo.SetOwnerId(*s)
-	}
+// SetSummaryVector sets the "summary_vector" field.
+func (kuo *KeepUpdateOne) SetSummaryVector(jm json.RawMessage) *KeepUpdateOne {
+	kuo.mutation.SetSummaryVector(jm)
 	return kuo
 }
 
-// ClearOwnerId clears the value of the "ownerId" field.
-func (kuo *KeepUpdateOne) ClearOwnerId() *KeepUpdateOne {
-	kuo.mutation.ClearOwnerId()
+// AppendSummaryVector appends jm to the "summary_vector" field.
+func (kuo *KeepUpdateOne) AppendSummaryVector(jm json.RawMessage) *KeepUpdateOne {
+	kuo.mutation.AppendSummaryVector(jm)
 	return kuo
 }
 
-// SetCreatedAt sets the "createdAt" field.
-func (kuo *KeepUpdateOne) SetCreatedAt(t time.Time) *KeepUpdateOne {
-	kuo.mutation.SetCreatedAt(t)
+// ClearSummaryVector clears the value of the "summary_vector" field.
+func (kuo *KeepUpdateOne) ClearSummaryVector() *KeepUpdateOne {
+	kuo.mutation.ClearSummaryVector()
 	return kuo
 }
 
-// SetNillableCreatedAt sets the "createdAt" field if the given value is not nil.
-func (kuo *KeepUpdateOne) SetNillableCreatedAt(t *time.Time) *KeepUpdateOne {
-	if t != nil {
-		kuo.SetCreatedAt(*t)
-	}
+// SetTitleVector sets the "title_vector" field.
+func (kuo *KeepUpdateOne) SetTitleVector(jm json.RawMessage) *KeepUpdateOne {
+	kuo.mutation.SetTitleVector(jm)
 	return kuo
 }
 
-// SetUpdatedAt sets the "updatedAt" field.
-func (kuo *KeepUpdateOne) SetUpdatedAt(t time.Time) *KeepUpdateOne {
-	kuo.mutation.SetUpdatedAt(t)
+// AppendTitleVector appends jm to the "title_vector" field.
+func (kuo *KeepUpdateOne) AppendTitleVector(jm json.RawMessage) *KeepUpdateOne {
+	kuo.mutation.AppendTitleVector(jm)
 	return kuo
 }
 
-// SetNillableUpdatedAt sets the "updatedAt" field if the given value is not nil.
-func (kuo *KeepUpdateOne) SetNillableUpdatedAt(t *time.Time) *KeepUpdateOne {
-	if t != nil {
-		kuo.SetUpdatedAt(*t)
-	}
+// ClearTitleVector clears the value of the "title_vector" field.
+func (kuo *KeepUpdateOne) ClearTitleVector() *KeepUpdateOne {
+	kuo.mutation.ClearTitleVector()
 	return kuo
 }
 
@@ -665,9 +806,6 @@ func (kuo *KeepUpdateOne) sqlSave(ctx context.Context) (_node *Keep, err error) 
 	if value, ok := kuo.mutation.Content(); ok {
 		_spec.SetField(keep.FieldContent, field.TypeString, value)
 	}
-	if value, ok := kuo.mutation.Summary(); ok {
-		_spec.SetField(keep.FieldSummary, field.TypeString, value)
-	}
 	if value, ok := kuo.mutation.IsPublic(); ok {
 		_spec.SetField(keep.FieldIsPublic, field.TypeBool, value)
 	}
@@ -678,6 +816,15 @@ func (kuo *KeepUpdateOne) sqlSave(ctx context.Context) (_node *Keep, err error) 
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, keep.FieldTags, value)
 		})
+	}
+	if value, ok := kuo.mutation.CreatedAt(); ok {
+		_spec.SetField(keep.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := kuo.mutation.UpdatedAt(); ok {
+		_spec.SetField(keep.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := kuo.mutation.Category(); ok {
+		_spec.SetField(keep.FieldCategory, field.TypeString, value)
 	}
 	if value, ok := kuo.mutation.Views(); ok {
 		_spec.SetField(keep.FieldViews, field.TypeInt32, value)
@@ -691,6 +838,9 @@ func (kuo *KeepUpdateOne) sqlSave(ctx context.Context) (_node *Keep, err error) 
 	if value, ok := kuo.mutation.AddedLikes(); ok {
 		_spec.AddField(keep.FieldLikes, field.TypeInt32, value)
 	}
+	if value, ok := kuo.mutation.Summary(); ok {
+		_spec.SetField(keep.FieldSummary, field.TypeString, value)
+	}
 	if value, ok := kuo.mutation.ExtraData(); ok {
 		_spec.SetField(keep.FieldExtraData, field.TypeJSON, value)
 	}
@@ -699,14 +849,38 @@ func (kuo *KeepUpdateOne) sqlSave(ctx context.Context) (_node *Keep, err error) 
 			sqljson.Append(u, keep.FieldExtraData, value)
 		})
 	}
-	if value, ok := kuo.mutation.Category(); ok {
-		_spec.SetField(keep.FieldCategory, field.TypeString, value)
+	if value, ok := kuo.mutation.ContentVector(); ok {
+		_spec.SetField(keep.FieldContentVector, field.TypeJSON, value)
 	}
-	if value, ok := kuo.mutation.CreatedAt(); ok {
-		_spec.SetField(keep.FieldCreatedAt, field.TypeTime, value)
+	if value, ok := kuo.mutation.AppendedContentVector(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, keep.FieldContentVector, value)
+		})
 	}
-	if value, ok := kuo.mutation.UpdatedAt(); ok {
-		_spec.SetField(keep.FieldUpdatedAt, field.TypeTime, value)
+	if kuo.mutation.ContentVectorCleared() {
+		_spec.ClearField(keep.FieldContentVector, field.TypeJSON)
+	}
+	if value, ok := kuo.mutation.SummaryVector(); ok {
+		_spec.SetField(keep.FieldSummaryVector, field.TypeJSON, value)
+	}
+	if value, ok := kuo.mutation.AppendedSummaryVector(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, keep.FieldSummaryVector, value)
+		})
+	}
+	if kuo.mutation.SummaryVectorCleared() {
+		_spec.ClearField(keep.FieldSummaryVector, field.TypeJSON)
+	}
+	if value, ok := kuo.mutation.TitleVector(); ok {
+		_spec.SetField(keep.FieldTitleVector, field.TypeJSON, value)
+	}
+	if value, ok := kuo.mutation.AppendedTitleVector(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, keep.FieldTitleVector, value)
+		})
+	}
+	if kuo.mutation.TitleVectorCleared() {
+		_spec.ClearField(keep.FieldTitleVector, field.TypeJSON)
 	}
 	if kuo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

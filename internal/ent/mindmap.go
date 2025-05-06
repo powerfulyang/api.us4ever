@@ -23,26 +23,26 @@ type Mindmap struct {
 	Title string `json:"title,omitempty"`
 	// Content holds the value of the "content" field.
 	Content json.RawMessage `json:"content,omitempty"`
-	// Summary holds the value of the "summary" field.
-	Summary string `json:"summary,omitempty"`
 	// IsPublic holds the value of the "isPublic" field.
 	IsPublic bool `json:"isPublic,omitempty"`
 	// Tags holds the value of the "tags" field.
 	Tags json.RawMessage `json:"tags,omitempty"`
-	// Views holds the value of the "views" field.
-	Views int32 `json:"views,omitempty"`
-	// Likes holds the value of the "likes" field.
-	Likes int32 `json:"likes,omitempty"`
-	// ExtraData holds the value of the "extraData" field.
-	ExtraData json.RawMessage `json:"extraData,omitempty"`
-	// Category holds the value of the "category" field.
-	Category string `json:"category,omitempty"`
-	// OwnerId holds the value of the "ownerId" field.
-	OwnerId string `json:"ownerId,omitempty"`
 	// CreatedAt holds the value of the "createdAt" field.
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 	// UpdatedAt holds the value of the "updatedAt" field.
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
+	// OwnerId holds the value of the "ownerId" field.
+	OwnerId string `json:"ownerId,omitempty"`
+	// Views holds the value of the "views" field.
+	Views int32 `json:"views,omitempty"`
+	// Likes holds the value of the "likes" field.
+	Likes int32 `json:"likes,omitempty"`
+	// Summary holds the value of the "summary" field.
+	Summary string `json:"summary,omitempty"`
+	// ExtraData holds the value of the "extraData" field.
+	ExtraData json.RawMessage `json:"extraData,omitempty"`
+	// Category holds the value of the "category" field.
+	Category string `json:"category,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the MindmapQuery when eager-loading is set.
 	Edges        MindmapEdges `json:"edges"`
@@ -80,7 +80,7 @@ func (*Mindmap) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case mindmap.FieldViews, mindmap.FieldLikes:
 			values[i] = new(sql.NullInt64)
-		case mindmap.FieldID, mindmap.FieldTitle, mindmap.FieldSummary, mindmap.FieldCategory, mindmap.FieldOwnerId:
+		case mindmap.FieldID, mindmap.FieldTitle, mindmap.FieldOwnerId, mindmap.FieldSummary, mindmap.FieldCategory:
 			values[i] = new(sql.NullString)
 		case mindmap.FieldCreatedAt, mindmap.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -119,12 +119,6 @@ func (m *Mindmap) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field content: %w", err)
 				}
 			}
-		case mindmap.FieldSummary:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field summary", values[i])
-			} else if value.Valid {
-				m.Summary = value.String
-			}
 		case mindmap.FieldIsPublic:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field isPublic", values[i])
@@ -139,6 +133,24 @@ func (m *Mindmap) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field tags: %w", err)
 				}
 			}
+		case mindmap.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field createdAt", values[i])
+			} else if value.Valid {
+				m.CreatedAt = value.Time
+			}
+		case mindmap.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updatedAt", values[i])
+			} else if value.Valid {
+				m.UpdatedAt = value.Time
+			}
+		case mindmap.FieldOwnerId:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field ownerId", values[i])
+			} else if value.Valid {
+				m.OwnerId = value.String
+			}
 		case mindmap.FieldViews:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field views", values[i])
@@ -150,6 +162,12 @@ func (m *Mindmap) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field likes", values[i])
 			} else if value.Valid {
 				m.Likes = int32(value.Int64)
+			}
+		case mindmap.FieldSummary:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field summary", values[i])
+			} else if value.Valid {
+				m.Summary = value.String
 			}
 		case mindmap.FieldExtraData:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -164,24 +182,6 @@ func (m *Mindmap) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field category", values[i])
 			} else if value.Valid {
 				m.Category = value.String
-			}
-		case mindmap.FieldOwnerId:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field ownerId", values[i])
-			} else if value.Valid {
-				m.OwnerId = value.String
-			}
-		case mindmap.FieldCreatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field createdAt", values[i])
-			} else if value.Valid {
-				m.CreatedAt = value.Time
-			}
-		case mindmap.FieldUpdatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field updatedAt", values[i])
-			} else if value.Valid {
-				m.UpdatedAt = value.Time
 			}
 		default:
 			m.selectValues.Set(columns[i], values[i])
@@ -230,14 +230,20 @@ func (m *Mindmap) String() string {
 	builder.WriteString("content=")
 	builder.WriteString(fmt.Sprintf("%v", m.Content))
 	builder.WriteString(", ")
-	builder.WriteString("summary=")
-	builder.WriteString(m.Summary)
-	builder.WriteString(", ")
 	builder.WriteString("isPublic=")
 	builder.WriteString(fmt.Sprintf("%v", m.IsPublic))
 	builder.WriteString(", ")
 	builder.WriteString("tags=")
 	builder.WriteString(fmt.Sprintf("%v", m.Tags))
+	builder.WriteString(", ")
+	builder.WriteString("createdAt=")
+	builder.WriteString(m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updatedAt=")
+	builder.WriteString(m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("ownerId=")
+	builder.WriteString(m.OwnerId)
 	builder.WriteString(", ")
 	builder.WriteString("views=")
 	builder.WriteString(fmt.Sprintf("%v", m.Views))
@@ -245,20 +251,14 @@ func (m *Mindmap) String() string {
 	builder.WriteString("likes=")
 	builder.WriteString(fmt.Sprintf("%v", m.Likes))
 	builder.WriteString(", ")
+	builder.WriteString("summary=")
+	builder.WriteString(m.Summary)
+	builder.WriteString(", ")
 	builder.WriteString("extraData=")
 	builder.WriteString(fmt.Sprintf("%v", m.ExtraData))
 	builder.WriteString(", ")
 	builder.WriteString("category=")
 	builder.WriteString(m.Category)
-	builder.WriteString(", ")
-	builder.WriteString("ownerId=")
-	builder.WriteString(m.OwnerId)
-	builder.WriteString(", ")
-	builder.WriteString("createdAt=")
-	builder.WriteString(m.CreatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("updatedAt=")
-	builder.WriteString(m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

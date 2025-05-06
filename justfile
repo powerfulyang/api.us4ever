@@ -58,7 +58,7 @@ print-nacos-config:
 # 生成 ENT 代码
 generate-ent:
     @echo "生成 ENT 代码..."
-    go generate ./internal/ent
+    go generate ./cmd/ent
 
 # 从数据库同步结构
 sync-schema: 
@@ -66,6 +66,11 @@ sync-schema:
     go run ./cmd/db-tools sync
     @echo "同步完成，生成 ENT 代码..."
     just generate-ent
+
+# 导入数据到数据库
+import-moments:
+    @echo "导入数据到数据库..."
+    go run ./cmd/db-tools import-moments "C:\Users\power\Downloads\simplifyweibo_4_moods.csv"
 
 # 显示帮助信息
 help: 

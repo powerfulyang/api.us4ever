@@ -34,20 +34,20 @@ type File struct {
 	Path string `json:"path,omitempty"`
 	// IsPublic holds the value of the "isPublic" field.
 	IsPublic bool `json:"isPublic,omitempty"`
+	// UploadedBy holds the value of the "uploadedBy" field.
+	UploadedBy string `json:"uploadedBy,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
 	// Tags holds the value of the "tags" field.
 	Tags json.RawMessage `json:"tags,omitempty"`
-	// ExtraData holds the value of the "extraData" field.
-	ExtraData json.RawMessage `json:"extraData,omitempty"`
-	// Category holds the value of the "category" field.
-	Category string `json:"category,omitempty"`
-	// UploadedBy holds the value of the "uploadedBy" field.
-	UploadedBy string `json:"uploadedBy,omitempty"`
 	// CreatedAt holds the value of the "createdAt" field.
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 	// UpdatedAt holds the value of the "updatedAt" field.
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
+	// ExtraData holds the value of the "extraData" field.
+	ExtraData json.RawMessage `json:"extraData,omitempty"`
+	// Category holds the value of the "category" field.
+	Category string `json:"category,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the FileQuery when eager-loading is set.
 	Edges        FileEdges `json:"edges"`
@@ -164,7 +164,7 @@ func (*File) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case file.FieldSize:
 			values[i] = new(sql.NullInt64)
-		case file.FieldID, file.FieldBucketId, file.FieldName, file.FieldType, file.FieldHash, file.FieldPath, file.FieldDescription, file.FieldCategory, file.FieldUploadedBy:
+		case file.FieldID, file.FieldBucketId, file.FieldName, file.FieldType, file.FieldHash, file.FieldPath, file.FieldUploadedBy, file.FieldDescription, file.FieldCategory:
 			values[i] = new(sql.NullString)
 		case file.FieldCreatedAt, file.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -231,6 +231,12 @@ func (f *File) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				f.IsPublic = value.Bool
 			}
+		case file.FieldUploadedBy:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field uploadedBy", values[i])
+			} else if value.Valid {
+				f.UploadedBy = value.String
+			}
 		case file.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
@@ -245,6 +251,18 @@ func (f *File) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field tags: %w", err)
 				}
 			}
+		case file.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field createdAt", values[i])
+			} else if value.Valid {
+				f.CreatedAt = value.Time
+			}
+		case file.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updatedAt", values[i])
+			} else if value.Valid {
+				f.UpdatedAt = value.Time
+			}
 		case file.FieldExtraData:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field extraData", values[i])
@@ -258,24 +276,6 @@ func (f *File) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field category", values[i])
 			} else if value.Valid {
 				f.Category = value.String
-			}
-		case file.FieldUploadedBy:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field uploadedBy", values[i])
-			} else if value.Valid {
-				f.UploadedBy = value.String
-			}
-		case file.FieldCreatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field createdAt", values[i])
-			} else if value.Valid {
-				f.CreatedAt = value.Time
-			}
-		case file.FieldUpdatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field updatedAt", values[i])
-			} else if value.Valid {
-				f.UpdatedAt = value.Time
 			}
 		default:
 			f.selectValues.Set(columns[i], values[i])
@@ -374,26 +374,26 @@ func (f *File) String() string {
 	builder.WriteString("isPublic=")
 	builder.WriteString(fmt.Sprintf("%v", f.IsPublic))
 	builder.WriteString(", ")
+	builder.WriteString("uploadedBy=")
+	builder.WriteString(f.UploadedBy)
+	builder.WriteString(", ")
 	builder.WriteString("description=")
 	builder.WriteString(f.Description)
 	builder.WriteString(", ")
 	builder.WriteString("tags=")
 	builder.WriteString(fmt.Sprintf("%v", f.Tags))
 	builder.WriteString(", ")
-	builder.WriteString("extraData=")
-	builder.WriteString(fmt.Sprintf("%v", f.ExtraData))
-	builder.WriteString(", ")
-	builder.WriteString("category=")
-	builder.WriteString(f.Category)
-	builder.WriteString(", ")
-	builder.WriteString("uploadedBy=")
-	builder.WriteString(f.UploadedBy)
-	builder.WriteString(", ")
 	builder.WriteString("createdAt=")
 	builder.WriteString(f.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updatedAt=")
 	builder.WriteString(f.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("extraData=")
+	builder.WriteString(fmt.Sprintf("%v", f.ExtraData))
+	builder.WriteString(", ")
+	builder.WriteString("category=")
+	builder.WriteString(f.Category)
 	builder.WriteByte(')')
 	return builder.String()
 }

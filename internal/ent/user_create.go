@@ -59,12 +59,6 @@ func (uc *UserCreate) SetIsAdmin(b bool) *UserCreate {
 	return uc
 }
 
-// SetLastLoginAt sets the "lastLoginAt" field.
-func (uc *UserCreate) SetLastLoginAt(t time.Time) *UserCreate {
-	uc.mutation.SetLastLoginAt(t)
-	return uc
-}
-
 // SetLastLoginIp sets the "lastLoginIp" field.
 func (uc *UserCreate) SetLastLoginIp(s string) *UserCreate {
 	uc.mutation.SetLastLoginIp(s)
@@ -94,6 +88,12 @@ func (uc *UserCreate) SetCreatedAt(t time.Time) *UserCreate {
 // SetUpdatedAt sets the "updatedAt" field.
 func (uc *UserCreate) SetUpdatedAt(t time.Time) *UserCreate {
 	uc.mutation.SetUpdatedAt(t)
+	return uc
+}
+
+// SetLastLoginAt sets the "lastLoginAt" field.
+func (uc *UserCreate) SetLastLoginAt(t time.Time) *UserCreate {
+	uc.mutation.SetLastLoginAt(t)
 	return uc
 }
 
@@ -291,9 +291,6 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.IsAdmin(); !ok {
 		return &ValidationError{Name: "isAdmin", err: errors.New(`ent: missing required field "User.isAdmin"`)}
 	}
-	if _, ok := uc.mutation.LastLoginAt(); !ok {
-		return &ValidationError{Name: "lastLoginAt", err: errors.New(`ent: missing required field "User.lastLoginAt"`)}
-	}
 	if _, ok := uc.mutation.LastLoginIp(); !ok {
 		return &ValidationError{Name: "lastLoginIp", err: errors.New(`ent: missing required field "User.lastLoginIp"`)}
 	}
@@ -302,6 +299,9 @@ func (uc *UserCreate) check() error {
 	}
 	if _, ok := uc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updatedAt", err: errors.New(`ent: missing required field "User.updatedAt"`)}
+	}
+	if _, ok := uc.mutation.LastLoginAt(); !ok {
+		return &ValidationError{Name: "lastLoginAt", err: errors.New(`ent: missing required field "User.lastLoginAt"`)}
 	}
 	return nil
 }
@@ -358,10 +358,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldIsAdmin, field.TypeBool, value)
 		_node.IsAdmin = value
 	}
-	if value, ok := uc.mutation.LastLoginAt(); ok {
-		_spec.SetField(user.FieldLastLoginAt, field.TypeTime, value)
-		_node.LastLoginAt = value
-	}
 	if value, ok := uc.mutation.LastLoginIp(); ok {
 		_spec.SetField(user.FieldLastLoginIp, field.TypeString, value)
 		_node.LastLoginIp = value
@@ -373,6 +369,10 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := uc.mutation.LastLoginAt(); ok {
+		_spec.SetField(user.FieldLastLoginAt, field.TypeTime, value)
+		_node.LastLoginAt = value
 	}
 	if nodes := uc.mutation.BucketsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

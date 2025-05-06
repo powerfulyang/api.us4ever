@@ -70,14 +70,24 @@ func Title(v string) predicate.Mindmap {
 	return predicate.Mindmap(sql.FieldEQ(FieldTitle, v))
 }
 
-// Summary applies equality check predicate on the "summary" field. It's identical to SummaryEQ.
-func Summary(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldEQ(FieldSummary, v))
-}
-
 // IsPublic applies equality check predicate on the "isPublic" field. It's identical to IsPublicEQ.
 func IsPublic(v bool) predicate.Mindmap {
 	return predicate.Mindmap(sql.FieldEQ(FieldIsPublic, v))
+}
+
+// CreatedAt applies equality check predicate on the "createdAt" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// UpdatedAt applies equality check predicate on the "updatedAt" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// OwnerId applies equality check predicate on the "ownerId" field. It's identical to OwnerIdEQ.
+func OwnerId(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldEQ(FieldOwnerId, v))
 }
 
 // Views applies equality check predicate on the "views" field. It's identical to ViewsEQ.
@@ -90,24 +100,14 @@ func Likes(v int32) predicate.Mindmap {
 	return predicate.Mindmap(sql.FieldEQ(FieldLikes, v))
 }
 
+// Summary applies equality check predicate on the "summary" field. It's identical to SummaryEQ.
+func Summary(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldEQ(FieldSummary, v))
+}
+
 // Category applies equality check predicate on the "category" field. It's identical to CategoryEQ.
 func Category(v string) predicate.Mindmap {
 	return predicate.Mindmap(sql.FieldEQ(FieldCategory, v))
-}
-
-// OwnerId applies equality check predicate on the "ownerId" field. It's identical to OwnerIdEQ.
-func OwnerId(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldEQ(FieldOwnerId, v))
-}
-
-// CreatedAt applies equality check predicate on the "createdAt" field. It's identical to CreatedAtEQ.
-func CreatedAt(v time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldEQ(FieldCreatedAt, v))
-}
-
-// UpdatedAt applies equality check predicate on the "updatedAt" field. It's identical to UpdatedAtEQ.
-func UpdatedAt(v time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
 // TitleEQ applies the EQ predicate on the "title" field.
@@ -175,71 +175,6 @@ func TitleContainsFold(v string) predicate.Mindmap {
 	return predicate.Mindmap(sql.FieldContainsFold(FieldTitle, v))
 }
 
-// SummaryEQ applies the EQ predicate on the "summary" field.
-func SummaryEQ(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldEQ(FieldSummary, v))
-}
-
-// SummaryNEQ applies the NEQ predicate on the "summary" field.
-func SummaryNEQ(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldNEQ(FieldSummary, v))
-}
-
-// SummaryIn applies the In predicate on the "summary" field.
-func SummaryIn(vs ...string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldIn(FieldSummary, vs...))
-}
-
-// SummaryNotIn applies the NotIn predicate on the "summary" field.
-func SummaryNotIn(vs ...string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldNotIn(FieldSummary, vs...))
-}
-
-// SummaryGT applies the GT predicate on the "summary" field.
-func SummaryGT(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldGT(FieldSummary, v))
-}
-
-// SummaryGTE applies the GTE predicate on the "summary" field.
-func SummaryGTE(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldGTE(FieldSummary, v))
-}
-
-// SummaryLT applies the LT predicate on the "summary" field.
-func SummaryLT(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldLT(FieldSummary, v))
-}
-
-// SummaryLTE applies the LTE predicate on the "summary" field.
-func SummaryLTE(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldLTE(FieldSummary, v))
-}
-
-// SummaryContains applies the Contains predicate on the "summary" field.
-func SummaryContains(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldContains(FieldSummary, v))
-}
-
-// SummaryHasPrefix applies the HasPrefix predicate on the "summary" field.
-func SummaryHasPrefix(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldHasPrefix(FieldSummary, v))
-}
-
-// SummaryHasSuffix applies the HasSuffix predicate on the "summary" field.
-func SummaryHasSuffix(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldHasSuffix(FieldSummary, v))
-}
-
-// SummaryEqualFold applies the EqualFold predicate on the "summary" field.
-func SummaryEqualFold(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldEqualFold(FieldSummary, v))
-}
-
-// SummaryContainsFold applies the ContainsFold predicate on the "summary" field.
-func SummaryContainsFold(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldContainsFold(FieldSummary, v))
-}
-
 // IsPublicEQ applies the EQ predicate on the "isPublic" field.
 func IsPublicEQ(v bool) predicate.Mindmap {
 	return predicate.Mindmap(sql.FieldEQ(FieldIsPublic, v))
@@ -248,6 +183,161 @@ func IsPublicEQ(v bool) predicate.Mindmap {
 // IsPublicNEQ applies the NEQ predicate on the "isPublic" field.
 func IsPublicNEQ(v bool) predicate.Mindmap {
 	return predicate.Mindmap(sql.FieldNEQ(FieldIsPublic, v))
+}
+
+// CreatedAtEQ applies the EQ predicate on the "createdAt" field.
+func CreatedAtEQ(v time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtNEQ applies the NEQ predicate on the "createdAt" field.
+func CreatedAtNEQ(v time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldNEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtIn applies the In predicate on the "createdAt" field.
+func CreatedAtIn(vs ...time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtNotIn applies the NotIn predicate on the "createdAt" field.
+func CreatedAtNotIn(vs ...time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldNotIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtGT applies the GT predicate on the "createdAt" field.
+func CreatedAtGT(v time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldGT(FieldCreatedAt, v))
+}
+
+// CreatedAtGTE applies the GTE predicate on the "createdAt" field.
+func CreatedAtGTE(v time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldGTE(FieldCreatedAt, v))
+}
+
+// CreatedAtLT applies the LT predicate on the "createdAt" field.
+func CreatedAtLT(v time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldLT(FieldCreatedAt, v))
+}
+
+// CreatedAtLTE applies the LTE predicate on the "createdAt" field.
+func CreatedAtLTE(v time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updatedAt" field.
+func UpdatedAtEQ(v time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updatedAt" field.
+func UpdatedAtNEQ(v time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldNEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIn applies the In predicate on the "updatedAt" field.
+func UpdatedAtIn(vs ...time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updatedAt" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldNotIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtGT applies the GT predicate on the "updatedAt" field.
+func UpdatedAtGT(v time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldGT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updatedAt" field.
+func UpdatedAtGTE(v time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldGTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLT applies the LT predicate on the "updatedAt" field.
+func UpdatedAtLT(v time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldLT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updatedAt" field.
+func UpdatedAtLTE(v time.Time) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// OwnerIdEQ applies the EQ predicate on the "ownerId" field.
+func OwnerIdEQ(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldEQ(FieldOwnerId, v))
+}
+
+// OwnerIdNEQ applies the NEQ predicate on the "ownerId" field.
+func OwnerIdNEQ(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldNEQ(FieldOwnerId, v))
+}
+
+// OwnerIdIn applies the In predicate on the "ownerId" field.
+func OwnerIdIn(vs ...string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldIn(FieldOwnerId, vs...))
+}
+
+// OwnerIdNotIn applies the NotIn predicate on the "ownerId" field.
+func OwnerIdNotIn(vs ...string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldNotIn(FieldOwnerId, vs...))
+}
+
+// OwnerIdGT applies the GT predicate on the "ownerId" field.
+func OwnerIdGT(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldGT(FieldOwnerId, v))
+}
+
+// OwnerIdGTE applies the GTE predicate on the "ownerId" field.
+func OwnerIdGTE(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldGTE(FieldOwnerId, v))
+}
+
+// OwnerIdLT applies the LT predicate on the "ownerId" field.
+func OwnerIdLT(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldLT(FieldOwnerId, v))
+}
+
+// OwnerIdLTE applies the LTE predicate on the "ownerId" field.
+func OwnerIdLTE(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldLTE(FieldOwnerId, v))
+}
+
+// OwnerIdContains applies the Contains predicate on the "ownerId" field.
+func OwnerIdContains(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldContains(FieldOwnerId, v))
+}
+
+// OwnerIdHasPrefix applies the HasPrefix predicate on the "ownerId" field.
+func OwnerIdHasPrefix(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldHasPrefix(FieldOwnerId, v))
+}
+
+// OwnerIdHasSuffix applies the HasSuffix predicate on the "ownerId" field.
+func OwnerIdHasSuffix(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldHasSuffix(FieldOwnerId, v))
+}
+
+// OwnerIdIsNil applies the IsNil predicate on the "ownerId" field.
+func OwnerIdIsNil() predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldIsNull(FieldOwnerId))
+}
+
+// OwnerIdNotNil applies the NotNil predicate on the "ownerId" field.
+func OwnerIdNotNil() predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldNotNull(FieldOwnerId))
+}
+
+// OwnerIdEqualFold applies the EqualFold predicate on the "ownerId" field.
+func OwnerIdEqualFold(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldEqualFold(FieldOwnerId, v))
+}
+
+// OwnerIdContainsFold applies the ContainsFold predicate on the "ownerId" field.
+func OwnerIdContainsFold(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldContainsFold(FieldOwnerId, v))
 }
 
 // ViewsEQ applies the EQ predicate on the "views" field.
@@ -330,6 +420,71 @@ func LikesLTE(v int32) predicate.Mindmap {
 	return predicate.Mindmap(sql.FieldLTE(FieldLikes, v))
 }
 
+// SummaryEQ applies the EQ predicate on the "summary" field.
+func SummaryEQ(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldEQ(FieldSummary, v))
+}
+
+// SummaryNEQ applies the NEQ predicate on the "summary" field.
+func SummaryNEQ(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldNEQ(FieldSummary, v))
+}
+
+// SummaryIn applies the In predicate on the "summary" field.
+func SummaryIn(vs ...string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldIn(FieldSummary, vs...))
+}
+
+// SummaryNotIn applies the NotIn predicate on the "summary" field.
+func SummaryNotIn(vs ...string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldNotIn(FieldSummary, vs...))
+}
+
+// SummaryGT applies the GT predicate on the "summary" field.
+func SummaryGT(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldGT(FieldSummary, v))
+}
+
+// SummaryGTE applies the GTE predicate on the "summary" field.
+func SummaryGTE(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldGTE(FieldSummary, v))
+}
+
+// SummaryLT applies the LT predicate on the "summary" field.
+func SummaryLT(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldLT(FieldSummary, v))
+}
+
+// SummaryLTE applies the LTE predicate on the "summary" field.
+func SummaryLTE(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldLTE(FieldSummary, v))
+}
+
+// SummaryContains applies the Contains predicate on the "summary" field.
+func SummaryContains(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldContains(FieldSummary, v))
+}
+
+// SummaryHasPrefix applies the HasPrefix predicate on the "summary" field.
+func SummaryHasPrefix(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldHasPrefix(FieldSummary, v))
+}
+
+// SummaryHasSuffix applies the HasSuffix predicate on the "summary" field.
+func SummaryHasSuffix(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldHasSuffix(FieldSummary, v))
+}
+
+// SummaryEqualFold applies the EqualFold predicate on the "summary" field.
+func SummaryEqualFold(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldEqualFold(FieldSummary, v))
+}
+
+// SummaryContainsFold applies the ContainsFold predicate on the "summary" field.
+func SummaryContainsFold(v string) predicate.Mindmap {
+	return predicate.Mindmap(sql.FieldContainsFold(FieldSummary, v))
+}
+
 // CategoryEQ applies the EQ predicate on the "category" field.
 func CategoryEQ(v string) predicate.Mindmap {
 	return predicate.Mindmap(sql.FieldEQ(FieldCategory, v))
@@ -393,161 +548,6 @@ func CategoryEqualFold(v string) predicate.Mindmap {
 // CategoryContainsFold applies the ContainsFold predicate on the "category" field.
 func CategoryContainsFold(v string) predicate.Mindmap {
 	return predicate.Mindmap(sql.FieldContainsFold(FieldCategory, v))
-}
-
-// OwnerIdEQ applies the EQ predicate on the "ownerId" field.
-func OwnerIdEQ(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldEQ(FieldOwnerId, v))
-}
-
-// OwnerIdNEQ applies the NEQ predicate on the "ownerId" field.
-func OwnerIdNEQ(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldNEQ(FieldOwnerId, v))
-}
-
-// OwnerIdIn applies the In predicate on the "ownerId" field.
-func OwnerIdIn(vs ...string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldIn(FieldOwnerId, vs...))
-}
-
-// OwnerIdNotIn applies the NotIn predicate on the "ownerId" field.
-func OwnerIdNotIn(vs ...string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldNotIn(FieldOwnerId, vs...))
-}
-
-// OwnerIdGT applies the GT predicate on the "ownerId" field.
-func OwnerIdGT(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldGT(FieldOwnerId, v))
-}
-
-// OwnerIdGTE applies the GTE predicate on the "ownerId" field.
-func OwnerIdGTE(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldGTE(FieldOwnerId, v))
-}
-
-// OwnerIdLT applies the LT predicate on the "ownerId" field.
-func OwnerIdLT(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldLT(FieldOwnerId, v))
-}
-
-// OwnerIdLTE applies the LTE predicate on the "ownerId" field.
-func OwnerIdLTE(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldLTE(FieldOwnerId, v))
-}
-
-// OwnerIdContains applies the Contains predicate on the "ownerId" field.
-func OwnerIdContains(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldContains(FieldOwnerId, v))
-}
-
-// OwnerIdHasPrefix applies the HasPrefix predicate on the "ownerId" field.
-func OwnerIdHasPrefix(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldHasPrefix(FieldOwnerId, v))
-}
-
-// OwnerIdHasSuffix applies the HasSuffix predicate on the "ownerId" field.
-func OwnerIdHasSuffix(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldHasSuffix(FieldOwnerId, v))
-}
-
-// OwnerIdIsNil applies the IsNil predicate on the "ownerId" field.
-func OwnerIdIsNil() predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldIsNull(FieldOwnerId))
-}
-
-// OwnerIdNotNil applies the NotNil predicate on the "ownerId" field.
-func OwnerIdNotNil() predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldNotNull(FieldOwnerId))
-}
-
-// OwnerIdEqualFold applies the EqualFold predicate on the "ownerId" field.
-func OwnerIdEqualFold(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldEqualFold(FieldOwnerId, v))
-}
-
-// OwnerIdContainsFold applies the ContainsFold predicate on the "ownerId" field.
-func OwnerIdContainsFold(v string) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldContainsFold(FieldOwnerId, v))
-}
-
-// CreatedAtEQ applies the EQ predicate on the "createdAt" field.
-func CreatedAtEQ(v time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldEQ(FieldCreatedAt, v))
-}
-
-// CreatedAtNEQ applies the NEQ predicate on the "createdAt" field.
-func CreatedAtNEQ(v time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldNEQ(FieldCreatedAt, v))
-}
-
-// CreatedAtIn applies the In predicate on the "createdAt" field.
-func CreatedAtIn(vs ...time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldIn(FieldCreatedAt, vs...))
-}
-
-// CreatedAtNotIn applies the NotIn predicate on the "createdAt" field.
-func CreatedAtNotIn(vs ...time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldNotIn(FieldCreatedAt, vs...))
-}
-
-// CreatedAtGT applies the GT predicate on the "createdAt" field.
-func CreatedAtGT(v time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldGT(FieldCreatedAt, v))
-}
-
-// CreatedAtGTE applies the GTE predicate on the "createdAt" field.
-func CreatedAtGTE(v time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldGTE(FieldCreatedAt, v))
-}
-
-// CreatedAtLT applies the LT predicate on the "createdAt" field.
-func CreatedAtLT(v time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldLT(FieldCreatedAt, v))
-}
-
-// CreatedAtLTE applies the LTE predicate on the "createdAt" field.
-func CreatedAtLTE(v time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldLTE(FieldCreatedAt, v))
-}
-
-// UpdatedAtEQ applies the EQ predicate on the "updatedAt" field.
-func UpdatedAtEQ(v time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldEQ(FieldUpdatedAt, v))
-}
-
-// UpdatedAtNEQ applies the NEQ predicate on the "updatedAt" field.
-func UpdatedAtNEQ(v time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldNEQ(FieldUpdatedAt, v))
-}
-
-// UpdatedAtIn applies the In predicate on the "updatedAt" field.
-func UpdatedAtIn(vs ...time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldIn(FieldUpdatedAt, vs...))
-}
-
-// UpdatedAtNotIn applies the NotIn predicate on the "updatedAt" field.
-func UpdatedAtNotIn(vs ...time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldNotIn(FieldUpdatedAt, vs...))
-}
-
-// UpdatedAtGT applies the GT predicate on the "updatedAt" field.
-func UpdatedAtGT(v time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldGT(FieldUpdatedAt, v))
-}
-
-// UpdatedAtGTE applies the GTE predicate on the "updatedAt" field.
-func UpdatedAtGTE(v time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldGTE(FieldUpdatedAt, v))
-}
-
-// UpdatedAtLT applies the LT predicate on the "updatedAt" field.
-func UpdatedAtLT(v time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldLT(FieldUpdatedAt, v))
-}
-
-// UpdatedAtLTE applies the LTE predicate on the "updatedAt" field.
-func UpdatedAtLTE(v time.Time) predicate.Mindmap {
-	return predicate.Mindmap(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

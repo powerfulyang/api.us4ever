@@ -23,26 +23,32 @@ type Keep struct {
 	Title string `json:"title,omitempty"`
 	// Content holds the value of the "content" field.
 	Content string `json:"content,omitempty"`
-	// Summary holds the value of the "summary" field.
-	Summary string `json:"summary,omitempty"`
 	// IsPublic holds the value of the "isPublic" field.
 	IsPublic bool `json:"isPublic,omitempty"`
 	// Tags holds the value of the "tags" field.
 	Tags json.RawMessage `json:"tags,omitempty"`
-	// Views holds the value of the "views" field.
-	Views int32 `json:"views,omitempty"`
-	// Likes holds the value of the "likes" field.
-	Likes int32 `json:"likes,omitempty"`
-	// ExtraData holds the value of the "extraData" field.
-	ExtraData json.RawMessage `json:"extraData,omitempty"`
-	// Category holds the value of the "category" field.
-	Category string `json:"category,omitempty"`
-	// OwnerId holds the value of the "ownerId" field.
-	OwnerId string `json:"ownerId,omitempty"`
 	// CreatedAt holds the value of the "createdAt" field.
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 	// UpdatedAt holds the value of the "updatedAt" field.
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
+	// OwnerId holds the value of the "ownerId" field.
+	OwnerId string `json:"ownerId,omitempty"`
+	// Category holds the value of the "category" field.
+	Category string `json:"category,omitempty"`
+	// Views holds the value of the "views" field.
+	Views int32 `json:"views,omitempty"`
+	// Likes holds the value of the "likes" field.
+	Likes int32 `json:"likes,omitempty"`
+	// Summary holds the value of the "summary" field.
+	Summary string `json:"summary,omitempty"`
+	// ExtraData holds the value of the "extraData" field.
+	ExtraData json.RawMessage `json:"extraData,omitempty"`
+	// ContentVector holds the value of the "content_vector" field.
+	ContentVector json.RawMessage `json:"content_vector,omitempty"`
+	// SummaryVector holds the value of the "summary_vector" field.
+	SummaryVector json.RawMessage `json:"summary_vector,omitempty"`
+	// TitleVector holds the value of the "title_vector" field.
+	TitleVector json.RawMessage `json:"title_vector,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the KeepQuery when eager-loading is set.
 	Edges        KeepEdges `json:"edges"`
@@ -74,13 +80,13 @@ func (*Keep) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case keep.FieldTags, keep.FieldExtraData:
+		case keep.FieldTags, keep.FieldExtraData, keep.FieldContentVector, keep.FieldSummaryVector, keep.FieldTitleVector:
 			values[i] = new([]byte)
 		case keep.FieldIsPublic:
 			values[i] = new(sql.NullBool)
 		case keep.FieldViews, keep.FieldLikes:
 			values[i] = new(sql.NullInt64)
-		case keep.FieldID, keep.FieldTitle, keep.FieldContent, keep.FieldSummary, keep.FieldCategory, keep.FieldOwnerId:
+		case keep.FieldID, keep.FieldTitle, keep.FieldContent, keep.FieldOwnerId, keep.FieldCategory, keep.FieldSummary:
 			values[i] = new(sql.NullString)
 		case keep.FieldCreatedAt, keep.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -117,12 +123,6 @@ func (k *Keep) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				k.Content = value.String
 			}
-		case keep.FieldSummary:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field summary", values[i])
-			} else if value.Valid {
-				k.Summary = value.String
-			}
 		case keep.FieldIsPublic:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field isPublic", values[i])
@@ -137,6 +137,30 @@ func (k *Keep) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field tags: %w", err)
 				}
 			}
+		case keep.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field createdAt", values[i])
+			} else if value.Valid {
+				k.CreatedAt = value.Time
+			}
+		case keep.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updatedAt", values[i])
+			} else if value.Valid {
+				k.UpdatedAt = value.Time
+			}
+		case keep.FieldOwnerId:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field ownerId", values[i])
+			} else if value.Valid {
+				k.OwnerId = value.String
+			}
+		case keep.FieldCategory:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field category", values[i])
+			} else if value.Valid {
+				k.Category = value.String
+			}
 		case keep.FieldViews:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field views", values[i])
@@ -149,6 +173,12 @@ func (k *Keep) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				k.Likes = int32(value.Int64)
 			}
+		case keep.FieldSummary:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field summary", values[i])
+			} else if value.Valid {
+				k.Summary = value.String
+			}
 		case keep.FieldExtraData:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field extraData", values[i])
@@ -157,29 +187,29 @@ func (k *Keep) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field extraData: %w", err)
 				}
 			}
-		case keep.FieldCategory:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field category", values[i])
-			} else if value.Valid {
-				k.Category = value.String
+		case keep.FieldContentVector:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field content_vector", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &k.ContentVector); err != nil {
+					return fmt.Errorf("unmarshal field content_vector: %w", err)
+				}
 			}
-		case keep.FieldOwnerId:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field ownerId", values[i])
-			} else if value.Valid {
-				k.OwnerId = value.String
+		case keep.FieldSummaryVector:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field summary_vector", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &k.SummaryVector); err != nil {
+					return fmt.Errorf("unmarshal field summary_vector: %w", err)
+				}
 			}
-		case keep.FieldCreatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field createdAt", values[i])
-			} else if value.Valid {
-				k.CreatedAt = value.Time
-			}
-		case keep.FieldUpdatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field updatedAt", values[i])
-			} else if value.Valid {
-				k.UpdatedAt = value.Time
+		case keep.FieldTitleVector:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field title_vector", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &k.TitleVector); err != nil {
+					return fmt.Errorf("unmarshal field title_vector: %w", err)
+				}
 			}
 		default:
 			k.selectValues.Set(columns[i], values[i])
@@ -228,14 +258,23 @@ func (k *Keep) String() string {
 	builder.WriteString("content=")
 	builder.WriteString(k.Content)
 	builder.WriteString(", ")
-	builder.WriteString("summary=")
-	builder.WriteString(k.Summary)
-	builder.WriteString(", ")
 	builder.WriteString("isPublic=")
 	builder.WriteString(fmt.Sprintf("%v", k.IsPublic))
 	builder.WriteString(", ")
 	builder.WriteString("tags=")
 	builder.WriteString(fmt.Sprintf("%v", k.Tags))
+	builder.WriteString(", ")
+	builder.WriteString("createdAt=")
+	builder.WriteString(k.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updatedAt=")
+	builder.WriteString(k.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("ownerId=")
+	builder.WriteString(k.OwnerId)
+	builder.WriteString(", ")
+	builder.WriteString("category=")
+	builder.WriteString(k.Category)
 	builder.WriteString(", ")
 	builder.WriteString("views=")
 	builder.WriteString(fmt.Sprintf("%v", k.Views))
@@ -243,20 +282,20 @@ func (k *Keep) String() string {
 	builder.WriteString("likes=")
 	builder.WriteString(fmt.Sprintf("%v", k.Likes))
 	builder.WriteString(", ")
+	builder.WriteString("summary=")
+	builder.WriteString(k.Summary)
+	builder.WriteString(", ")
 	builder.WriteString("extraData=")
 	builder.WriteString(fmt.Sprintf("%v", k.ExtraData))
 	builder.WriteString(", ")
-	builder.WriteString("category=")
-	builder.WriteString(k.Category)
+	builder.WriteString("content_vector=")
+	builder.WriteString(fmt.Sprintf("%v", k.ContentVector))
 	builder.WriteString(", ")
-	builder.WriteString("ownerId=")
-	builder.WriteString(k.OwnerId)
+	builder.WriteString("summary_vector=")
+	builder.WriteString(fmt.Sprintf("%v", k.SummaryVector))
 	builder.WriteString(", ")
-	builder.WriteString("createdAt=")
-	builder.WriteString(k.CreatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("updatedAt=")
-	builder.WriteString(k.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString("title_vector=")
+	builder.WriteString(fmt.Sprintf("%v", k.TitleVector))
 	builder.WriteByte(')')
 	return builder.String()
 }

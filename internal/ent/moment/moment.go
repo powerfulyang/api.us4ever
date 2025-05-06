@@ -14,24 +14,26 @@ const (
 	FieldID = "id"
 	// FieldContent holds the string denoting the content field in the database.
 	FieldContent = "content"
-	// FieldIsPublic holds the string denoting the ispublic field in the database.
-	FieldIsPublic = "isPublic"
-	// FieldTags holds the string denoting the tags field in the database.
-	FieldTags = "tags"
-	// FieldViews holds the string denoting the views field in the database.
-	FieldViews = "views"
-	// FieldLikes holds the string denoting the likes field in the database.
-	FieldLikes = "likes"
-	// FieldExtraData holds the string denoting the extradata field in the database.
-	FieldExtraData = "extraData"
 	// FieldCategory holds the string denoting the category field in the database.
 	FieldCategory = "category"
-	// FieldOwnerId holds the string denoting the ownerid field in the database.
-	FieldOwnerId = "ownerId"
 	// FieldCreatedAt holds the string denoting the createdat field in the database.
 	FieldCreatedAt = "createdAt"
 	// FieldUpdatedAt holds the string denoting the updatedat field in the database.
 	FieldUpdatedAt = "updatedAt"
+	// FieldOwnerId holds the string denoting the ownerid field in the database.
+	FieldOwnerId = "ownerId"
+	// FieldIsPublic holds the string denoting the ispublic field in the database.
+	FieldIsPublic = "isPublic"
+	// FieldLikes holds the string denoting the likes field in the database.
+	FieldLikes = "likes"
+	// FieldTags holds the string denoting the tags field in the database.
+	FieldTags = "tags"
+	// FieldViews holds the string denoting the views field in the database.
+	FieldViews = "views"
+	// FieldExtraData holds the string denoting the extradata field in the database.
+	FieldExtraData = "extraData"
+	// FieldContentVector holds the string denoting the content_vector field in the database.
+	FieldContentVector = "content_vector"
 	// EdgeMomentImages holds the string denoting the moment_images edge name in mutations.
 	EdgeMomentImages = "moment_images"
 	// EdgeMomentVideos holds the string denoting the moment_videos edge name in mutations.
@@ -67,15 +69,16 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldContent,
-	FieldIsPublic,
-	FieldTags,
-	FieldViews,
-	FieldLikes,
-	FieldExtraData,
 	FieldCategory,
-	FieldOwnerId,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldOwnerId,
+	FieldIsPublic,
+	FieldLikes,
+	FieldTags,
+	FieldViews,
+	FieldExtraData,
+	FieldContentVector,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -101,29 +104,9 @@ func ByContent(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldContent, opts...).ToFunc()
 }
 
-// ByIsPublic orders the results by the isPublic field.
-func ByIsPublic(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldIsPublic, opts...).ToFunc()
-}
-
-// ByViews orders the results by the views field.
-func ByViews(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldViews, opts...).ToFunc()
-}
-
-// ByLikes orders the results by the likes field.
-func ByLikes(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldLikes, opts...).ToFunc()
-}
-
 // ByCategory orders the results by the category field.
 func ByCategory(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCategory, opts...).ToFunc()
-}
-
-// ByOwnerId orders the results by the ownerId field.
-func ByOwnerId(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOwnerId, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the createdAt field.
@@ -134,6 +117,26 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updatedAt field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByOwnerId orders the results by the ownerId field.
+func ByOwnerId(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOwnerId, opts...).ToFunc()
+}
+
+// ByIsPublic orders the results by the isPublic field.
+func ByIsPublic(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsPublic, opts...).ToFunc()
+}
+
+// ByLikes orders the results by the likes field.
+func ByLikes(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLikes, opts...).ToFunc()
+}
+
+// ByViews orders the results by the views field.
+func ByViews(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldViews, opts...).ToFunc()
 }
 
 // ByMomentImagesCount orders the results by moment_images count.

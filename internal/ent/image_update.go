@@ -204,32 +204,6 @@ func (iu *ImageUpdate) AppendTags(jm json.RawMessage) *ImageUpdate {
 	return iu
 }
 
-// SetExtraData sets the "extraData" field.
-func (iu *ImageUpdate) SetExtraData(jm json.RawMessage) *ImageUpdate {
-	iu.mutation.SetExtraData(jm)
-	return iu
-}
-
-// AppendExtraData appends jm to the "extraData" field.
-func (iu *ImageUpdate) AppendExtraData(jm json.RawMessage) *ImageUpdate {
-	iu.mutation.AppendExtraData(jm)
-	return iu
-}
-
-// SetCategory sets the "category" field.
-func (iu *ImageUpdate) SetCategory(s string) *ImageUpdate {
-	iu.mutation.SetCategory(s)
-	return iu
-}
-
-// SetNillableCategory sets the "category" field if the given value is not nil.
-func (iu *ImageUpdate) SetNillableCategory(s *string) *ImageUpdate {
-	if s != nil {
-		iu.SetCategory(*s)
-	}
-	return iu
-}
-
 // SetThumbnail10x sets the "thumbnail_10x" field.
 func (iu *ImageUpdate) SetThumbnail10x(b []byte) *ImageUpdate {
 	iu.mutation.SetThumbnail10x(b)
@@ -316,26 +290,6 @@ func (iu *ImageUpdate) ClearOriginalID() *ImageUpdate {
 	return iu
 }
 
-// SetUploadedBy sets the "uploadedBy" field.
-func (iu *ImageUpdate) SetUploadedBy(s string) *ImageUpdate {
-	iu.mutation.SetUploadedBy(s)
-	return iu
-}
-
-// SetNillableUploadedBy sets the "uploadedBy" field if the given value is not nil.
-func (iu *ImageUpdate) SetNillableUploadedBy(s *string) *ImageUpdate {
-	if s != nil {
-		iu.SetUploadedBy(*s)
-	}
-	return iu
-}
-
-// ClearUploadedBy clears the value of the "uploadedBy" field.
-func (iu *ImageUpdate) ClearUploadedBy() *ImageUpdate {
-	iu.mutation.ClearUploadedBy()
-	return iu
-}
-
 // SetCreatedAt sets the "createdAt" field.
 func (iu *ImageUpdate) SetCreatedAt(t time.Time) *ImageUpdate {
 	iu.mutation.SetCreatedAt(t)
@@ -361,6 +315,70 @@ func (iu *ImageUpdate) SetNillableUpdatedAt(t *time.Time) *ImageUpdate {
 	if t != nil {
 		iu.SetUpdatedAt(*t)
 	}
+	return iu
+}
+
+// SetUploadedBy sets the "uploadedBy" field.
+func (iu *ImageUpdate) SetUploadedBy(s string) *ImageUpdate {
+	iu.mutation.SetUploadedBy(s)
+	return iu
+}
+
+// SetNillableUploadedBy sets the "uploadedBy" field if the given value is not nil.
+func (iu *ImageUpdate) SetNillableUploadedBy(s *string) *ImageUpdate {
+	if s != nil {
+		iu.SetUploadedBy(*s)
+	}
+	return iu
+}
+
+// ClearUploadedBy clears the value of the "uploadedBy" field.
+func (iu *ImageUpdate) ClearUploadedBy() *ImageUpdate {
+	iu.mutation.ClearUploadedBy()
+	return iu
+}
+
+// SetCategory sets the "category" field.
+func (iu *ImageUpdate) SetCategory(s string) *ImageUpdate {
+	iu.mutation.SetCategory(s)
+	return iu
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (iu *ImageUpdate) SetNillableCategory(s *string) *ImageUpdate {
+	if s != nil {
+		iu.SetCategory(*s)
+	}
+	return iu
+}
+
+// SetExtraData sets the "extraData" field.
+func (iu *ImageUpdate) SetExtraData(jm json.RawMessage) *ImageUpdate {
+	iu.mutation.SetExtraData(jm)
+	return iu
+}
+
+// AppendExtraData appends jm to the "extraData" field.
+func (iu *ImageUpdate) AppendExtraData(jm json.RawMessage) *ImageUpdate {
+	iu.mutation.AppendExtraData(jm)
+	return iu
+}
+
+// SetDescriptionVector sets the "description_vector" field.
+func (iu *ImageUpdate) SetDescriptionVector(jm json.RawMessage) *ImageUpdate {
+	iu.mutation.SetDescriptionVector(jm)
+	return iu
+}
+
+// AppendDescriptionVector appends jm to the "description_vector" field.
+func (iu *ImageUpdate) AppendDescriptionVector(jm json.RawMessage) *ImageUpdate {
+	iu.mutation.AppendDescriptionVector(jm)
+	return iu
+}
+
+// ClearDescriptionVector clears the value of the "description_vector" field.
+func (iu *ImageUpdate) ClearDescriptionVector() *ImageUpdate {
+	iu.mutation.ClearDescriptionVector()
 	return iu
 }
 
@@ -562,17 +580,6 @@ func (iu *ImageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			sqljson.Append(u, image.FieldTags, value)
 		})
 	}
-	if value, ok := iu.mutation.ExtraData(); ok {
-		_spec.SetField(image.FieldExtraData, field.TypeJSON, value)
-	}
-	if value, ok := iu.mutation.AppendedExtraData(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, image.FieldExtraData, value)
-		})
-	}
-	if value, ok := iu.mutation.Category(); ok {
-		_spec.SetField(image.FieldCategory, field.TypeString, value)
-	}
 	if value, ok := iu.mutation.Thumbnail10x(); ok {
 		_spec.SetField(image.FieldThumbnail10x, field.TypeBytes, value)
 	}
@@ -581,6 +588,28 @@ func (iu *ImageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := iu.mutation.UpdatedAt(); ok {
 		_spec.SetField(image.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := iu.mutation.Category(); ok {
+		_spec.SetField(image.FieldCategory, field.TypeString, value)
+	}
+	if value, ok := iu.mutation.ExtraData(); ok {
+		_spec.SetField(image.FieldExtraData, field.TypeJSON, value)
+	}
+	if value, ok := iu.mutation.AppendedExtraData(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, image.FieldExtraData, value)
+		})
+	}
+	if value, ok := iu.mutation.DescriptionVector(); ok {
+		_spec.SetField(image.FieldDescriptionVector, field.TypeJSON, value)
+	}
+	if value, ok := iu.mutation.AppendedDescriptionVector(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, image.FieldDescriptionVector, value)
+		})
+	}
+	if iu.mutation.DescriptionVectorCleared() {
+		_spec.ClearField(image.FieldDescriptionVector, field.TypeJSON)
 	}
 	if iu.mutation.CompressedCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -963,32 +992,6 @@ func (iuo *ImageUpdateOne) AppendTags(jm json.RawMessage) *ImageUpdateOne {
 	return iuo
 }
 
-// SetExtraData sets the "extraData" field.
-func (iuo *ImageUpdateOne) SetExtraData(jm json.RawMessage) *ImageUpdateOne {
-	iuo.mutation.SetExtraData(jm)
-	return iuo
-}
-
-// AppendExtraData appends jm to the "extraData" field.
-func (iuo *ImageUpdateOne) AppendExtraData(jm json.RawMessage) *ImageUpdateOne {
-	iuo.mutation.AppendExtraData(jm)
-	return iuo
-}
-
-// SetCategory sets the "category" field.
-func (iuo *ImageUpdateOne) SetCategory(s string) *ImageUpdateOne {
-	iuo.mutation.SetCategory(s)
-	return iuo
-}
-
-// SetNillableCategory sets the "category" field if the given value is not nil.
-func (iuo *ImageUpdateOne) SetNillableCategory(s *string) *ImageUpdateOne {
-	if s != nil {
-		iuo.SetCategory(*s)
-	}
-	return iuo
-}
-
 // SetThumbnail10x sets the "thumbnail_10x" field.
 func (iuo *ImageUpdateOne) SetThumbnail10x(b []byte) *ImageUpdateOne {
 	iuo.mutation.SetThumbnail10x(b)
@@ -1075,26 +1078,6 @@ func (iuo *ImageUpdateOne) ClearOriginalID() *ImageUpdateOne {
 	return iuo
 }
 
-// SetUploadedBy sets the "uploadedBy" field.
-func (iuo *ImageUpdateOne) SetUploadedBy(s string) *ImageUpdateOne {
-	iuo.mutation.SetUploadedBy(s)
-	return iuo
-}
-
-// SetNillableUploadedBy sets the "uploadedBy" field if the given value is not nil.
-func (iuo *ImageUpdateOne) SetNillableUploadedBy(s *string) *ImageUpdateOne {
-	if s != nil {
-		iuo.SetUploadedBy(*s)
-	}
-	return iuo
-}
-
-// ClearUploadedBy clears the value of the "uploadedBy" field.
-func (iuo *ImageUpdateOne) ClearUploadedBy() *ImageUpdateOne {
-	iuo.mutation.ClearUploadedBy()
-	return iuo
-}
-
 // SetCreatedAt sets the "createdAt" field.
 func (iuo *ImageUpdateOne) SetCreatedAt(t time.Time) *ImageUpdateOne {
 	iuo.mutation.SetCreatedAt(t)
@@ -1120,6 +1103,70 @@ func (iuo *ImageUpdateOne) SetNillableUpdatedAt(t *time.Time) *ImageUpdateOne {
 	if t != nil {
 		iuo.SetUpdatedAt(*t)
 	}
+	return iuo
+}
+
+// SetUploadedBy sets the "uploadedBy" field.
+func (iuo *ImageUpdateOne) SetUploadedBy(s string) *ImageUpdateOne {
+	iuo.mutation.SetUploadedBy(s)
+	return iuo
+}
+
+// SetNillableUploadedBy sets the "uploadedBy" field if the given value is not nil.
+func (iuo *ImageUpdateOne) SetNillableUploadedBy(s *string) *ImageUpdateOne {
+	if s != nil {
+		iuo.SetUploadedBy(*s)
+	}
+	return iuo
+}
+
+// ClearUploadedBy clears the value of the "uploadedBy" field.
+func (iuo *ImageUpdateOne) ClearUploadedBy() *ImageUpdateOne {
+	iuo.mutation.ClearUploadedBy()
+	return iuo
+}
+
+// SetCategory sets the "category" field.
+func (iuo *ImageUpdateOne) SetCategory(s string) *ImageUpdateOne {
+	iuo.mutation.SetCategory(s)
+	return iuo
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (iuo *ImageUpdateOne) SetNillableCategory(s *string) *ImageUpdateOne {
+	if s != nil {
+		iuo.SetCategory(*s)
+	}
+	return iuo
+}
+
+// SetExtraData sets the "extraData" field.
+func (iuo *ImageUpdateOne) SetExtraData(jm json.RawMessage) *ImageUpdateOne {
+	iuo.mutation.SetExtraData(jm)
+	return iuo
+}
+
+// AppendExtraData appends jm to the "extraData" field.
+func (iuo *ImageUpdateOne) AppendExtraData(jm json.RawMessage) *ImageUpdateOne {
+	iuo.mutation.AppendExtraData(jm)
+	return iuo
+}
+
+// SetDescriptionVector sets the "description_vector" field.
+func (iuo *ImageUpdateOne) SetDescriptionVector(jm json.RawMessage) *ImageUpdateOne {
+	iuo.mutation.SetDescriptionVector(jm)
+	return iuo
+}
+
+// AppendDescriptionVector appends jm to the "description_vector" field.
+func (iuo *ImageUpdateOne) AppendDescriptionVector(jm json.RawMessage) *ImageUpdateOne {
+	iuo.mutation.AppendDescriptionVector(jm)
+	return iuo
+}
+
+// ClearDescriptionVector clears the value of the "description_vector" field.
+func (iuo *ImageUpdateOne) ClearDescriptionVector() *ImageUpdateOne {
+	iuo.mutation.ClearDescriptionVector()
 	return iuo
 }
 
@@ -1351,17 +1398,6 @@ func (iuo *ImageUpdateOne) sqlSave(ctx context.Context) (_node *Image, err error
 			sqljson.Append(u, image.FieldTags, value)
 		})
 	}
-	if value, ok := iuo.mutation.ExtraData(); ok {
-		_spec.SetField(image.FieldExtraData, field.TypeJSON, value)
-	}
-	if value, ok := iuo.mutation.AppendedExtraData(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, image.FieldExtraData, value)
-		})
-	}
-	if value, ok := iuo.mutation.Category(); ok {
-		_spec.SetField(image.FieldCategory, field.TypeString, value)
-	}
 	if value, ok := iuo.mutation.Thumbnail10x(); ok {
 		_spec.SetField(image.FieldThumbnail10x, field.TypeBytes, value)
 	}
@@ -1370,6 +1406,28 @@ func (iuo *ImageUpdateOne) sqlSave(ctx context.Context) (_node *Image, err error
 	}
 	if value, ok := iuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(image.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := iuo.mutation.Category(); ok {
+		_spec.SetField(image.FieldCategory, field.TypeString, value)
+	}
+	if value, ok := iuo.mutation.ExtraData(); ok {
+		_spec.SetField(image.FieldExtraData, field.TypeJSON, value)
+	}
+	if value, ok := iuo.mutation.AppendedExtraData(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, image.FieldExtraData, value)
+		})
+	}
+	if value, ok := iuo.mutation.DescriptionVector(); ok {
+		_spec.SetField(image.FieldDescriptionVector, field.TypeJSON, value)
+	}
+	if value, ok := iuo.mutation.AppendedDescriptionVector(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, image.FieldDescriptionVector, value)
+		})
+	}
+	if iuo.mutation.DescriptionVectorCleared() {
+		_spec.ClearField(image.FieldDescriptionVector, field.TypeJSON)
 	}
 	if iuo.mutation.CompressedCleared() {
 		edge := &sqlgraph.EdgeSpec{

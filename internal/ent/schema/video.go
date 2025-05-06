@@ -16,7 +16,7 @@ type Video struct {
 }
 
 func (Video) Fields() []ent.Field {
-	return []ent.Field{field.String("id").StorageKey("id"), field.String("name").StorageKey("name"), field.String("type").StorageKey("type"), field.Int("size").StorageKey("size"), field.String("hash").StorageKey("hash"), field.Int32("duration").StorageKey("duration"), field.Bool("isPublic").StorageKey("isPublic"), field.JSON("extraData", json.RawMessage{}).StorageKey("extraData"), field.String("category").StorageKey("category"), field.String("posterId").Optional().StorageKey("posterId"), field.String("fileId").Optional().StorageKey("fileId"), field.String("uploadedBy").Optional().StorageKey("uploadedBy"), field.Time("createdAt").StorageKey("createdAt"), field.Time("updatedAt").StorageKey("updatedAt")}
+	return []ent.Field{field.String("id").StorageKey("id"), field.String("hash").StorageKey("hash"), field.Int("size").StorageKey("size"), field.Bool("isPublic").StorageKey("isPublic"), field.String("posterId").Optional().StorageKey("posterId"), field.String("fileId").Optional().StorageKey("fileId"), field.String("uploadedBy").Optional().StorageKey("uploadedBy"), field.Time("createdAt").StorageKey("createdAt"), field.Time("updatedAt").StorageKey("updatedAt"), field.Int32("duration").StorageKey("duration"), field.String("name").StorageKey("name"), field.String("type").StorageKey("type"), field.JSON("extraData", json.RawMessage{}).StorageKey("extraData"), field.String("category").StorageKey("category")}
 
 }
 func (Video) Edges() []ent.Edge {

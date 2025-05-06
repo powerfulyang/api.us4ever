@@ -16,26 +16,26 @@ const (
 	FieldTitle = "title"
 	// FieldContent holds the string denoting the content field in the database.
 	FieldContent = "content"
-	// FieldSummary holds the string denoting the summary field in the database.
-	FieldSummary = "summary"
 	// FieldIsPublic holds the string denoting the ispublic field in the database.
 	FieldIsPublic = "isPublic"
 	// FieldTags holds the string denoting the tags field in the database.
 	FieldTags = "tags"
-	// FieldViews holds the string denoting the views field in the database.
-	FieldViews = "views"
-	// FieldLikes holds the string denoting the likes field in the database.
-	FieldLikes = "likes"
-	// FieldExtraData holds the string denoting the extradata field in the database.
-	FieldExtraData = "extraData"
-	// FieldCategory holds the string denoting the category field in the database.
-	FieldCategory = "category"
-	// FieldOwnerId holds the string denoting the ownerid field in the database.
-	FieldOwnerId = "ownerId"
 	// FieldCreatedAt holds the string denoting the createdat field in the database.
 	FieldCreatedAt = "createdAt"
 	// FieldUpdatedAt holds the string denoting the updatedat field in the database.
 	FieldUpdatedAt = "updatedAt"
+	// FieldOwnerId holds the string denoting the ownerid field in the database.
+	FieldOwnerId = "ownerId"
+	// FieldViews holds the string denoting the views field in the database.
+	FieldViews = "views"
+	// FieldLikes holds the string denoting the likes field in the database.
+	FieldLikes = "likes"
+	// FieldSummary holds the string denoting the summary field in the database.
+	FieldSummary = "summary"
+	// FieldExtraData holds the string denoting the extradata field in the database.
+	FieldExtraData = "extraData"
+	// FieldCategory holds the string denoting the category field in the database.
+	FieldCategory = "category"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// Table holds the table name of the mindmap in the database.
@@ -54,16 +54,16 @@ var Columns = []string{
 	FieldID,
 	FieldTitle,
 	FieldContent,
-	FieldSummary,
 	FieldIsPublic,
 	FieldTags,
-	FieldViews,
-	FieldLikes,
-	FieldExtraData,
-	FieldCategory,
-	FieldOwnerId,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldOwnerId,
+	FieldViews,
+	FieldLikes,
+	FieldSummary,
+	FieldExtraData,
+	FieldCategory,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -89,14 +89,24 @@ func ByTitle(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTitle, opts...).ToFunc()
 }
 
-// BySummary orders the results by the summary field.
-func BySummary(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSummary, opts...).ToFunc()
-}
-
 // ByIsPublic orders the results by the isPublic field.
 func ByIsPublic(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsPublic, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the createdAt field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updatedAt field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByOwnerId orders the results by the ownerId field.
+func ByOwnerId(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOwnerId, opts...).ToFunc()
 }
 
 // ByViews orders the results by the views field.
@@ -109,24 +119,14 @@ func ByLikes(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLikes, opts...).ToFunc()
 }
 
+// BySummary orders the results by the summary field.
+func BySummary(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSummary, opts...).ToFunc()
+}
+
 // ByCategory orders the results by the category field.
 func ByCategory(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCategory, opts...).ToFunc()
-}
-
-// ByOwnerId orders the results by the ownerId field.
-func ByOwnerId(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOwnerId, opts...).ToFunc()
-}
-
-// ByCreatedAt orders the results by the createdAt field.
-func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
-}
-
-// ByUpdatedAt orders the results by the updatedAt field.
-func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

@@ -28,8 +28,6 @@ type User struct {
 	Bio string `json:"bio,omitempty"`
 	// IsAdmin holds the value of the "isAdmin" field.
 	IsAdmin bool `json:"isAdmin,omitempty"`
-	// LastLoginAt holds the value of the "lastLoginAt" field.
-	LastLoginAt time.Time `json:"lastLoginAt,omitempty"`
 	// LastLoginIp holds the value of the "lastLoginIp" field.
 	LastLoginIp string `json:"lastLoginIp,omitempty"`
 	// GroupId holds the value of the "groupId" field.
@@ -38,6 +36,8 @@ type User struct {
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 	// UpdatedAt holds the value of the "updatedAt" field.
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
+	// LastLoginAt holds the value of the "lastLoginAt" field.
+	LastLoginAt time.Time `json:"lastLoginAt,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
@@ -161,7 +161,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case user.FieldID, user.FieldEmail, user.FieldNickname, user.FieldAvatar, user.FieldBio, user.FieldLastLoginIp, user.FieldGroupId:
 			values[i] = new(sql.NullString)
-		case user.FieldLastLoginAt, user.FieldCreatedAt, user.FieldUpdatedAt:
+		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldLastLoginAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -214,12 +214,6 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.IsAdmin = value.Bool
 			}
-		case user.FieldLastLoginAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field lastLoginAt", values[i])
-			} else if value.Valid {
-				u.LastLoginAt = value.Time
-			}
 		case user.FieldLastLoginIp:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field lastLoginIp", values[i])
@@ -243,6 +237,12 @@ func (u *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updatedAt", values[i])
 			} else if value.Valid {
 				u.UpdatedAt = value.Time
+			}
+		case user.FieldLastLoginAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field lastLoginAt", values[i])
+			} else if value.Valid {
+				u.LastLoginAt = value.Time
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
@@ -340,9 +340,6 @@ func (u *User) String() string {
 	builder.WriteString("isAdmin=")
 	builder.WriteString(fmt.Sprintf("%v", u.IsAdmin))
 	builder.WriteString(", ")
-	builder.WriteString("lastLoginAt=")
-	builder.WriteString(u.LastLoginAt.Format(time.ANSIC))
-	builder.WriteString(", ")
 	builder.WriteString("lastLoginIp=")
 	builder.WriteString(u.LastLoginIp)
 	builder.WriteString(", ")
@@ -354,6 +351,9 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updatedAt=")
 	builder.WriteString(u.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("lastLoginAt=")
+	builder.WriteString(u.LastLoginAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -57,20 +57,6 @@ func (mu *MindmapUpdate) AppendContent(jm json.RawMessage) *MindmapUpdate {
 	return mu
 }
 
-// SetSummary sets the "summary" field.
-func (mu *MindmapUpdate) SetSummary(s string) *MindmapUpdate {
-	mu.mutation.SetSummary(s)
-	return mu
-}
-
-// SetNillableSummary sets the "summary" field if the given value is not nil.
-func (mu *MindmapUpdate) SetNillableSummary(s *string) *MindmapUpdate {
-	if s != nil {
-		mu.SetSummary(*s)
-	}
-	return mu
-}
-
 // SetIsPublic sets the "isPublic" field.
 func (mu *MindmapUpdate) SetIsPublic(b bool) *MindmapUpdate {
 	mu.mutation.SetIsPublic(b)
@@ -94,6 +80,54 @@ func (mu *MindmapUpdate) SetTags(jm json.RawMessage) *MindmapUpdate {
 // AppendTags appends jm to the "tags" field.
 func (mu *MindmapUpdate) AppendTags(jm json.RawMessage) *MindmapUpdate {
 	mu.mutation.AppendTags(jm)
+	return mu
+}
+
+// SetCreatedAt sets the "createdAt" field.
+func (mu *MindmapUpdate) SetCreatedAt(t time.Time) *MindmapUpdate {
+	mu.mutation.SetCreatedAt(t)
+	return mu
+}
+
+// SetNillableCreatedAt sets the "createdAt" field if the given value is not nil.
+func (mu *MindmapUpdate) SetNillableCreatedAt(t *time.Time) *MindmapUpdate {
+	if t != nil {
+		mu.SetCreatedAt(*t)
+	}
+	return mu
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (mu *MindmapUpdate) SetUpdatedAt(t time.Time) *MindmapUpdate {
+	mu.mutation.SetUpdatedAt(t)
+	return mu
+}
+
+// SetNillableUpdatedAt sets the "updatedAt" field if the given value is not nil.
+func (mu *MindmapUpdate) SetNillableUpdatedAt(t *time.Time) *MindmapUpdate {
+	if t != nil {
+		mu.SetUpdatedAt(*t)
+	}
+	return mu
+}
+
+// SetOwnerId sets the "ownerId" field.
+func (mu *MindmapUpdate) SetOwnerId(s string) *MindmapUpdate {
+	mu.mutation.SetOwnerId(s)
+	return mu
+}
+
+// SetNillableOwnerId sets the "ownerId" field if the given value is not nil.
+func (mu *MindmapUpdate) SetNillableOwnerId(s *string) *MindmapUpdate {
+	if s != nil {
+		mu.SetOwnerId(*s)
+	}
+	return mu
+}
+
+// ClearOwnerId clears the value of the "ownerId" field.
+func (mu *MindmapUpdate) ClearOwnerId() *MindmapUpdate {
+	mu.mutation.ClearOwnerId()
 	return mu
 }
 
@@ -139,6 +173,20 @@ func (mu *MindmapUpdate) AddLikes(i int32) *MindmapUpdate {
 	return mu
 }
 
+// SetSummary sets the "summary" field.
+func (mu *MindmapUpdate) SetSummary(s string) *MindmapUpdate {
+	mu.mutation.SetSummary(s)
+	return mu
+}
+
+// SetNillableSummary sets the "summary" field if the given value is not nil.
+func (mu *MindmapUpdate) SetNillableSummary(s *string) *MindmapUpdate {
+	if s != nil {
+		mu.SetSummary(*s)
+	}
+	return mu
+}
+
 // SetExtraData sets the "extraData" field.
 func (mu *MindmapUpdate) SetExtraData(jm json.RawMessage) *MindmapUpdate {
 	mu.mutation.SetExtraData(jm)
@@ -161,54 +209,6 @@ func (mu *MindmapUpdate) SetCategory(s string) *MindmapUpdate {
 func (mu *MindmapUpdate) SetNillableCategory(s *string) *MindmapUpdate {
 	if s != nil {
 		mu.SetCategory(*s)
-	}
-	return mu
-}
-
-// SetOwnerId sets the "ownerId" field.
-func (mu *MindmapUpdate) SetOwnerId(s string) *MindmapUpdate {
-	mu.mutation.SetOwnerId(s)
-	return mu
-}
-
-// SetNillableOwnerId sets the "ownerId" field if the given value is not nil.
-func (mu *MindmapUpdate) SetNillableOwnerId(s *string) *MindmapUpdate {
-	if s != nil {
-		mu.SetOwnerId(*s)
-	}
-	return mu
-}
-
-// ClearOwnerId clears the value of the "ownerId" field.
-func (mu *MindmapUpdate) ClearOwnerId() *MindmapUpdate {
-	mu.mutation.ClearOwnerId()
-	return mu
-}
-
-// SetCreatedAt sets the "createdAt" field.
-func (mu *MindmapUpdate) SetCreatedAt(t time.Time) *MindmapUpdate {
-	mu.mutation.SetCreatedAt(t)
-	return mu
-}
-
-// SetNillableCreatedAt sets the "createdAt" field if the given value is not nil.
-func (mu *MindmapUpdate) SetNillableCreatedAt(t *time.Time) *MindmapUpdate {
-	if t != nil {
-		mu.SetCreatedAt(*t)
-	}
-	return mu
-}
-
-// SetUpdatedAt sets the "updatedAt" field.
-func (mu *MindmapUpdate) SetUpdatedAt(t time.Time) *MindmapUpdate {
-	mu.mutation.SetUpdatedAt(t)
-	return mu
-}
-
-// SetNillableUpdatedAt sets the "updatedAt" field if the given value is not nil.
-func (mu *MindmapUpdate) SetNillableUpdatedAt(t *time.Time) *MindmapUpdate {
-	if t != nil {
-		mu.SetUpdatedAt(*t)
 	}
 	return mu
 }
@@ -290,9 +290,6 @@ func (mu *MindmapUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			sqljson.Append(u, mindmap.FieldContent, value)
 		})
 	}
-	if value, ok := mu.mutation.Summary(); ok {
-		_spec.SetField(mindmap.FieldSummary, field.TypeString, value)
-	}
 	if value, ok := mu.mutation.IsPublic(); ok {
 		_spec.SetField(mindmap.FieldIsPublic, field.TypeBool, value)
 	}
@@ -303,6 +300,12 @@ func (mu *MindmapUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, mindmap.FieldTags, value)
 		})
+	}
+	if value, ok := mu.mutation.CreatedAt(); ok {
+		_spec.SetField(mindmap.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := mu.mutation.UpdatedAt(); ok {
+		_spec.SetField(mindmap.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := mu.mutation.Views(); ok {
 		_spec.SetField(mindmap.FieldViews, field.TypeInt32, value)
@@ -316,6 +319,9 @@ func (mu *MindmapUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := mu.mutation.AddedLikes(); ok {
 		_spec.AddField(mindmap.FieldLikes, field.TypeInt32, value)
 	}
+	if value, ok := mu.mutation.Summary(); ok {
+		_spec.SetField(mindmap.FieldSummary, field.TypeString, value)
+	}
 	if value, ok := mu.mutation.ExtraData(); ok {
 		_spec.SetField(mindmap.FieldExtraData, field.TypeJSON, value)
 	}
@@ -326,12 +332,6 @@ func (mu *MindmapUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := mu.mutation.Category(); ok {
 		_spec.SetField(mindmap.FieldCategory, field.TypeString, value)
-	}
-	if value, ok := mu.mutation.CreatedAt(); ok {
-		_spec.SetField(mindmap.FieldCreatedAt, field.TypeTime, value)
-	}
-	if value, ok := mu.mutation.UpdatedAt(); ok {
-		_spec.SetField(mindmap.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if mu.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -408,20 +408,6 @@ func (muo *MindmapUpdateOne) AppendContent(jm json.RawMessage) *MindmapUpdateOne
 	return muo
 }
 
-// SetSummary sets the "summary" field.
-func (muo *MindmapUpdateOne) SetSummary(s string) *MindmapUpdateOne {
-	muo.mutation.SetSummary(s)
-	return muo
-}
-
-// SetNillableSummary sets the "summary" field if the given value is not nil.
-func (muo *MindmapUpdateOne) SetNillableSummary(s *string) *MindmapUpdateOne {
-	if s != nil {
-		muo.SetSummary(*s)
-	}
-	return muo
-}
-
 // SetIsPublic sets the "isPublic" field.
 func (muo *MindmapUpdateOne) SetIsPublic(b bool) *MindmapUpdateOne {
 	muo.mutation.SetIsPublic(b)
@@ -445,6 +431,54 @@ func (muo *MindmapUpdateOne) SetTags(jm json.RawMessage) *MindmapUpdateOne {
 // AppendTags appends jm to the "tags" field.
 func (muo *MindmapUpdateOne) AppendTags(jm json.RawMessage) *MindmapUpdateOne {
 	muo.mutation.AppendTags(jm)
+	return muo
+}
+
+// SetCreatedAt sets the "createdAt" field.
+func (muo *MindmapUpdateOne) SetCreatedAt(t time.Time) *MindmapUpdateOne {
+	muo.mutation.SetCreatedAt(t)
+	return muo
+}
+
+// SetNillableCreatedAt sets the "createdAt" field if the given value is not nil.
+func (muo *MindmapUpdateOne) SetNillableCreatedAt(t *time.Time) *MindmapUpdateOne {
+	if t != nil {
+		muo.SetCreatedAt(*t)
+	}
+	return muo
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (muo *MindmapUpdateOne) SetUpdatedAt(t time.Time) *MindmapUpdateOne {
+	muo.mutation.SetUpdatedAt(t)
+	return muo
+}
+
+// SetNillableUpdatedAt sets the "updatedAt" field if the given value is not nil.
+func (muo *MindmapUpdateOne) SetNillableUpdatedAt(t *time.Time) *MindmapUpdateOne {
+	if t != nil {
+		muo.SetUpdatedAt(*t)
+	}
+	return muo
+}
+
+// SetOwnerId sets the "ownerId" field.
+func (muo *MindmapUpdateOne) SetOwnerId(s string) *MindmapUpdateOne {
+	muo.mutation.SetOwnerId(s)
+	return muo
+}
+
+// SetNillableOwnerId sets the "ownerId" field if the given value is not nil.
+func (muo *MindmapUpdateOne) SetNillableOwnerId(s *string) *MindmapUpdateOne {
+	if s != nil {
+		muo.SetOwnerId(*s)
+	}
+	return muo
+}
+
+// ClearOwnerId clears the value of the "ownerId" field.
+func (muo *MindmapUpdateOne) ClearOwnerId() *MindmapUpdateOne {
+	muo.mutation.ClearOwnerId()
 	return muo
 }
 
@@ -490,6 +524,20 @@ func (muo *MindmapUpdateOne) AddLikes(i int32) *MindmapUpdateOne {
 	return muo
 }
 
+// SetSummary sets the "summary" field.
+func (muo *MindmapUpdateOne) SetSummary(s string) *MindmapUpdateOne {
+	muo.mutation.SetSummary(s)
+	return muo
+}
+
+// SetNillableSummary sets the "summary" field if the given value is not nil.
+func (muo *MindmapUpdateOne) SetNillableSummary(s *string) *MindmapUpdateOne {
+	if s != nil {
+		muo.SetSummary(*s)
+	}
+	return muo
+}
+
 // SetExtraData sets the "extraData" field.
 func (muo *MindmapUpdateOne) SetExtraData(jm json.RawMessage) *MindmapUpdateOne {
 	muo.mutation.SetExtraData(jm)
@@ -512,54 +560,6 @@ func (muo *MindmapUpdateOne) SetCategory(s string) *MindmapUpdateOne {
 func (muo *MindmapUpdateOne) SetNillableCategory(s *string) *MindmapUpdateOne {
 	if s != nil {
 		muo.SetCategory(*s)
-	}
-	return muo
-}
-
-// SetOwnerId sets the "ownerId" field.
-func (muo *MindmapUpdateOne) SetOwnerId(s string) *MindmapUpdateOne {
-	muo.mutation.SetOwnerId(s)
-	return muo
-}
-
-// SetNillableOwnerId sets the "ownerId" field if the given value is not nil.
-func (muo *MindmapUpdateOne) SetNillableOwnerId(s *string) *MindmapUpdateOne {
-	if s != nil {
-		muo.SetOwnerId(*s)
-	}
-	return muo
-}
-
-// ClearOwnerId clears the value of the "ownerId" field.
-func (muo *MindmapUpdateOne) ClearOwnerId() *MindmapUpdateOne {
-	muo.mutation.ClearOwnerId()
-	return muo
-}
-
-// SetCreatedAt sets the "createdAt" field.
-func (muo *MindmapUpdateOne) SetCreatedAt(t time.Time) *MindmapUpdateOne {
-	muo.mutation.SetCreatedAt(t)
-	return muo
-}
-
-// SetNillableCreatedAt sets the "createdAt" field if the given value is not nil.
-func (muo *MindmapUpdateOne) SetNillableCreatedAt(t *time.Time) *MindmapUpdateOne {
-	if t != nil {
-		muo.SetCreatedAt(*t)
-	}
-	return muo
-}
-
-// SetUpdatedAt sets the "updatedAt" field.
-func (muo *MindmapUpdateOne) SetUpdatedAt(t time.Time) *MindmapUpdateOne {
-	muo.mutation.SetUpdatedAt(t)
-	return muo
-}
-
-// SetNillableUpdatedAt sets the "updatedAt" field if the given value is not nil.
-func (muo *MindmapUpdateOne) SetNillableUpdatedAt(t *time.Time) *MindmapUpdateOne {
-	if t != nil {
-		muo.SetUpdatedAt(*t)
 	}
 	return muo
 }
@@ -671,9 +671,6 @@ func (muo *MindmapUpdateOne) sqlSave(ctx context.Context) (_node *Mindmap, err e
 			sqljson.Append(u, mindmap.FieldContent, value)
 		})
 	}
-	if value, ok := muo.mutation.Summary(); ok {
-		_spec.SetField(mindmap.FieldSummary, field.TypeString, value)
-	}
 	if value, ok := muo.mutation.IsPublic(); ok {
 		_spec.SetField(mindmap.FieldIsPublic, field.TypeBool, value)
 	}
@@ -684,6 +681,12 @@ func (muo *MindmapUpdateOne) sqlSave(ctx context.Context) (_node *Mindmap, err e
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, mindmap.FieldTags, value)
 		})
+	}
+	if value, ok := muo.mutation.CreatedAt(); ok {
+		_spec.SetField(mindmap.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := muo.mutation.UpdatedAt(); ok {
+		_spec.SetField(mindmap.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if value, ok := muo.mutation.Views(); ok {
 		_spec.SetField(mindmap.FieldViews, field.TypeInt32, value)
@@ -697,6 +700,9 @@ func (muo *MindmapUpdateOne) sqlSave(ctx context.Context) (_node *Mindmap, err e
 	if value, ok := muo.mutation.AddedLikes(); ok {
 		_spec.AddField(mindmap.FieldLikes, field.TypeInt32, value)
 	}
+	if value, ok := muo.mutation.Summary(); ok {
+		_spec.SetField(mindmap.FieldSummary, field.TypeString, value)
+	}
 	if value, ok := muo.mutation.ExtraData(); ok {
 		_spec.SetField(mindmap.FieldExtraData, field.TypeJSON, value)
 	}
@@ -707,12 +713,6 @@ func (muo *MindmapUpdateOne) sqlSave(ctx context.Context) (_node *Mindmap, err e
 	}
 	if value, ok := muo.mutation.Category(); ok {
 		_spec.SetField(mindmap.FieldCategory, field.TypeString, value)
-	}
-	if value, ok := muo.mutation.CreatedAt(); ok {
-		_spec.SetField(mindmap.FieldCreatedAt, field.TypeTime, value)
-	}
-	if value, ok := muo.mutation.UpdatedAt(); ok {
-		_spec.SetField(mindmap.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if muo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -47,6 +47,68 @@ func (mu *MomentUpdate) SetNillableContent(s *string) *MomentUpdate {
 	return mu
 }
 
+// SetCategory sets the "category" field.
+func (mu *MomentUpdate) SetCategory(s string) *MomentUpdate {
+	mu.mutation.SetCategory(s)
+	return mu
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (mu *MomentUpdate) SetNillableCategory(s *string) *MomentUpdate {
+	if s != nil {
+		mu.SetCategory(*s)
+	}
+	return mu
+}
+
+// SetCreatedAt sets the "createdAt" field.
+func (mu *MomentUpdate) SetCreatedAt(t time.Time) *MomentUpdate {
+	mu.mutation.SetCreatedAt(t)
+	return mu
+}
+
+// SetNillableCreatedAt sets the "createdAt" field if the given value is not nil.
+func (mu *MomentUpdate) SetNillableCreatedAt(t *time.Time) *MomentUpdate {
+	if t != nil {
+		mu.SetCreatedAt(*t)
+	}
+	return mu
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (mu *MomentUpdate) SetUpdatedAt(t time.Time) *MomentUpdate {
+	mu.mutation.SetUpdatedAt(t)
+	return mu
+}
+
+// SetNillableUpdatedAt sets the "updatedAt" field if the given value is not nil.
+func (mu *MomentUpdate) SetNillableUpdatedAt(t *time.Time) *MomentUpdate {
+	if t != nil {
+		mu.SetUpdatedAt(*t)
+	}
+	return mu
+}
+
+// SetOwnerId sets the "ownerId" field.
+func (mu *MomentUpdate) SetOwnerId(s string) *MomentUpdate {
+	mu.mutation.SetOwnerId(s)
+	return mu
+}
+
+// SetNillableOwnerId sets the "ownerId" field if the given value is not nil.
+func (mu *MomentUpdate) SetNillableOwnerId(s *string) *MomentUpdate {
+	if s != nil {
+		mu.SetOwnerId(*s)
+	}
+	return mu
+}
+
+// ClearOwnerId clears the value of the "ownerId" field.
+func (mu *MomentUpdate) ClearOwnerId() *MomentUpdate {
+	mu.mutation.ClearOwnerId()
+	return mu
+}
+
 // SetIsPublic sets the "isPublic" field.
 func (mu *MomentUpdate) SetIsPublic(b bool) *MomentUpdate {
 	mu.mutation.SetIsPublic(b)
@@ -58,6 +120,27 @@ func (mu *MomentUpdate) SetNillableIsPublic(b *bool) *MomentUpdate {
 	if b != nil {
 		mu.SetIsPublic(*b)
 	}
+	return mu
+}
+
+// SetLikes sets the "likes" field.
+func (mu *MomentUpdate) SetLikes(i int32) *MomentUpdate {
+	mu.mutation.ResetLikes()
+	mu.mutation.SetLikes(i)
+	return mu
+}
+
+// SetNillableLikes sets the "likes" field if the given value is not nil.
+func (mu *MomentUpdate) SetNillableLikes(i *int32) *MomentUpdate {
+	if i != nil {
+		mu.SetLikes(*i)
+	}
+	return mu
+}
+
+// AddLikes adds i to the "likes" field.
+func (mu *MomentUpdate) AddLikes(i int32) *MomentUpdate {
+	mu.mutation.AddLikes(i)
 	return mu
 }
 
@@ -94,27 +177,6 @@ func (mu *MomentUpdate) AddViews(i int32) *MomentUpdate {
 	return mu
 }
 
-// SetLikes sets the "likes" field.
-func (mu *MomentUpdate) SetLikes(i int32) *MomentUpdate {
-	mu.mutation.ResetLikes()
-	mu.mutation.SetLikes(i)
-	return mu
-}
-
-// SetNillableLikes sets the "likes" field if the given value is not nil.
-func (mu *MomentUpdate) SetNillableLikes(i *int32) *MomentUpdate {
-	if i != nil {
-		mu.SetLikes(*i)
-	}
-	return mu
-}
-
-// AddLikes adds i to the "likes" field.
-func (mu *MomentUpdate) AddLikes(i int32) *MomentUpdate {
-	mu.mutation.AddLikes(i)
-	return mu
-}
-
 // SetExtraData sets the "extraData" field.
 func (mu *MomentUpdate) SetExtraData(jm json.RawMessage) *MomentUpdate {
 	mu.mutation.SetExtraData(jm)
@@ -127,65 +189,21 @@ func (mu *MomentUpdate) AppendExtraData(jm json.RawMessage) *MomentUpdate {
 	return mu
 }
 
-// SetCategory sets the "category" field.
-func (mu *MomentUpdate) SetCategory(s string) *MomentUpdate {
-	mu.mutation.SetCategory(s)
+// SetContentVector sets the "content_vector" field.
+func (mu *MomentUpdate) SetContentVector(jm json.RawMessage) *MomentUpdate {
+	mu.mutation.SetContentVector(jm)
 	return mu
 }
 
-// SetNillableCategory sets the "category" field if the given value is not nil.
-func (mu *MomentUpdate) SetNillableCategory(s *string) *MomentUpdate {
-	if s != nil {
-		mu.SetCategory(*s)
-	}
+// AppendContentVector appends jm to the "content_vector" field.
+func (mu *MomentUpdate) AppendContentVector(jm json.RawMessage) *MomentUpdate {
+	mu.mutation.AppendContentVector(jm)
 	return mu
 }
 
-// SetOwnerId sets the "ownerId" field.
-func (mu *MomentUpdate) SetOwnerId(s string) *MomentUpdate {
-	mu.mutation.SetOwnerId(s)
-	return mu
-}
-
-// SetNillableOwnerId sets the "ownerId" field if the given value is not nil.
-func (mu *MomentUpdate) SetNillableOwnerId(s *string) *MomentUpdate {
-	if s != nil {
-		mu.SetOwnerId(*s)
-	}
-	return mu
-}
-
-// ClearOwnerId clears the value of the "ownerId" field.
-func (mu *MomentUpdate) ClearOwnerId() *MomentUpdate {
-	mu.mutation.ClearOwnerId()
-	return mu
-}
-
-// SetCreatedAt sets the "createdAt" field.
-func (mu *MomentUpdate) SetCreatedAt(t time.Time) *MomentUpdate {
-	mu.mutation.SetCreatedAt(t)
-	return mu
-}
-
-// SetNillableCreatedAt sets the "createdAt" field if the given value is not nil.
-func (mu *MomentUpdate) SetNillableCreatedAt(t *time.Time) *MomentUpdate {
-	if t != nil {
-		mu.SetCreatedAt(*t)
-	}
-	return mu
-}
-
-// SetUpdatedAt sets the "updatedAt" field.
-func (mu *MomentUpdate) SetUpdatedAt(t time.Time) *MomentUpdate {
-	mu.mutation.SetUpdatedAt(t)
-	return mu
-}
-
-// SetNillableUpdatedAt sets the "updatedAt" field if the given value is not nil.
-func (mu *MomentUpdate) SetNillableUpdatedAt(t *time.Time) *MomentUpdate {
-	if t != nil {
-		mu.SetUpdatedAt(*t)
-	}
+// ClearContentVector clears the value of the "content_vector" field.
+func (mu *MomentUpdate) ClearContentVector() *MomentUpdate {
+	mu.mutation.ClearContentVector()
 	return mu
 }
 
@@ -330,8 +348,23 @@ func (mu *MomentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := mu.mutation.Content(); ok {
 		_spec.SetField(moment.FieldContent, field.TypeString, value)
 	}
+	if value, ok := mu.mutation.Category(); ok {
+		_spec.SetField(moment.FieldCategory, field.TypeString, value)
+	}
+	if value, ok := mu.mutation.CreatedAt(); ok {
+		_spec.SetField(moment.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := mu.mutation.UpdatedAt(); ok {
+		_spec.SetField(moment.FieldUpdatedAt, field.TypeTime, value)
+	}
 	if value, ok := mu.mutation.IsPublic(); ok {
 		_spec.SetField(moment.FieldIsPublic, field.TypeBool, value)
+	}
+	if value, ok := mu.mutation.Likes(); ok {
+		_spec.SetField(moment.FieldLikes, field.TypeInt32, value)
+	}
+	if value, ok := mu.mutation.AddedLikes(); ok {
+		_spec.AddField(moment.FieldLikes, field.TypeInt32, value)
 	}
 	if value, ok := mu.mutation.Tags(); ok {
 		_spec.SetField(moment.FieldTags, field.TypeJSON, value)
@@ -347,12 +380,6 @@ func (mu *MomentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := mu.mutation.AddedViews(); ok {
 		_spec.AddField(moment.FieldViews, field.TypeInt32, value)
 	}
-	if value, ok := mu.mutation.Likes(); ok {
-		_spec.SetField(moment.FieldLikes, field.TypeInt32, value)
-	}
-	if value, ok := mu.mutation.AddedLikes(); ok {
-		_spec.AddField(moment.FieldLikes, field.TypeInt32, value)
-	}
 	if value, ok := mu.mutation.ExtraData(); ok {
 		_spec.SetField(moment.FieldExtraData, field.TypeJSON, value)
 	}
@@ -361,14 +388,16 @@ func (mu *MomentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			sqljson.Append(u, moment.FieldExtraData, value)
 		})
 	}
-	if value, ok := mu.mutation.Category(); ok {
-		_spec.SetField(moment.FieldCategory, field.TypeString, value)
+	if value, ok := mu.mutation.ContentVector(); ok {
+		_spec.SetField(moment.FieldContentVector, field.TypeJSON, value)
 	}
-	if value, ok := mu.mutation.CreatedAt(); ok {
-		_spec.SetField(moment.FieldCreatedAt, field.TypeTime, value)
+	if value, ok := mu.mutation.AppendedContentVector(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, moment.FieldContentVector, value)
+		})
 	}
-	if value, ok := mu.mutation.UpdatedAt(); ok {
-		_spec.SetField(moment.FieldUpdatedAt, field.TypeTime, value)
+	if mu.mutation.ContentVectorCleared() {
+		_spec.ClearField(moment.FieldContentVector, field.TypeJSON)
 	}
 	if mu.mutation.MomentImagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -523,6 +552,68 @@ func (muo *MomentUpdateOne) SetNillableContent(s *string) *MomentUpdateOne {
 	return muo
 }
 
+// SetCategory sets the "category" field.
+func (muo *MomentUpdateOne) SetCategory(s string) *MomentUpdateOne {
+	muo.mutation.SetCategory(s)
+	return muo
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (muo *MomentUpdateOne) SetNillableCategory(s *string) *MomentUpdateOne {
+	if s != nil {
+		muo.SetCategory(*s)
+	}
+	return muo
+}
+
+// SetCreatedAt sets the "createdAt" field.
+func (muo *MomentUpdateOne) SetCreatedAt(t time.Time) *MomentUpdateOne {
+	muo.mutation.SetCreatedAt(t)
+	return muo
+}
+
+// SetNillableCreatedAt sets the "createdAt" field if the given value is not nil.
+func (muo *MomentUpdateOne) SetNillableCreatedAt(t *time.Time) *MomentUpdateOne {
+	if t != nil {
+		muo.SetCreatedAt(*t)
+	}
+	return muo
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (muo *MomentUpdateOne) SetUpdatedAt(t time.Time) *MomentUpdateOne {
+	muo.mutation.SetUpdatedAt(t)
+	return muo
+}
+
+// SetNillableUpdatedAt sets the "updatedAt" field if the given value is not nil.
+func (muo *MomentUpdateOne) SetNillableUpdatedAt(t *time.Time) *MomentUpdateOne {
+	if t != nil {
+		muo.SetUpdatedAt(*t)
+	}
+	return muo
+}
+
+// SetOwnerId sets the "ownerId" field.
+func (muo *MomentUpdateOne) SetOwnerId(s string) *MomentUpdateOne {
+	muo.mutation.SetOwnerId(s)
+	return muo
+}
+
+// SetNillableOwnerId sets the "ownerId" field if the given value is not nil.
+func (muo *MomentUpdateOne) SetNillableOwnerId(s *string) *MomentUpdateOne {
+	if s != nil {
+		muo.SetOwnerId(*s)
+	}
+	return muo
+}
+
+// ClearOwnerId clears the value of the "ownerId" field.
+func (muo *MomentUpdateOne) ClearOwnerId() *MomentUpdateOne {
+	muo.mutation.ClearOwnerId()
+	return muo
+}
+
 // SetIsPublic sets the "isPublic" field.
 func (muo *MomentUpdateOne) SetIsPublic(b bool) *MomentUpdateOne {
 	muo.mutation.SetIsPublic(b)
@@ -534,6 +625,27 @@ func (muo *MomentUpdateOne) SetNillableIsPublic(b *bool) *MomentUpdateOne {
 	if b != nil {
 		muo.SetIsPublic(*b)
 	}
+	return muo
+}
+
+// SetLikes sets the "likes" field.
+func (muo *MomentUpdateOne) SetLikes(i int32) *MomentUpdateOne {
+	muo.mutation.ResetLikes()
+	muo.mutation.SetLikes(i)
+	return muo
+}
+
+// SetNillableLikes sets the "likes" field if the given value is not nil.
+func (muo *MomentUpdateOne) SetNillableLikes(i *int32) *MomentUpdateOne {
+	if i != nil {
+		muo.SetLikes(*i)
+	}
+	return muo
+}
+
+// AddLikes adds i to the "likes" field.
+func (muo *MomentUpdateOne) AddLikes(i int32) *MomentUpdateOne {
+	muo.mutation.AddLikes(i)
 	return muo
 }
 
@@ -570,27 +682,6 @@ func (muo *MomentUpdateOne) AddViews(i int32) *MomentUpdateOne {
 	return muo
 }
 
-// SetLikes sets the "likes" field.
-func (muo *MomentUpdateOne) SetLikes(i int32) *MomentUpdateOne {
-	muo.mutation.ResetLikes()
-	muo.mutation.SetLikes(i)
-	return muo
-}
-
-// SetNillableLikes sets the "likes" field if the given value is not nil.
-func (muo *MomentUpdateOne) SetNillableLikes(i *int32) *MomentUpdateOne {
-	if i != nil {
-		muo.SetLikes(*i)
-	}
-	return muo
-}
-
-// AddLikes adds i to the "likes" field.
-func (muo *MomentUpdateOne) AddLikes(i int32) *MomentUpdateOne {
-	muo.mutation.AddLikes(i)
-	return muo
-}
-
 // SetExtraData sets the "extraData" field.
 func (muo *MomentUpdateOne) SetExtraData(jm json.RawMessage) *MomentUpdateOne {
 	muo.mutation.SetExtraData(jm)
@@ -603,65 +694,21 @@ func (muo *MomentUpdateOne) AppendExtraData(jm json.RawMessage) *MomentUpdateOne
 	return muo
 }
 
-// SetCategory sets the "category" field.
-func (muo *MomentUpdateOne) SetCategory(s string) *MomentUpdateOne {
-	muo.mutation.SetCategory(s)
+// SetContentVector sets the "content_vector" field.
+func (muo *MomentUpdateOne) SetContentVector(jm json.RawMessage) *MomentUpdateOne {
+	muo.mutation.SetContentVector(jm)
 	return muo
 }
 
-// SetNillableCategory sets the "category" field if the given value is not nil.
-func (muo *MomentUpdateOne) SetNillableCategory(s *string) *MomentUpdateOne {
-	if s != nil {
-		muo.SetCategory(*s)
-	}
+// AppendContentVector appends jm to the "content_vector" field.
+func (muo *MomentUpdateOne) AppendContentVector(jm json.RawMessage) *MomentUpdateOne {
+	muo.mutation.AppendContentVector(jm)
 	return muo
 }
 
-// SetOwnerId sets the "ownerId" field.
-func (muo *MomentUpdateOne) SetOwnerId(s string) *MomentUpdateOne {
-	muo.mutation.SetOwnerId(s)
-	return muo
-}
-
-// SetNillableOwnerId sets the "ownerId" field if the given value is not nil.
-func (muo *MomentUpdateOne) SetNillableOwnerId(s *string) *MomentUpdateOne {
-	if s != nil {
-		muo.SetOwnerId(*s)
-	}
-	return muo
-}
-
-// ClearOwnerId clears the value of the "ownerId" field.
-func (muo *MomentUpdateOne) ClearOwnerId() *MomentUpdateOne {
-	muo.mutation.ClearOwnerId()
-	return muo
-}
-
-// SetCreatedAt sets the "createdAt" field.
-func (muo *MomentUpdateOne) SetCreatedAt(t time.Time) *MomentUpdateOne {
-	muo.mutation.SetCreatedAt(t)
-	return muo
-}
-
-// SetNillableCreatedAt sets the "createdAt" field if the given value is not nil.
-func (muo *MomentUpdateOne) SetNillableCreatedAt(t *time.Time) *MomentUpdateOne {
-	if t != nil {
-		muo.SetCreatedAt(*t)
-	}
-	return muo
-}
-
-// SetUpdatedAt sets the "updatedAt" field.
-func (muo *MomentUpdateOne) SetUpdatedAt(t time.Time) *MomentUpdateOne {
-	muo.mutation.SetUpdatedAt(t)
-	return muo
-}
-
-// SetNillableUpdatedAt sets the "updatedAt" field if the given value is not nil.
-func (muo *MomentUpdateOne) SetNillableUpdatedAt(t *time.Time) *MomentUpdateOne {
-	if t != nil {
-		muo.SetUpdatedAt(*t)
-	}
+// ClearContentVector clears the value of the "content_vector" field.
+func (muo *MomentUpdateOne) ClearContentVector() *MomentUpdateOne {
+	muo.mutation.ClearContentVector()
 	return muo
 }
 
@@ -836,8 +883,23 @@ func (muo *MomentUpdateOne) sqlSave(ctx context.Context) (_node *Moment, err err
 	if value, ok := muo.mutation.Content(); ok {
 		_spec.SetField(moment.FieldContent, field.TypeString, value)
 	}
+	if value, ok := muo.mutation.Category(); ok {
+		_spec.SetField(moment.FieldCategory, field.TypeString, value)
+	}
+	if value, ok := muo.mutation.CreatedAt(); ok {
+		_spec.SetField(moment.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := muo.mutation.UpdatedAt(); ok {
+		_spec.SetField(moment.FieldUpdatedAt, field.TypeTime, value)
+	}
 	if value, ok := muo.mutation.IsPublic(); ok {
 		_spec.SetField(moment.FieldIsPublic, field.TypeBool, value)
+	}
+	if value, ok := muo.mutation.Likes(); ok {
+		_spec.SetField(moment.FieldLikes, field.TypeInt32, value)
+	}
+	if value, ok := muo.mutation.AddedLikes(); ok {
+		_spec.AddField(moment.FieldLikes, field.TypeInt32, value)
 	}
 	if value, ok := muo.mutation.Tags(); ok {
 		_spec.SetField(moment.FieldTags, field.TypeJSON, value)
@@ -853,12 +915,6 @@ func (muo *MomentUpdateOne) sqlSave(ctx context.Context) (_node *Moment, err err
 	if value, ok := muo.mutation.AddedViews(); ok {
 		_spec.AddField(moment.FieldViews, field.TypeInt32, value)
 	}
-	if value, ok := muo.mutation.Likes(); ok {
-		_spec.SetField(moment.FieldLikes, field.TypeInt32, value)
-	}
-	if value, ok := muo.mutation.AddedLikes(); ok {
-		_spec.AddField(moment.FieldLikes, field.TypeInt32, value)
-	}
 	if value, ok := muo.mutation.ExtraData(); ok {
 		_spec.SetField(moment.FieldExtraData, field.TypeJSON, value)
 	}
@@ -867,14 +923,16 @@ func (muo *MomentUpdateOne) sqlSave(ctx context.Context) (_node *Moment, err err
 			sqljson.Append(u, moment.FieldExtraData, value)
 		})
 	}
-	if value, ok := muo.mutation.Category(); ok {
-		_spec.SetField(moment.FieldCategory, field.TypeString, value)
+	if value, ok := muo.mutation.ContentVector(); ok {
+		_spec.SetField(moment.FieldContentVector, field.TypeJSON, value)
 	}
-	if value, ok := muo.mutation.CreatedAt(); ok {
-		_spec.SetField(moment.FieldCreatedAt, field.TypeTime, value)
+	if value, ok := muo.mutation.AppendedContentVector(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, moment.FieldContentVector, value)
+		})
 	}
-	if value, ok := muo.mutation.UpdatedAt(); ok {
-		_spec.SetField(moment.FieldUpdatedAt, field.TypeTime, value)
+	if muo.mutation.ContentVectorCleared() {
+		_spec.ClearField(moment.FieldContentVector, field.TypeJSON)
 	}
 	if muo.mutation.MomentImagesCleared() {
 		edge := &sqlgraph.EdgeSpec{

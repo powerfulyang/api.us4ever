@@ -46,7 +46,7 @@ type OCRRequest struct {
 	Image string `json:"image"` // Base64 encoded image data
 }
 
-type ImageExtraData struct {
+type ExtraData struct {
 	OCRResponse []struct {
 		Text   string  `json:"text"`
 		Left   float64 `json:"left"`
@@ -133,7 +133,12 @@ func downloadImage(url string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("HTTP GET request failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Printf("Failed to close response body: %v", err)
+		}
+	}(resp.Body)
 
 	// 检查状态码
 	if resp.StatusCode != http.StatusOK {
@@ -169,7 +174,12 @@ func callOCRAPI(base64Image string) (*OCRResponse, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to send request to OCR API: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Printf("Failed to close OCR API response body: %v", err)
+		}
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		bodyBytes, _ := io.ReadAll(resp.Body)

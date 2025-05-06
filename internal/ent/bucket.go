@@ -37,16 +37,16 @@ type Bucket struct {
 	SecretKey string `json:"secretKey,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
-	// ExtraData holds the value of the "extraData" field.
-	ExtraData json.RawMessage `json:"extraData,omitempty"`
-	// Category holds the value of the "category" field.
-	Category string `json:"category,omitempty"`
-	// OwnerId holds the value of the "ownerId" field.
-	OwnerId string `json:"ownerId,omitempty"`
 	// CreatedAt holds the value of the "createdAt" field.
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 	// UpdatedAt holds the value of the "updatedAt" field.
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
+	// OwnerId holds the value of the "ownerId" field.
+	OwnerId string `json:"ownerId,omitempty"`
+	// ExtraData holds the value of the "extraData" field.
+	ExtraData json.RawMessage `json:"extraData,omitempty"`
+	// Category holds the value of the "category" field.
+	Category string `json:"category,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BucketQuery when eager-loading is set.
 	Edges        BucketEdges `json:"edges"`
@@ -91,7 +91,7 @@ func (*Bucket) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case bucket.FieldExtraData:
 			values[i] = new([]byte)
-		case bucket.FieldID, bucket.FieldName, bucket.FieldBucketName, bucket.FieldProvider, bucket.FieldRegion, bucket.FieldEndpoint, bucket.FieldPublicUrl, bucket.FieldAccessKey, bucket.FieldSecretKey, bucket.FieldDescription, bucket.FieldCategory, bucket.FieldOwnerId:
+		case bucket.FieldID, bucket.FieldName, bucket.FieldBucketName, bucket.FieldProvider, bucket.FieldRegion, bucket.FieldEndpoint, bucket.FieldPublicUrl, bucket.FieldAccessKey, bucket.FieldSecretKey, bucket.FieldDescription, bucket.FieldOwnerId, bucket.FieldCategory:
 			values[i] = new(sql.NullString)
 		case bucket.FieldCreatedAt, bucket.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -170,6 +170,24 @@ func (b *Bucket) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				b.Description = value.String
 			}
+		case bucket.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field createdAt", values[i])
+			} else if value.Valid {
+				b.CreatedAt = value.Time
+			}
+		case bucket.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updatedAt", values[i])
+			} else if value.Valid {
+				b.UpdatedAt = value.Time
+			}
+		case bucket.FieldOwnerId:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field ownerId", values[i])
+			} else if value.Valid {
+				b.OwnerId = value.String
+			}
 		case bucket.FieldExtraData:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field extraData", values[i])
@@ -183,24 +201,6 @@ func (b *Bucket) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field category", values[i])
 			} else if value.Valid {
 				b.Category = value.String
-			}
-		case bucket.FieldOwnerId:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field ownerId", values[i])
-			} else if value.Valid {
-				b.OwnerId = value.String
-			}
-		case bucket.FieldCreatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field createdAt", values[i])
-			} else if value.Valid {
-				b.CreatedAt = value.Time
-			}
-		case bucket.FieldUpdatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field updatedAt", values[i])
-			} else if value.Valid {
-				b.UpdatedAt = value.Time
 			}
 		default:
 			b.selectValues.Set(columns[i], values[i])
@@ -275,20 +275,20 @@ func (b *Bucket) String() string {
 	builder.WriteString("description=")
 	builder.WriteString(b.Description)
 	builder.WriteString(", ")
-	builder.WriteString("extraData=")
-	builder.WriteString(fmt.Sprintf("%v", b.ExtraData))
-	builder.WriteString(", ")
-	builder.WriteString("category=")
-	builder.WriteString(b.Category)
-	builder.WriteString(", ")
-	builder.WriteString("ownerId=")
-	builder.WriteString(b.OwnerId)
-	builder.WriteString(", ")
 	builder.WriteString("createdAt=")
 	builder.WriteString(b.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updatedAt=")
 	builder.WriteString(b.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("ownerId=")
+	builder.WriteString(b.OwnerId)
+	builder.WriteString(", ")
+	builder.WriteString("extraData=")
+	builder.WriteString(fmt.Sprintf("%v", b.ExtraData))
+	builder.WriteString(", ")
+	builder.WriteString("category=")
+	builder.WriteString(b.Category)
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -406,12 +406,12 @@ func (vq *VideoQuery) WithUser(opts ...func(*UserQuery)) *VideoQuery {
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name,omitempty"`
+//		Hash string `json:"hash,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Video.Query().
-//		GroupBy(video.FieldName).
+//		GroupBy(video.FieldHash).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (vq *VideoQuery) GroupBy(field string, fields ...string) *VideoGroupBy {
@@ -429,11 +429,11 @@ func (vq *VideoQuery) GroupBy(field string, fields ...string) *VideoGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name,omitempty"`
+//		Hash string `json:"hash,omitempty"`
 //	}
 //
 //	client.Video.Query().
-//		Select(video.FieldName).
+//		Select(video.FieldHash).
 //		Scan(ctx, &v)
 func (vq *VideoQuery) Select(fields ...string) *VideoSelect {
 	vq.ctx.Fields = append(vq.ctx.Fields, fields...)

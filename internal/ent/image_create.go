@@ -90,18 +90,6 @@ func (ic *ImageCreate) SetTags(jm json.RawMessage) *ImageCreate {
 	return ic
 }
 
-// SetExtraData sets the "extraData" field.
-func (ic *ImageCreate) SetExtraData(jm json.RawMessage) *ImageCreate {
-	ic.mutation.SetExtraData(jm)
-	return ic
-}
-
-// SetCategory sets the "category" field.
-func (ic *ImageCreate) SetCategory(s string) *ImageCreate {
-	ic.mutation.SetCategory(s)
-	return ic
-}
-
 // SetThumbnail10x sets the "thumbnail_10x" field.
 func (ic *ImageCreate) SetThumbnail10x(b []byte) *ImageCreate {
 	ic.mutation.SetThumbnail10x(b)
@@ -164,6 +152,18 @@ func (ic *ImageCreate) SetNillableOriginalID(s *string) *ImageCreate {
 	return ic
 }
 
+// SetCreatedAt sets the "createdAt" field.
+func (ic *ImageCreate) SetCreatedAt(t time.Time) *ImageCreate {
+	ic.mutation.SetCreatedAt(t)
+	return ic
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (ic *ImageCreate) SetUpdatedAt(t time.Time) *ImageCreate {
+	ic.mutation.SetUpdatedAt(t)
+	return ic
+}
+
 // SetUploadedBy sets the "uploadedBy" field.
 func (ic *ImageCreate) SetUploadedBy(s string) *ImageCreate {
 	ic.mutation.SetUploadedBy(s)
@@ -178,15 +178,21 @@ func (ic *ImageCreate) SetNillableUploadedBy(s *string) *ImageCreate {
 	return ic
 }
 
-// SetCreatedAt sets the "createdAt" field.
-func (ic *ImageCreate) SetCreatedAt(t time.Time) *ImageCreate {
-	ic.mutation.SetCreatedAt(t)
+// SetCategory sets the "category" field.
+func (ic *ImageCreate) SetCategory(s string) *ImageCreate {
+	ic.mutation.SetCategory(s)
 	return ic
 }
 
-// SetUpdatedAt sets the "updatedAt" field.
-func (ic *ImageCreate) SetUpdatedAt(t time.Time) *ImageCreate {
-	ic.mutation.SetUpdatedAt(t)
+// SetExtraData sets the "extraData" field.
+func (ic *ImageCreate) SetExtraData(jm json.RawMessage) *ImageCreate {
+	ic.mutation.SetExtraData(jm)
+	return ic
+}
+
+// SetDescriptionVector sets the "description_vector" field.
+func (ic *ImageCreate) SetDescriptionVector(jm json.RawMessage) *ImageCreate {
+	ic.mutation.SetDescriptionVector(jm)
 	return ic
 }
 
@@ -317,12 +323,6 @@ func (ic *ImageCreate) check() error {
 	if _, ok := ic.mutation.Tags(); !ok {
 		return &ValidationError{Name: "tags", err: errors.New(`ent: missing required field "Image.tags"`)}
 	}
-	if _, ok := ic.mutation.ExtraData(); !ok {
-		return &ValidationError{Name: "extraData", err: errors.New(`ent: missing required field "Image.extraData"`)}
-	}
-	if _, ok := ic.mutation.Category(); !ok {
-		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "Image.category"`)}
-	}
 	if _, ok := ic.mutation.Thumbnail10x(); !ok {
 		return &ValidationError{Name: "thumbnail_10x", err: errors.New(`ent: missing required field "Image.thumbnail_10x"`)}
 	}
@@ -331,6 +331,12 @@ func (ic *ImageCreate) check() error {
 	}
 	if _, ok := ic.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updatedAt", err: errors.New(`ent: missing required field "Image.updatedAt"`)}
+	}
+	if _, ok := ic.mutation.Category(); !ok {
+		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "Image.category"`)}
+	}
+	if _, ok := ic.mutation.ExtraData(); !ok {
+		return &ValidationError{Name: "extraData", err: errors.New(`ent: missing required field "Image.extraData"`)}
 	}
 	return nil
 }
@@ -411,14 +417,6 @@ func (ic *ImageCreate) createSpec() (*Image, *sqlgraph.CreateSpec) {
 		_spec.SetField(image.FieldTags, field.TypeJSON, value)
 		_node.Tags = value
 	}
-	if value, ok := ic.mutation.ExtraData(); ok {
-		_spec.SetField(image.FieldExtraData, field.TypeJSON, value)
-		_node.ExtraData = value
-	}
-	if value, ok := ic.mutation.Category(); ok {
-		_spec.SetField(image.FieldCategory, field.TypeString, value)
-		_node.Category = value
-	}
 	if value, ok := ic.mutation.Thumbnail10x(); ok {
 		_spec.SetField(image.FieldThumbnail10x, field.TypeBytes, value)
 		_node.Thumbnail10x = value
@@ -430,6 +428,18 @@ func (ic *ImageCreate) createSpec() (*Image, *sqlgraph.CreateSpec) {
 	if value, ok := ic.mutation.UpdatedAt(); ok {
 		_spec.SetField(image.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := ic.mutation.Category(); ok {
+		_spec.SetField(image.FieldCategory, field.TypeString, value)
+		_node.Category = value
+	}
+	if value, ok := ic.mutation.ExtraData(); ok {
+		_spec.SetField(image.FieldExtraData, field.TypeJSON, value)
+		_node.ExtraData = value
+	}
+	if value, ok := ic.mutation.DescriptionVector(); ok {
+		_spec.SetField(image.FieldDescriptionVector, field.TypeJSON, value)
+		_node.DescriptionVector = value
 	}
 	if nodes := ic.mutation.CompressedIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
