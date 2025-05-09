@@ -30,6 +30,8 @@ func EmbeddingMoments(fiberServer *server.FiberServer) (int, error) {
 		log.Printf("EmbeddingMoments: Found %d moments to process", len(records))
 	}
 
+	handledCount := 0
+
 	for _, record := range records {
 		vector, err := es.Embed(ctx, record.Content)
 		if err != nil {
@@ -50,14 +52,17 @@ func EmbeddingMoments(fiberServer *server.FiberServer) (int, error) {
 			log.Printf("Error updating content vector for record %s: %v", record.ID, err)
 			continue
 		}
+		handledCount++
 	}
 
 	// 重建 es 索引
-	err = es.IndexMoments(ctx, fiberServer.EsClient, fiberServer.DbClient, fiberServer.KeepEsIndexAlias)
+	if handledCount > 0 {
+		err = es.IndexMoments(ctx, fiberServer.EsClient, fiberServer.DbClient, fiberServer.MomentEsIndexAlias)
+	}
 	if err != nil {
 		return 0, err
 	}
-	return len(records), nil
+	return handledCount, nil
 }
 
 func EmbeddingKeeps(fiberServer *server.FiberServer) (int, error) {
@@ -81,6 +86,8 @@ func EmbeddingKeeps(fiberServer *server.FiberServer) (int, error) {
 	if len(records) > 0 {
 		log.Printf("EmbeddingKeeps: Found %d keeps to process", len(records))
 	}
+
+	handledCount := 0
 
 	for _, record := range records {
 		if record.TitleVector == nil && record.Title != "" {
@@ -134,10 +141,17 @@ func EmbeddingKeeps(fiberServer *server.FiberServer) (int, error) {
 				continue
 			}
 		}
+		handledCount++
 	}
 
 	// 重建 es 索引
-	err = es.IndexKeeps(ctx, fiberServer.EsClient, fiberServer.DbClient, fiberServer.KeepEsIndexAlias)
+	if handledCount > 0 {
+		err = es.IndexKeeps(ctx, fiberServer.EsClient, fiberServer.DbClient, fiberServer.KeepEsIndexAlias)
+	}
 
-	return len(records), nil
+	if err != nil {
+		return 0, err
+	}
+
+	return handledCount, nil
 }
