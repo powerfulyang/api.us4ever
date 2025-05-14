@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"api.us4ever/internal/config"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -33,5 +34,14 @@ func TriggerSyncTelegram() (int, error) {
 		return 0, fmt.Errorf("请求失败，状态码: %d", resp.StatusCode)
 	}
 
-	return 1, nil
+	var result struct {
+		Success bool `json:"success"`
+		Count   int  `json:"count"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return 0, fmt.Errorf("解析响应失败: %v", err)
+	}
+
+	return result.Count, nil
 }
