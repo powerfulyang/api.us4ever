@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"strconv"
@@ -11,79 +10,161 @@ import (
 	"time"
 
 	"api.us4ever/internal/config"
+	"api.us4ever/internal/logger"
 	"api.us4ever/internal/server"
 	"api.us4ever/internal/task"
 )
 
+const (
+	// shutdownTimeout defines how long to wait for graceful shutdown
+	shutdownTimeout = 5 * time.Second
+	// defaultPort is used when no port is configured
+	defaultPort = 8080
+)
+
+var (
+	// Application loggers
+	mainLogger      *logger.Logger
+	shutdownLogger  *logger.Logger
+	schedulerLogger *logger.Logger
+)
+
+func init() {
+	var err error
+
+	mainLogger, err = logger.New("main")
+	if err != nil {
+		panic("failed to initialize main logger: " + err.Error())
+	}
+
+	shutdownLogger, err = logger.New("shutdown")
+	if err != nil {
+		panic("failed to initialize shutdown logger: " + err.Error())
+	}
+
+	schedulerLogger, err = logger.New("scheduler")
+	if err != nil {
+		panic("failed to initialize scheduler logger: " + err.Error())
+	}
+}
+
+// gracefulShutdown handles the graceful shutdown of the server and scheduler
 func gracefulShutdown(fiberServer *server.FiberServer, scheduler *task.Scheduler, done chan bool) {
-	// Create context that listens for the interrupt signal from the OS.
+	// Create context that listens for the interrupt signal from the OS
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	// Listen for the interrupt signal.
+	// Listen for the interrupt signal
 	<-ctx.Done()
 
-	log.Println("shutting down gracefully, press Ctrl+C again to force")
+	shutdownLogger.Info("shutting down gracefully, press Ctrl+C again to force")
 
-	// The context is used to inform the server it has 5 seconds to finish
-	// the request it is currently handling
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// Create context with timeout for graceful shutdown
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
-	if err := fiberServer.ShutdownWithContext(ctx); err != nil {
-		log.Printf("Server forced to shutdown with error: %v", err)
+
+	// Shutdown the fiber server
+	if err := fiberServer.ShutdownWithContext(shutdownCtx); err != nil {
+		shutdownLogger.Error("server forced to shutdown with error", logger.Fields{
+			"error": err.Error(),
+		})
 	}
 
-	// 停止定时任务调度器
-	scheduler.Stop()
+	// Stop the task scheduler
+	if scheduler != nil {
+		scheduler.Stop()
+	}
 
-	log.Println("Server exiting")
+	shutdownLogger.Info("server exiting")
 
 	// Notify the main goroutine that the shutdown is complete
 	done <- true
 }
 
-func main() {
-	// 初始化配置中心
-	appConfig := config.GetAppConfig()
+// getPort returns the port to listen on, with fallback logic
+func getPort(appConfig *config.AppConfig) int {
+	if appConfig != nil && appConfig.Server.Port > 0 {
+		return appConfig.Server.Port
+	}
 
-	fiberServer := server.New()
-	// 初始化定时任务调度器
-	scheduler, err := task.NewScheduler()
-	if err != nil {
-		log.Printf("初始化定时任务调度器失败: %v", err)
-	} else {
-		// 注册定时任务
-		if err := task.RegisterTasks(scheduler, fiberServer); err != nil {
-			log.Printf("注册定时任务失败: %v", err)
-		} else {
-			// 启动定时任务调度器
-			scheduler.Start()
+	if portStr := os.Getenv("PORT"); portStr != "" {
+		if port, err := strconv.Atoi(portStr); err == nil && port > 0 {
+			return port
 		}
 	}
+
+	return defaultPort
+}
+
+// getListenAddress returns the appropriate listen address based on environment
+func getListenAddress(appConfig *config.AppConfig, port int) string {
+	if appConfig != nil && appConfig.AppEnv == "local" {
+		// Local development environment listens on localhost
+		return fmt.Sprintf("localhost:%d", port)
+	}
+	// Other environments listen on 0.0.0.0, suitable for containers or servers
+	return fmt.Sprintf("0.0.0.0:%d", port)
+}
+
+// initializeScheduler initializes and starts the task scheduler
+func initializeScheduler(fiberServer *server.FiberServer) *task.Scheduler {
+	scheduler, err := task.NewScheduler()
+	if err != nil {
+		schedulerLogger.Error("failed to initialize task scheduler", logger.Fields{
+			"error": err.Error(),
+		})
+		return nil
+	}
+
+	// Register tasks
+	if err := task.RegisterTasks(scheduler, fiberServer); err != nil {
+		schedulerLogger.Error("failed to register tasks", logger.Fields{
+			"error": err.Error(),
+		})
+		scheduler.Stop() // Clean up if registration fails
+		return nil
+	}
+
+	// Start the scheduler
+	scheduler.Start()
+	schedulerLogger.Info("task scheduler started successfully")
+	return scheduler
+}
+
+func main() {
+	// Initialize configuration
+	appConfig := config.GetAppConfig()
+	if appConfig == nil {
+		mainLogger.Fatal("failed to load application configuration")
+	}
+
+	// Initialize fiber server
+	fiberServer := server.New()
+	if fiberServer == nil {
+		mainLogger.Fatal("failed to initialize fiber server")
+	}
+
+	// Initialize task scheduler
+	scheduler := initializeScheduler(fiberServer)
+
+	// Register routes
 	fiberServer.RegisterFiberRoutes()
 
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)
 
+	// Start server in a goroutine
 	go func() {
-		var port int
-		if appConfig != nil {
-			port = appConfig.Server.Port
-		} else {
-			port, _ = strconv.Atoi(os.Getenv("PORT"))
-		}
+		port := getPort(appConfig)
+		listenAddr := getListenAddress(appConfig, port)
 
-		var listenAddr string
-		if appConfig.AppEnv == "local" {
-			// 本地开发环境监听 localhost
-			listenAddr = fmt.Sprintf("localhost:%d", port)
-		} else {
-			// 其他环境监听 0.0.0.0，适合部署在容器或服务器上
-			listenAddr = fmt.Sprintf("0.0.0.0:%d", port)
-		}
-		err := fiberServer.Listen(listenAddr)
-		if err != nil {
-			panic(fmt.Sprintf("http fiberServer error: %s", err))
+		mainLogger.Info("starting server", logger.Fields{
+			"address": listenAddr,
+		})
+		if err := fiberServer.Listen(listenAddr); err != nil {
+			mainLogger.Fatal("failed to start server", logger.Fields{
+				"error": err.Error(),
+			})
 		}
 	}()
 
@@ -92,5 +173,5 @@ func main() {
 
 	// Wait for the graceful shutdown to complete
 	<-done
-	log.Println("Graceful shutdown complete.")
+	mainLogger.Info("graceful shutdown complete")
 }

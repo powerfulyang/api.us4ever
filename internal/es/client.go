@@ -1,40 +1,56 @@
 package es
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"api.us4ever/internal/config"
 	"github.com/elastic/go-elasticsearch/v8"
 )
 
-// NewClient creates and returns a new Elasticsearch client based on the provided configuration.
+// NewClient creates and returns a new Elasticsearch client based on the provided configuration
 func NewClient(cfg config.ESConfig) (*elasticsearch.Client, error) {
+	// Validate configuration
+	if len(cfg.Addresses) == 0 {
+		return nil, fmt.Errorf("elasticsearch addresses are required")
+	}
+
 	// Prepare the Elasticsearch configuration
 	esCfg := elasticsearch.Config{
 		Addresses: cfg.Addresses,
 		Username:  cfg.Username,
 		Password:  cfg.Password,
 		Transport: &http.Transport{
-			// 调大连接池，方便批量写入
-			MaxIdleConnsPerHost: 10,
+			// Increase connection pool for batch operations
+			MaxIdleConnsPerHost:   10,
+			MaxIdleConns:          100,
+			IdleConnTimeout:       90 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
 		},
 	}
 
 	// Create the Elasticsearch client
 	client, err := elasticsearch.NewClient(esCfg)
 	if err != nil {
-		log.Printf("Error creating the Elasticsearch client: %s", err)
-		return nil, fmt.Errorf("error creating the Elasticsearch client: %w", err)
+		return nil, fmt.Errorf("failed to create Elasticsearch client: %w", err)
 	}
 
-	// Test the connection
-	_, err = client.Info()
+	// Test the connection with timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	res, err := client.Info(client.Info.WithContext(ctx))
 	if err != nil {
-		log.Printf("Error connecting to Elasticsearch: %s", err)
-		// Don't return the client if the connection test failed
-		return nil, fmt.Errorf("error connecting to Elasticsearch: %w", err)
+		return nil, fmt.Errorf("failed to connect to Elasticsearch: %w", err)
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		return nil, fmt.Errorf("elasticsearch connection test failed: %s", res.Status())
 	}
 
 	log.Println("Elasticsearch client created and connection verified successfully")

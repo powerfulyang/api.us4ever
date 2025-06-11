@@ -3,10 +3,10 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"sync"
 
+	"api.us4ever/internal/logger"
 	"github.com/joho/godotenv"
 )
 
@@ -80,7 +80,16 @@ var (
 	configMux       sync.RWMutex
 	changeCallbacks []ChangeCallback
 	callbacksMutex  sync.RWMutex
+	configLogger    *logger.Logger
 )
+
+func init() {
+	var err error
+	configLogger, err = logger.New("config")
+	if err != nil {
+		panic("failed to initialize config logger: " + err.Error())
+	}
+}
 
 // RegisterChangeCallback registers a callback function to be called when config changes
 func RegisterChangeCallback(callback ChangeCallback) {
@@ -89,54 +98,108 @@ func RegisterChangeCallback(callback ChangeCallback) {
 	changeCallbacks = append(changeCallbacks, callback)
 }
 
-// LoadConfig 加载配置
+// LoadConfig loads the application configuration
 func LoadConfig() (*AppConfig, error) {
 	configMux.Lock()
 	defer configMux.Unlock()
 
+	// Return cached config if available
 	if appConfig != nil {
 		return appConfig, nil
 	}
 
-	nacosServerAddr := os.Getenv("NACOS_SERVER_ADDR")
-
-	if nacosServerAddr == "" {
-		err := godotenv.Load("../../.env")
-		if err != nil {
-			log.Fatal("⚠️ 加载 .env 文件失败，程序即将退出")
-		}
+	// Load environment variables if not in container environment
+	if err := loadEnvironmentFile(); err != nil {
+		configLogger.Warn("failed to load .env file", logger.Fields{
+			"error": err.Error(),
+		})
 	}
 
-	// 从Nacos加载配置
-	nacosConfig := LoadNacosConfig()
-	configContent, err := GetConfig(nacosConfig.DataID, nacosConfig.Group)
-
-	// 如果无法从Nacos加载，则报错
+	// Load configuration from Nacos
+	config, err := loadFromNacos()
 	if err != nil {
-		return nil, fmt.Errorf("无法加载Nacos配置: %v", err)
+		return nil, fmt.Errorf("failed to load configuration from Nacos: %w", err)
 	}
 
-	// 解析Nacos配置
-	config := &AppConfig{}
-	if err := json.Unmarshal([]byte(configContent), config); err != nil {
-		return nil, fmt.Errorf("解析Nacos配置失败: %v", err)
+	// Validate configuration
+	if err := config.Validate(); err != nil {
+		return nil, fmt.Errorf("configuration validation failed: %w", err)
 	}
 
+	// Cache the configuration
 	appConfig = config
 
-	// 设置监听配置变化
+	// Setup configuration change listener
+	nacosConfig := LoadNacosConfig()
 	setupConfigListener(nacosConfig.DataID, nacosConfig.Group)
 
+	configLogger.Info("configuration loaded successfully")
 	return appConfig, nil
 }
 
-// GetAppConfig GetConfig 获取配置
+// loadEnvironmentFile loads the .env file if it exists
+func loadEnvironmentFile() error {
+	nacosServerAddr := os.Getenv("NACOS_SERVER_ADDR")
+	if nacosServerAddr != "" {
+		// Skip loading .env file in container environment
+		return nil
+	}
+
+	// Try to load .env file from current directory first
+	if err := godotenv.Load(".env"); err == nil {
+		return nil
+	}
+
+	// Try to load from parent directory
+	if err := godotenv.Load("../../.env"); err != nil {
+		return fmt.Errorf("failed to load .env file: %w", err)
+	}
+
+	return nil
+}
+
+// loadFromNacos loads configuration from Nacos
+func loadFromNacos() (*AppConfig, error) {
+	nacosConfig := LoadNacosConfig()
+	configContent, err := GetConfig(nacosConfig.DataID, nacosConfig.Group)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get config from Nacos: %w", err)
+	}
+
+	config := &AppConfig{}
+	if err := json.Unmarshal([]byte(configContent), config); err != nil {
+		return nil, fmt.Errorf("failed to parse Nacos configuration: %w", err)
+	}
+
+	return config, nil
+}
+
+// GetAppConfig returns the application configuration
+// This function should only be used after ensuring LoadConfig() has been called successfully
 func GetAppConfig() *AppConfig {
-	config, _ := LoadConfig()
+	config, err := LoadConfig()
+	if err != nil {
+		configLogger.Error("failed to load configuration", logger.Fields{
+			"error": err.Error(),
+		})
+		return nil
+	}
 	return config
 }
 
-// setupConfigListener 设置配置变更监听
+// MustGetAppConfig returns the application configuration or panics if it fails
+// Use this only during application startup when configuration is critical
+func MustGetAppConfig() *AppConfig {
+	config, err := LoadConfig()
+	if err != nil {
+		configLogger.Fatal("failed to load configuration", logger.Fields{
+			"error": err.Error(),
+		})
+	}
+	return config
+}
+
+// setupConfigListener sets up configuration change listener
 func setupConfigListener(dataID, group string) {
 	err := ListenConfig(dataID, group, func(content string) {
 		configMux.Lock()
@@ -144,20 +207,32 @@ func setupConfigListener(dataID, group string) {
 
 		newConfig := &AppConfig{}
 		if err := json.Unmarshal([]byte(content), newConfig); err != nil {
-			log.Printf("解析更新的配置失败: %v", err)
+			configLogger.Error("failed to parse updated configuration", logger.Fields{
+				"error": err.Error(),
+			})
 			return
 		}
 
-		// 更新配置
-		appConfig = newConfig
-		log.Println("配置已更新")
+		// Validate the new configuration
+		if err := newConfig.Validate(); err != nil {
+			configLogger.Error("updated configuration validation failed", logger.Fields{
+				"error": err.Error(),
+			})
+			return
+		}
 
-		// 调用所有注册的回调函数
+		// Update the cached configuration
+		appConfig = newConfig
+		configLogger.Info("configuration updated successfully")
+
+		// Notify all registered callbacks
 		notifyConfigChange(newConfig)
 	})
 
 	if err != nil {
-		log.Printf("设置配置监听失败: %v", err)
+		configLogger.Error("failed to setup configuration listener", logger.Fields{
+			"error": err.Error(),
+		})
 	}
 }
 
@@ -171,7 +246,7 @@ func notifyConfigChange(newConfig *AppConfig) {
 	}
 }
 
-// Validate 验证数据库配置
+// Validate validates the database configuration
 func (c *DBConfig) Validate() error {
 	if c.Database == "" {
 		return fmt.Errorf("database name is required")
@@ -182,8 +257,8 @@ func (c *DBConfig) Validate() error {
 	if c.Username == "" {
 		return fmt.Errorf("database username is required")
 	}
-	if c.Port == 0 {
-		return fmt.Errorf("database port is required")
+	if c.Port <= 0 || c.Port > 65535 {
+		return fmt.Errorf("database port must be between 1 and 65535, got %d", c.Port)
 	}
 	if c.Host == "" {
 		return fmt.Errorf("database host is required")
@@ -191,5 +266,33 @@ func (c *DBConfig) Validate() error {
 	if c.Schema == "" {
 		return fmt.Errorf("database schema is required")
 	}
+	return nil
+}
+
+// Validate validates the server configuration
+func (c *ServerConfig) Validate() error {
+	if c.Port <= 0 || c.Port > 65535 {
+		return fmt.Errorf("server port must be between 1 and 65535, got %d", c.Port)
+	}
+	return nil
+}
+
+// Validate validates the application configuration
+func (c *AppConfig) Validate() error {
+	if c.AppName == "" {
+		return fmt.Errorf("app name is required")
+	}
+	if c.AppEnv == "" {
+		return fmt.Errorf("app environment is required")
+	}
+
+	if err := c.Server.Validate(); err != nil {
+		return fmt.Errorf("server config validation failed: %w", err)
+	}
+
+	if err := c.Database.Validate(); err != nil {
+		return fmt.Errorf("database config validation failed: %w", err)
+	}
+
 	return nil
 }

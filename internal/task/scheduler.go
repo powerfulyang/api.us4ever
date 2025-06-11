@@ -1,124 +1,316 @@
 package task
 
 import (
-	"api.us4ever/internal/server"
-	"log"
+	"context"
+	"fmt"
 	"sync"
 	"time"
 
+	"api.us4ever/internal/logger"
+	"api.us4ever/internal/server"
 	"github.com/panjf2000/ants/v2"
 	"github.com/robfig/cron/v3"
 )
 
-// Scheduler 定时任务调度器
+// Scheduler represents a task scheduler with cron jobs and worker pool
 type Scheduler struct {
-	cron  *cron.Cron
-	pool  *ants.Pool
-	tasks map[string]cron.EntryID
-	locks map[string]*sync.Mutex
+	cron    *cron.Cron
+	pool    *ants.Pool
+	tasks   map[string]cron.EntryID
+	locks   map[string]*sync.Mutex
+	logger  *logger.Logger
+	ctx     context.Context
+	cancel  context.CancelFunc
+	running bool
+	mu      sync.RWMutex
 }
 
-// NewScheduler 创建新的调度器
+// NewScheduler creates a new task scheduler with improved error handling and logging
 func NewScheduler() (*Scheduler, error) {
-	pool, err := ants.NewPool(10)
+	const defaultPoolSize = 10
+
+	pool, err := ants.NewPool(defaultPoolSize)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create worker pool: %w", err)
 	}
 
-	return &Scheduler{
-		cron:  cron.New(cron.WithSeconds()),
-		pool:  pool,
-		tasks: make(map[string]cron.EntryID),
-		locks: make(map[string]*sync.Mutex),
-	}, nil
+	ctx, cancel := context.WithCancel(context.Background())
+	taskLogger, err := logger.New("scheduler")
+	if err != nil {
+		pool.Release()
+		cancel()
+		return nil, fmt.Errorf("failed to create task logger: %w", err)
+	}
+
+	scheduler := &Scheduler{
+		cron:    cron.New(cron.WithSeconds()),
+		pool:    pool,
+		tasks:   make(map[string]cron.EntryID),
+		locks:   make(map[string]*sync.Mutex),
+		logger:  taskLogger,
+		ctx:     ctx,
+		cancel:  cancel,
+		running: false,
+	}
+
+	taskLogger.Info("task scheduler created successfully", logger.Fields{
+		"pool_size": defaultPoolSize,
+	})
+
+	return scheduler, nil
 }
 
-// Start 启动调度器
+// Start starts the task scheduler
 func (s *Scheduler) Start() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.running {
+		s.logger.Warn("scheduler is already running")
+		return
+	}
+
 	s.cron.Start()
+	s.running = true
+	s.logger.Info("task scheduler started")
 }
 
-// Stop 停止调度器
+// Stop stops the task scheduler gracefully
 func (s *Scheduler) Stop() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if !s.running {
+		s.logger.Warn("scheduler is not running")
+		return
+	}
+
+	// Stop accepting new tasks
 	s.cron.Stop()
+
+	// Cancel context to signal running tasks to stop
+	s.cancel()
+
+	// Release the worker pool
 	s.pool.Release()
+
+	s.running = false
+	s.logger.Info("task scheduler stopped")
+}
+
+// IsRunning returns whether the scheduler is currently running
+func (s *Scheduler) IsRunning() bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.running
 }
 
 type FuncWithServer func(fiberServer *server.FiberServer) (int, error)
 type FuncWithoutServer func() (int, error)
 
-// AddTask 添加定时任务
+// AddTask adds a scheduled task without server dependency
 func (s *Scheduler) AddTask(name, spec string, task FuncWithoutServer) error {
-	// 为每个任务创建一个锁
+	if name == "" {
+		return fmt.Errorf("task name cannot be empty")
+	}
+	if spec == "" {
+		return fmt.Errorf("task spec cannot be empty")
+	}
+	if task == nil {
+		return fmt.Errorf("task function cannot be nil")
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	// Check if task already exists
+	if _, exists := s.tasks[name]; exists {
+		return fmt.Errorf("task %s already exists", name)
+	}
+
+	// Create a lock for this task
 	s.locks[name] = &sync.Mutex{}
 
 	id, err := s.cron.AddFunc(spec, func() {
-
-		// 提交任务到协程池
-		err := s.pool.Submit(func() {
-			// 尝试获取锁，如果任务正在执行则跳过本次执行
+		// Submit task to worker pool
+		submitErr := s.pool.Submit(func() {
+			// Try to acquire lock, skip if task is already running
 			if !s.locks[name].TryLock() {
-				log.Printf("任务 %s 正在执行中，跳过本次执行", name)
+				s.logger.Warn("task is already running, skipping execution", logger.Fields{
+					"task": name,
+				})
 				return
 			}
 			defer s.locks[name].Unlock()
+
 			startTime := time.Now()
-			count, err := task()
-			if err != nil {
-				log.Printf("任务 %s 执行出错: %v", name, err)
-			} else if count > 0 {
-				log.Printf("任务 %s 执行完成，耗时: %v，共处理: %v 条数据", name, time.Since(startTime), count)
+			s.logger.Debug("starting task execution", logger.Fields{
+				"task": name,
+			})
+
+			count, taskErr := task()
+			duration := time.Since(startTime)
+
+			if taskErr != nil {
+				s.logger.Error("task execution failed", logger.Fields{
+					"task":     name,
+					"duration": duration,
+					"error":    taskErr.Error(),
+				})
+			} else {
+				s.logger.Info("task execution completed", logger.Fields{
+					"task":     name,
+					"duration": duration,
+					"count":    count,
+				})
 			}
 		})
-		if err != nil {
-			log.Printf("提交任务 %s 失败: %v", name, err)
+
+		if submitErr != nil {
+			s.logger.Error("failed to submit task to worker pool", logger.Fields{
+				"task":  name,
+				"error": submitErr.Error(),
+			})
 		}
 	})
+
 	if err != nil {
-		return err
-	}
-	s.tasks[name] = id
-	return nil
-}
-
-// AddTaskWithServer 添加需要数据库连接的定时任务
-func (s *Scheduler) AddTaskWithServer(name, spec string, task FuncWithServer, fiberServer *server.FiberServer) error {
-	// 为每个任务创建一个锁
-	s.locks[name] = &sync.Mutex{}
-
-	id, err := s.cron.AddFunc(spec, func() {
-		// 提交任务到协程池
-		err := s.pool.Submit(func() {
-			// 尝试获取锁，如果任务正在执行则跳过本次执行
-			if !s.locks[name].TryLock() {
-				log.Printf("任务 %s 正在执行中，跳过本次执行", name)
-				return
-			}
-			defer s.locks[name].Unlock()
-			startTime := time.Now()
-			count, err := task(fiberServer)
-			if err != nil {
-				log.Printf("任务 %s 执行出错: %v", name, err)
-			} else if count > 0 {
-				log.Printf("任务 %s 执行完成，耗时: %v，共处理: %v 条数据", name, time.Since(startTime), count)
-			}
-		})
-		if err != nil {
-			log.Printf("提交任务 %s 失败: %v", name, err)
-		}
-	})
-	if err != nil {
-		return err
-	}
-	s.tasks[name] = id
-	return nil
-}
-
-// RemoveTask 移除定时任务
-func (s *Scheduler) RemoveTask(name string) {
-	if id, exists := s.tasks[name]; exists {
-		s.cron.Remove(id)
-		delete(s.tasks, name)
 		delete(s.locks, name)
+		return fmt.Errorf("failed to add task %s: %w", name, err)
 	}
+
+	s.tasks[name] = id
+	s.logger.Info("task added successfully", logger.Fields{
+		"task": name,
+		"spec": spec,
+	})
+
+	return nil
+}
+
+// AddTaskWithServer adds a scheduled task that requires server dependency
+func (s *Scheduler) AddTaskWithServer(name, spec string, task FuncWithServer, fiberServer *server.FiberServer) error {
+	if name == "" {
+		return fmt.Errorf("task name cannot be empty")
+	}
+	if spec == "" {
+		return fmt.Errorf("task spec cannot be empty")
+	}
+	if task == nil {
+		return fmt.Errorf("task function cannot be nil")
+	}
+	if fiberServer == nil {
+		return fmt.Errorf("fiber server cannot be nil")
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	// Check if task already exists
+	if _, exists := s.tasks[name]; exists {
+		return fmt.Errorf("task %s already exists", name)
+	}
+
+	// Create a lock for this task
+	s.locks[name] = &sync.Mutex{}
+
+	id, err := s.cron.AddFunc(spec, func() {
+		// Submit task to worker pool
+		submitErr := s.pool.Submit(func() {
+			// Try to acquire lock, skip if task is already running
+			if !s.locks[name].TryLock() {
+				s.logger.Warn("task is already running, skipping execution", logger.Fields{
+					"task": name,
+				})
+				return
+			}
+			defer s.locks[name].Unlock()
+
+			startTime := time.Now()
+			s.logger.Debug("starting task execution with server", logger.Fields{
+				"task": name,
+			})
+
+			count, taskErr := task(fiberServer)
+			duration := time.Since(startTime)
+
+			if taskErr != nil {
+				s.logger.Error("task execution failed", logger.Fields{
+					"task":     name,
+					"duration": duration,
+					"error":    taskErr.Error(),
+				})
+			} else {
+				s.logger.Info("task execution completed", logger.Fields{
+					"task":     name,
+					"duration": duration,
+					"count":    count,
+				})
+			}
+		})
+
+		if submitErr != nil {
+			s.logger.Error("failed to submit task to worker pool", logger.Fields{
+				"task":  name,
+				"error": submitErr.Error(),
+			})
+		}
+	})
+
+	if err != nil {
+		delete(s.locks, name)
+		return fmt.Errorf("failed to add task %s: %w", name, err)
+	}
+
+	s.tasks[name] = id
+	s.logger.Info("task with server added successfully", logger.Fields{
+		"task": name,
+		"spec": spec,
+	})
+
+	return nil
+}
+
+// RemoveTask removes a scheduled task
+func (s *Scheduler) RemoveTask(name string) error {
+	if name == "" {
+		return fmt.Errorf("task name cannot be empty")
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	id, exists := s.tasks[name]
+	if !exists {
+		return fmt.Errorf("task %s does not exist", name)
+	}
+
+	s.cron.Remove(id)
+	delete(s.tasks, name)
+	delete(s.locks, name)
+
+	s.logger.Info("task removed successfully", logger.Fields{
+		"task": name,
+	})
+
+	return nil
+}
+
+// GetTaskCount returns the number of registered tasks
+func (s *Scheduler) GetTaskCount() int {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return len(s.tasks)
+}
+
+// ListTasks returns a list of all registered task names
+func (s *Scheduler) ListTasks() []string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	tasks := make([]string, 0, len(s.tasks))
+	for name := range s.tasks {
+		tasks = append(tasks, name)
+	}
+	return tasks
 }

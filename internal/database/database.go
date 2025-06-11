@@ -34,18 +34,17 @@ type Database struct {
 	client *ent.Client
 }
 
-// New creates a new database service
+// New creates a new database service with improved error handling
 func New() (Service, error) {
 	// Load database configuration
 	dbConfig, err := config.LoadDatabaseConfig()
 	if err != nil {
-		return nil, fmt.Errorf("failed to load database config: %v", err)
+		return nil, fmt.Errorf("failed to load database config: %w", err)
 	}
 
-	// Create ent client
 	client, err := ent.Open("postgres", dbConfig.GetDSN())
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to database: %v", err)
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
 	return &Database{
@@ -55,15 +54,19 @@ func New() (Service, error) {
 
 // Health checks if the database connection is healthy
 func (db *Database) Health(ctx context.Context) error {
+	if db.client == nil {
+		return fmt.Errorf("database client is nil")
+	}
+
 	// Create a timeout context for the health check
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	healthCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	// Try to query something simple to verify connection is working
-	// Using the User entity as an example - just count the records
-	_, err := db.client.User.Query().FirstID(ctx)
+	// Test database connectivity by performing a simple query
+	// This is more reliable than trying to access the underlying sql.DB
+	_, err := db.client.User.Query().Count(healthCtx)
 	if err != nil {
-		return fmt.Errorf("database health check failed: %v", err)
+		return fmt.Errorf("database health check failed: %w", err)
 	}
 
 	return nil
@@ -98,5 +101,13 @@ func (db *Database) GetAllMoments(ctx context.Context) ([]*ent.Moment, error) {
 
 // Close closes the database connection
 func (db *Database) Close() error {
-	return db.client.Close()
+	if db.client == nil {
+		return nil // Already closed or never initialized
+	}
+
+	if err := db.client.Close(); err != nil {
+		return fmt.Errorf("failed to close database connection: %w", err)
+	}
+
+	return nil
 }
