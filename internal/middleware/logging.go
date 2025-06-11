@@ -32,8 +32,13 @@ type LoggingConfig struct {
 
 // DefaultLoggingConfig returns a default logging configuration
 func DefaultLoggingConfig() LoggingConfig {
+	httpLogger, err := logger.New("http")
+	if err != nil {
+		panic("failed to create http logger: " + err.Error())
+	}
+
 	return LoggingConfig{
-		Logger:                 logger.New("http"),
+		Logger:                 httpLogger,
 		SkipPaths:              []string{"/health", "/metrics", "/favicon.ico"},
 		SkipSuccessfulRequests: false,
 		LogRequestBody:         false,
@@ -51,7 +56,11 @@ func NewLoggingMiddleware(config ...LoggingConfig) fiber.Handler {
 
 	// Ensure logger is set
 	if cfg.Logger == nil {
-		cfg.Logger = logger.New("http")
+		httpLogger, err := logger.New("http")
+		if err != nil {
+			panic("failed to create http logger: " + err.Error())
+		}
+		cfg.Logger = httpLogger
 	}
 
 	return func(c *fiber.Ctx) error {

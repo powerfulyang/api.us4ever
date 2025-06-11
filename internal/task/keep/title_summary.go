@@ -1,15 +1,28 @@
 package keep
 
 import (
-	"api.us4ever/internal/server"
 	"context"
 	"fmt"
-	"log"
 	"time"
+
+	"api.us4ever/internal/server"
 
 	"api.us4ever/internal/dify"
 	"api.us4ever/internal/ent/keep"
+	"api.us4ever/internal/logger"
 )
+
+var (
+	titleSummaryLogger *logger.Logger
+)
+
+func init() {
+	var err error
+	titleSummaryLogger, err = logger.New("title-summary")
+	if err != nil {
+		panic("failed to initialize title-summary logger: " + err.Error())
+	}
+}
 
 // GenerateTitleAndSummary 生成 Keep 表中缺少 title 和 summary 的记录
 func GenerateTitleAndSummary(fiberServer *server.FiberServer) (int, error) {
@@ -34,7 +47,9 @@ func GenerateTitleAndSummary(fiberServer *server.FiberServer) (int, error) {
 	}
 
 	if len(keeps) > 0 {
-		log.Printf("Summary: Found %d keeps to process", len(keeps))
+		titleSummaryLogger.Info("found keeps to process for title/summary generation", logger.Fields{
+			"count": len(keeps),
+		})
 	}
 
 	// 处理每条记录
@@ -43,7 +58,10 @@ func GenerateTitleAndSummary(fiberServer *server.FiberServer) (int, error) {
 		if k.Title == "" {
 			title, err := generateTitle(k.Content)
 			if err != nil {
-				log.Printf("Error generating title (ID: %s): %v", k.ID, err)
+				titleSummaryLogger.Error("error generating title", logger.Fields{
+					"keep_id": k.ID,
+					"error":   err.Error(),
+				})
 				continue
 			}
 
@@ -54,7 +72,10 @@ func GenerateTitleAndSummary(fiberServer *server.FiberServer) (int, error) {
 				Save(ctx)
 
 			if err != nil {
-				log.Printf("Error updating title (ID: %s): %v", k.ID, err)
+				titleSummaryLogger.Error("error updating title", logger.Fields{
+					"keep_id": k.ID,
+					"error":   err.Error(),
+				})
 				continue
 			}
 		}
@@ -63,7 +84,10 @@ func GenerateTitleAndSummary(fiberServer *server.FiberServer) (int, error) {
 		if k.Summary == "" {
 			summary, err := generateSummary(k.Content)
 			if err != nil {
-				log.Printf("Error generating summary (ID: %s): %v", k.ID, err)
+				titleSummaryLogger.Error("error generating summary", logger.Fields{
+					"keep_id": k.ID,
+					"error":   err.Error(),
+				})
 				continue
 			}
 
@@ -74,7 +98,10 @@ func GenerateTitleAndSummary(fiberServer *server.FiberServer) (int, error) {
 				Save(ctx)
 
 			if err != nil {
-				log.Printf("Error updating summary (ID: %s): %v", k.ID, err)
+				titleSummaryLogger.Error("error updating summary", logger.Fields{
+					"keep_id": k.ID,
+					"error":   err.Error(),
+				})
 				continue
 			}
 		}

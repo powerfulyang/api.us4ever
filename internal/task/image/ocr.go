@@ -1,26 +1,39 @@
 package image
 
 import (
-	"api.us4ever/internal/config"
-	"api.us4ever/internal/server"
 	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqljson"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"regexp"
 	"strings"
 	"time"
 
+	"api.us4ever/internal/config"
+	"api.us4ever/internal/server"
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqljson"
+
 	"api.us4ever/internal/database"
 	"api.us4ever/internal/ent"
 	"api.us4ever/internal/ent/image"
+	"api.us4ever/internal/logger"
 )
+
+var (
+	ocrLogger *logger.Logger
+)
+
+func init() {
+	var err error
+	ocrLogger, err = logger.New("ocr")
+	if err != nil {
+		panic("failed to initialize OCR logger: " + err.Error())
+	}
+}
 
 const (
 	taskLimit = 1 // Process one image per task run
@@ -90,12 +103,16 @@ func ProcessImageOCR(fiberServer *server.FiberServer) (int, error) {
 		All(ctx)
 
 	if err != nil {
-		log.Printf("Error querying images for OCR check: %v", err)
+		ocrLogger.Error("error querying images for OCR check", logger.Fields{
+			"error": err.Error(),
+		})
 		return 0, err
 	}
 
 	if len(imagesToCheck) > 0 {
-		log.Printf("OCR: found %d images to process", len(imagesToCheck))
+		ocrLogger.Info("found images to process", logger.Fields{
+			"count": len(imagesToCheck),
+		})
 	}
 
 	// 遍历检查的图片
@@ -106,7 +123,10 @@ func ProcessImageOCR(fiberServer *server.FiberServer) (int, error) {
 
 		err := ProcessSingleImageOCR(ctx, db, img.ID)
 		if err != nil {
-			log.Printf("Failed to process image %s: %v", img.ID, err)
+			ocrLogger.Error("failed to process image", logger.Fields{
+				"image_id": img.ID,
+				"error":    err.Error(),
+			})
 			continue
 		}
 	}
@@ -118,7 +138,10 @@ func ProcessImageOCR(fiberServer *server.FiberServer) (int, error) {
 func needsOCRProcessing(img *ent.Image) bool {
 	var currentExtraData map[string]interface{}
 	if err := json.Unmarshal(img.ExtraData, &currentExtraData); err != nil {
-		log.Printf("Image ID %s: Failed to unmarshal existing ExtraData for checking: %v. Assuming needs processing.", img.ID, err)
+		ocrLogger.Warn("failed to unmarshal existing ExtraData for checking, assuming needs processing", logger.Fields{
+			"image_id": img.ID,
+			"error":    err.Error(),
+		})
 		return true // Error unmarshalling, assume it needs processing to be safe
 	}
 
@@ -135,7 +158,9 @@ func downloadImage(url string) ([]byte, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			log.Printf("Failed to close response body: %v", err)
+			ocrLogger.Warn("failed to close response body", logger.Fields{
+				"error": err.Error(),
+			})
 		}
 	}(resp.Body)
 
@@ -176,7 +201,9 @@ func callOCRAPI(base64Image string) (*OCRResponse, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			log.Printf("Failed to close OCR API response body: %v", err)
+			ocrLogger.Warn("failed to close OCR API response body", logger.Fields{
+				"error": err.Error(),
+			})
 		}
 	}(resp.Body)
 
@@ -218,7 +245,11 @@ func updateImageExtraData(ctx context.Context, db database.Service, img *ent.Ima
 	if len(img.ExtraData) > 0 {
 		if err := json.Unmarshal(img.ExtraData, &currentExtraData); err != nil {
 			// If unmarshalling fails, log it but proceed with a new map
-			log.Printf("Image ID %s: Failed to unmarshal existing ExtraData '%s': %v. Overwriting with new data.", img.ID, string(img.ExtraData), err)
+			ocrLogger.Warn("failed to unmarshal existing ExtraData, overwriting with new data", logger.Fields{
+				"image_id":   img.ID,
+				"extra_data": string(img.ExtraData),
+				"error":      err.Error(),
+			})
 			currentExtraData = make(map[string]interface{}) // Initialize if unmarshal fails
 		}
 	} else {

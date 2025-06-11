@@ -1,13 +1,27 @@
 package telegram
 
 import (
-	"api.us4ever/internal/config"
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
+
+	"api.us4ever/internal/config"
+
+	"api.us4ever/internal/logger"
 )
+
+var (
+	telegramSyncLogger *logger.Logger
+)
+
+func init() {
+	var err error
+	telegramSyncLogger, err = logger.New("telegram-sync")
+	if err != nil {
+		panic("failed to initialize telegram-sync logger: " + err.Error())
+	}
+}
 
 func TriggerSyncTelegram() (int, error) {
 	// 向 https://us4ever.com/api/internal/sync/telegram/emt_channel 发送 GET 请求
@@ -25,7 +39,9 @@ func TriggerSyncTelegram() (int, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			log.Printf("关闭响应体失败: %v", err)
+			telegramSyncLogger.Error("failed to close response body", logger.Fields{
+				"error": err.Error(),
+			})
 		}
 	}(resp.Body)
 

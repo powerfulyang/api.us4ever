@@ -1,15 +1,28 @@
 package vector
 
 import (
+	"context"
+	"encoding/json"
+	"time"
+
 	"api.us4ever/internal/ent/keep"
 	"api.us4ever/internal/ent/moment"
 	"api.us4ever/internal/es"
+	"api.us4ever/internal/logger"
 	"api.us4ever/internal/server"
-	"context"
-	"encoding/json"
-	"log"
-	"time"
 )
+
+var (
+	embeddingLogger *logger.Logger
+)
+
+func init() {
+	var err error
+	embeddingLogger, err = logger.New("embedding")
+	if err != nil {
+		panic("failed to initialize embedding logger: " + err.Error())
+	}
+}
 
 func EmbeddingMoments(fiberServer *server.FiberServer) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Second)
@@ -27,7 +40,9 @@ func EmbeddingMoments(fiberServer *server.FiberServer) (int, error) {
 	}
 
 	if len(records) > 0 {
-		log.Printf("EmbeddingMoments: Found %d moments to process", len(records))
+		embeddingLogger.Info("found moments to process for embedding", logger.Fields{
+			"count": len(records),
+		})
 	}
 
 	handledCount := 0
@@ -35,21 +50,30 @@ func EmbeddingMoments(fiberServer *server.FiberServer) (int, error) {
 	for _, record := range records {
 		vector, err := es.Embed(ctx, record.Content)
 		if err != nil {
-			// 处理错误
-			log.Printf("Error embedding content for record %s: %v", record.ID, err)
+			// Handle error
+			embeddingLogger.Error("error embedding content for moment record", logger.Fields{
+				"record_id": record.ID,
+				"error":     err.Error(),
+			})
 			continue
 		}
-		// 将向量转换为 JSON 格式
+		// Convert vector to JSON format
 		contentVector, err := json.Marshal(vector)
 		if err != nil {
-			// 处理错误
-			log.Printf("Error marshalling vector for record %s: %v", record.ID, err)
+			// Handle error
+			embeddingLogger.Error("error marshalling vector for moment record", logger.Fields{
+				"record_id": record.ID,
+				"error":     err.Error(),
+			})
 			continue
 		}
 		_, err = record.Update().SetContentVector(contentVector).Save(ctx)
 		if err != nil {
-			// 处理错误
-			log.Printf("Error updating content vector for record %s: %v", record.ID, err)
+			// Handle error
+			embeddingLogger.Error("error updating content vector for moment record", logger.Fields{
+				"record_id": record.ID,
+				"error":     err.Error(),
+			})
 			continue
 		}
 		handledCount++
@@ -84,7 +108,9 @@ func EmbeddingKeeps(fiberServer *server.FiberServer) (int, error) {
 	}
 
 	if len(records) > 0 {
-		log.Printf("EmbeddingKeeps: Found %d keeps to process", len(records))
+		embeddingLogger.Info("found keeps to process for embedding", logger.Fields{
+			"count": len(records),
+		})
 	}
 
 	handledCount := 0
@@ -93,51 +119,78 @@ func EmbeddingKeeps(fiberServer *server.FiberServer) (int, error) {
 		if record.TitleVector == nil && record.Title != "" {
 			vector, err := es.Embed(ctx, record.Title)
 			if err != nil {
-				log.Printf("Error embedding title for record %s: %v", record.ID, err)
+				embeddingLogger.Error("error embedding title for keep record", logger.Fields{
+					"record_id": record.ID,
+					"error":     err.Error(),
+				})
 				continue
 			}
 			titleVector, err := json.Marshal(vector)
 			if err != nil {
-				log.Printf("Error marshalling title vector for record %s: %v", record.ID, err)
+				embeddingLogger.Error("error marshalling title vector for keep record", logger.Fields{
+					"record_id": record.ID,
+					"error":     err.Error(),
+				})
 				continue
 			}
 			_, err = record.Update().SetTitleVector(titleVector).Save(ctx)
 			if err != nil {
-				log.Printf("Error updating title vector for record %s: %v", record.ID, err)
+				embeddingLogger.Error("error updating title vector for keep record", logger.Fields{
+					"record_id": record.ID,
+					"error":     err.Error(),
+				})
 				continue
 			}
 		}
 		if record.SummaryVector == nil && record.Summary != "" {
 			vector, err := es.Embed(ctx, record.Summary)
 			if err != nil {
-				log.Printf("Error embedding summary for record %s: %v", record.ID, err)
+				embeddingLogger.Error("error embedding summary for keep record", logger.Fields{
+					"record_id": record.ID,
+					"error":     err.Error(),
+				})
 				continue
 			}
 			summaryVector, err := json.Marshal(vector)
 			if err != nil {
-				log.Printf("Error marshalling summary vector for record %s: %v", record.ID, err)
+				embeddingLogger.Error("error marshalling summary vector for keep record", logger.Fields{
+					"record_id": record.ID,
+					"error":     err.Error(),
+				})
 				continue
 			}
 			_, err = record.Update().SetSummaryVector(summaryVector).Save(ctx)
 			if err != nil {
-				log.Printf("Error updating summary vector for record %s: %v", record.ID, err)
+				embeddingLogger.Error("error updating summary vector for keep record", logger.Fields{
+					"record_id": record.ID,
+					"error":     err.Error(),
+				})
 				continue
 			}
 		}
 		if record.ContentVector == nil && record.Content != "" {
 			vector, err := es.Embed(ctx, record.Content)
 			if err != nil {
-				log.Printf("Error embedding content for record %s: %v", record.ID, err)
+				embeddingLogger.Error("error embedding content for keep record", logger.Fields{
+					"record_id": record.ID,
+					"error":     err.Error(),
+				})
 				continue
 			}
 			contentVector, err := json.Marshal(vector)
 			if err != nil {
-				log.Printf("Error marshalling content vector for record %s: %v", record.ID, err)
+				embeddingLogger.Error("error marshalling content vector for keep record", logger.Fields{
+					"record_id": record.ID,
+					"error":     err.Error(),
+				})
 				continue
 			}
 			_, err = record.Update().SetContentVector(contentVector).Save(ctx)
 			if err != nil {
-				log.Printf("Error updating content vector for record %s: %v", record.ID, err)
+				embeddingLogger.Error("error updating content vector for keep record", logger.Fields{
+					"record_id": record.ID,
+					"error":     err.Error(),
+				})
 				continue
 			}
 		}

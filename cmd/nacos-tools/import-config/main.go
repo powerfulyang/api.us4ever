@@ -3,12 +3,23 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"os"
 
 	"api.us4ever/internal/config"
+	"api.us4ever/internal/logger"
 )
+
+var (
+	nacosToolsLogger *logger.Logger
+)
+
+func init() {
+	var err error
+	nacosToolsLogger, err = logger.New("nacos-tools")
+	if err != nil {
+		panic("failed to initialize nacos-tools logger: " + err.Error())
+	}
+}
 
 func main() {
 	// 定义命令行参数
@@ -19,14 +30,14 @@ func main() {
 
 	// 检查文件路径
 	if *filePath == "" {
-		log.Fatal("错误: 请指定配置文件路径，使用 -file 参数")
+		nacosToolsLogger.Fatal("error: please specify config file path using -file parameter")
 	}
 
 	// 如果未指定DataID，则使用环境变量
 	if *dataID == "" {
 		*dataID = os.Getenv("NACOS_DATA_ID")
 		if *dataID == "" {
-			log.Fatal("错误: 未指定DataID，环境变量NACOS_DATA_ID也未设置")
+			nacosToolsLogger.Fatal("error: DataID not specified and NACOS_DATA_ID environment variable not set")
 		}
 	}
 
@@ -39,9 +50,12 @@ func main() {
 	}
 
 	// 读取配置文件
-	content, err := ioutil.ReadFile(*filePath)
+	content, err := os.ReadFile(*filePath)
 	if err != nil {
-		log.Fatalf("读取配置文件失败: %v", err)
+		nacosToolsLogger.Fatal("failed to read config file", logger.Fields{
+			"file_path": *filePath,
+			"error":     err.Error(),
+		})
 	}
 
 	// 初始化 Nacos 客户端
@@ -50,12 +64,24 @@ func main() {
 	// 发布配置到 Nacos
 	success, err := config.PublishConfig(*dataID, *group, string(content))
 	if err != nil {
-		log.Fatalf("发布配置失败: %v", err)
+		nacosToolsLogger.Fatal("failed to publish config", logger.Fields{
+			"data_id": *dataID,
+			"group":   *group,
+			"error":   err.Error(),
+		})
 	}
 
 	if success {
+		nacosToolsLogger.Info("config published successfully to Nacos", logger.Fields{
+			"data_id": *dataID,
+			"group":   *group,
+		})
 		fmt.Printf("配置已成功发布到 Nacos (DataID: %s, Group: %s)\n", *dataID, *group)
 	} else {
+		nacosToolsLogger.Error("failed to publish config to Nacos", logger.Fields{
+			"data_id": *dataID,
+			"group":   *group,
+		})
 		fmt.Println("发布配置失败")
 	}
 }

@@ -6,10 +6,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 
+	"api.us4ever/internal/logger"
 	"github.com/elastic/go-elasticsearch/v8"
 )
+
+var (
+	searchLogger *logger.Logger
+)
+
+func init() {
+	var err error
+	searchLogger, err = logger.New("search")
+	if err != nil {
+		panic("failed to initialize search logger: " + err.Error())
+	}
+}
 
 // SearchResult represents the structure of the Elasticsearch search response
 type SearchResult struct {
@@ -154,7 +166,9 @@ func SearchKeeps(ctx context.Context, client *elasticsearch.Client, indexAlias s
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			log.Printf("Error closing response body: %v", err)
+			searchLogger.Error("error closing response body", logger.Fields{
+				"error": err.Error(),
+			})
 		}
 	}(res.Body)
 
@@ -164,11 +178,11 @@ func SearchKeeps(ctx context.Context, client *elasticsearch.Client, indexAlias s
 			return nilResult, fmt.Errorf("error parsing the response body: %w", err)
 		} else {
 			// Print the error response body for debugging.
-			log.Printf("[%s] %s: %s",
-				res.Status(),
-				e["error"].(map[string]interface{})["type"],
-				e["error"].(map[string]interface{})["reason"],
-			)
+			searchLogger.Error("elasticsearch search error", logger.Fields{
+				"status": res.Status(),
+				"type":   e["error"].(map[string]interface{})["type"],
+				"reason": e["error"].(map[string]interface{})["reason"],
+			})
 			return nilResult, fmt.Errorf("elasticsearch search error: [%s] %s", res.Status(), e["error"].(map[string]interface{})["reason"])
 		}
 	}
@@ -178,12 +192,11 @@ func SearchKeeps(ctx context.Context, client *elasticsearch.Client, indexAlias s
 		return nilResult, fmt.Errorf("error parsing the response body: %w", err)
 	}
 
-	log.Printf(
-		"[%s] %d hits; total: %d",
-		res.Status(),
-		len(r.Hits.Hits),
-		r.Hits.Total.Value,
-	)
+	searchLogger.Info("search completed", logger.Fields{
+		"status":     res.Status(),
+		"hits_count": len(r.Hits.Hits),
+		"total":      r.Hits.Total.Value,
+	})
 
 	return r, nil
 }
@@ -286,7 +299,9 @@ func SearchMoments(ctx context.Context, client *elasticsearch.Client, indexAlias
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			log.Printf("Error closing response body: %v", err)
+			searchLogger.Error("error closing response body", logger.Fields{
+				"error": err.Error(),
+			})
 		}
 	}(res.Body)
 
@@ -296,11 +311,11 @@ func SearchMoments(ctx context.Context, client *elasticsearch.Client, indexAlias
 			return nilResult, fmt.Errorf("error parsing the response body: %w", err)
 		} else {
 			// Print the error response body for debugging.
-			log.Printf("[%s] %s: %s",
-				res.Status(),
-				e["error"].(map[string]interface{})["type"],
-				e["error"].(map[string]interface{})["reason"],
-			)
+			searchLogger.Error("elasticsearch search error for moments", logger.Fields{
+				"status": res.Status(),
+				"type":   e["error"].(map[string]interface{})["type"],
+				"reason": e["error"].(map[string]interface{})["reason"],
+			})
 			return nilResult, fmt.Errorf("elasticsearch search error: [%s] %s", res.Status(), e["error"].(map[string]interface{})["reason"])
 		}
 	}
@@ -310,12 +325,11 @@ func SearchMoments(ctx context.Context, client *elasticsearch.Client, indexAlias
 		return nilResult, fmt.Errorf("error parsing the response body: %w", err)
 	}
 
-	log.Printf(
-		"[%s] %d hits; total: %d",
-		res.Status(),
-		len(r.Hits.Hits),
-		r.Hits.Total.Value,
-	)
+	searchLogger.Info("moments search completed", logger.Fields{
+		"status":     res.Status(),
+		"hits_count": len(r.Hits.Hits),
+		"total":      r.Hits.Total.Value,
+	})
 
 	return r, nil
 }

@@ -3,9 +3,22 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
+
+	"api.us4ever/internal/logger"
 )
+
+var (
+	utilsLogger *logger.Logger
+)
+
+func init() {
+	var err error
+	utilsLogger, err = logger.New("config-utils")
+	if err != nil {
+		panic("failed to initialize config-utils logger: " + err.Error())
+	}
+}
 
 // ImportConfigToNacos 将本地配置文件导入到Nacos
 func ImportConfigToNacos(filePath, dataID, group string) error {
@@ -31,6 +44,9 @@ func ImportConfigToNacos(filePath, dataID, group string) error {
 		return fmt.Errorf("发布配置到Nacos未成功")
 	}
 
-	log.Printf("成功将配置导入到Nacos: dataID=%s, group=%s", dataID, group)
+	utilsLogger.Info("successfully imported config to Nacos", logger.Fields{
+		"data_id": dataID,
+		"group":   group,
+	})
 	return nil
 }

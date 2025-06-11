@@ -3,13 +3,25 @@ package es
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
 	"api.us4ever/internal/config"
+	"api.us4ever/internal/logger"
 	"github.com/elastic/go-elasticsearch/v8"
 )
+
+var (
+	esClientLogger *logger.Logger
+)
+
+func init() {
+	var err error
+	esClientLogger, err = logger.New("es-client")
+	if err != nil {
+		panic("failed to initialize es-client logger: " + err.Error())
+	}
+}
 
 // NewClient creates and returns a new Elasticsearch client based on the provided configuration
 func NewClient(cfg config.ESConfig) (*elasticsearch.Client, error) {
@@ -53,6 +65,6 @@ func NewClient(cfg config.ESConfig) (*elasticsearch.Client, error) {
 		return nil, fmt.Errorf("elasticsearch connection test failed: %s", res.Status())
 	}
 
-	log.Println("Elasticsearch client created and connection verified successfully")
+	esClientLogger.Info("Elasticsearch client created and connection verified successfully")
 	return client, nil
 }

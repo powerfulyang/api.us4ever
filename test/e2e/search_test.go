@@ -3,33 +3,52 @@
 package e2e
 
 import (
-	"api.us4ever/internal/config"
-	"api.us4ever/internal/es"
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"testing"
+
+	"api.us4ever/internal/config"
+	"api.us4ever/internal/es"
+
+	"api.us4ever/internal/logger"
 )
+
+var (
+	searchTestLogger *logger.Logger
+)
+
+func init() {
+	var err error
+	searchTestLogger, err = logger.New("search-test")
+	if err != nil {
+		panic("failed to initialize search-test logger: " + err.Error())
+	}
+}
 
 func TestSearchKeeps(t *testing.T) {
 	ctx := context.Background()
 
 	appConfig := config.GetAppConfig()
 	if appConfig == nil {
-		log.Fatalf("无法加载应用配置")
+		searchTestLogger.Fatal("failed to load application config")
 	}
 
 	client, err := es.NewClient(appConfig.ES)
 	if err != nil {
-		log.Fatalf("初始化 Elasticsearch 客户端失败: %v", err)
+		searchTestLogger.Fatal("failed to initialize Elasticsearch client", logger.Fields{
+			"error": err.Error(),
+		})
 	}
 
 	indexAlias := fmt.Sprintf("%s-keeps", strings.ToLower(strings.ReplaceAll(appConfig.AppName, " ", "-")))
 
 	searchQuery := "测试"
 
-	log.Printf("使用索引别名 '%s' 搜索关键词 '%s'", indexAlias, searchQuery)
+	searchTestLogger.Info("performing search test", logger.Fields{
+		"index_alias":  indexAlias,
+		"search_query": searchQuery,
+	})
 	results, err := es.SearchKeeps(ctx, client, indexAlias, searchQuery)
 
 	total := results.Hits.Total.Value

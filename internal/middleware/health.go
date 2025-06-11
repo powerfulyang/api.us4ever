@@ -39,9 +39,14 @@ type HealthMiddleware struct {
 
 // NewHealthMiddleware creates a new health middleware
 func NewHealthMiddleware() *HealthMiddleware {
+	healthLogger, err := logger.New("health")
+	if err != nil {
+		panic("failed to create health logger: " + err.Error())
+	}
+
 	return &HealthMiddleware{
 		checkers: make(map[string]HealthChecker),
-		logger:   logger.New("health"),
+		logger:   healthLogger,
 		timeout:  5 * time.Second,
 	}
 }

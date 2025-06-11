@@ -38,8 +38,13 @@ type ErrorHandlerConfig struct {
 
 // DefaultErrorHandlerConfig returns a default error handler configuration
 func DefaultErrorHandlerConfig() ErrorHandlerConfig {
+	errorLogger, err := logger.New("error")
+	if err != nil {
+		panic("failed to create error logger: " + err.Error())
+	}
+
 	return ErrorHandlerConfig{
-		Logger:              logger.New("error"),
+		Logger:              errorLogger,
 		IncludeStackTrace:   false,
 		CustomErrorMap:      make(map[error]ErrorResponse),
 		DefaultErrorMessage: "An internal error occurred",
@@ -55,7 +60,11 @@ func NewErrorHandler(config ...ErrorHandlerConfig) fiber.ErrorHandler {
 
 	// Ensure logger is set
 	if cfg.Logger == nil {
-		cfg.Logger = logger.New("error")
+		errorLogger, err := logger.New("error")
+		if err != nil {
+			panic("failed to create error logger: " + err.Error())
+		}
+		cfg.Logger = errorLogger
 	}
 
 	return func(c *fiber.Ctx, err error) error {
@@ -209,7 +218,10 @@ func determineStatusCode(err error) int {
 
 // RecoveryMiddleware provides panic recovery
 func RecoveryMiddleware() fiber.Handler {
-	log := logger.New("recovery")
+	recoveryLogger, err := logger.New("recovery")
+	if err != nil {
+		panic("failed to create recovery logger: " + err.Error())
+	}
 
 	return func(c *fiber.Ctx) error {
 		defer func() {
@@ -217,7 +229,7 @@ func RecoveryMiddleware() fiber.Handler {
 				requestID := getRequestID(c)
 
 				// Log the panic
-				log.Error("panic recovered", logger.Fields{
+				recoveryLogger.Error("panic recovered", logger.Fields{
 					"panic":      fmt.Sprintf("%v", r),
 					"request_id": requestID,
 					"method":     c.Method(),

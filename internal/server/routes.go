@@ -4,11 +4,22 @@ import (
 	"net/http"
 	"time"
 
-	"log"
-
+	"api.us4ever/internal/logger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
+
+var (
+	routesLogger *logger.Logger
+)
+
+func init() {
+	var err error
+	routesLogger, err = logger.New("routes")
+	if err != nil {
+		panic("failed to initialize routes logger: " + err.Error())
+	}
+}
 
 // requestTimerMiddleware logs the time taken for each request.
 func requestTimerMiddleware(c *fiber.Ctx) error {
@@ -21,7 +32,12 @@ func requestTimerMiddleware(c *fiber.Ctx) error {
 
 	// Log details
 	// Use c.Response().StatusCode() which is available after c.Next()
-	log.Printf("[%s] %s %d - %s", c.Method(), c.Path(), c.Response().StatusCode(), duration)
+	routesLogger.Info("request completed", logger.Fields{
+		"method":   c.Method(),
+		"path":     c.Path(),
+		"status":   c.Response().StatusCode(),
+		"duration": duration.String(),
+	})
 
 	return err // Return the error reported by handlers
 }
@@ -64,7 +80,9 @@ func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {
 func (s *FiberServer) healthHandler(c *fiber.Ctx) error {
 	// Check database connection
 	if err := s.DbClient.Health(c.Context()); err != nil {
-		log.Printf("Health check failed: Database connection error: %v", err)
+		routesLogger.Error("health check failed: database connection error", logger.Fields{
+			"error": err.Error(),
+		})
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Database connection error",
@@ -74,7 +92,7 @@ func (s *FiberServer) healthHandler(c *fiber.Ctx) error {
 
 	// Check Elasticsearch connection
 	if s.EsClient == nil {
-		log.Printf("Health check failed: Elasticsearch client is not initialized.")
+		routesLogger.Error("health check failed: Elasticsearch client is not initialized")
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Elasticsearch client not initialized",
@@ -82,7 +100,9 @@ func (s *FiberServer) healthHandler(c *fiber.Ctx) error {
 	}
 	pingResp, err := s.EsClient.Ping(s.EsClient.Ping.WithContext(c.Context()))
 	if err != nil {
-		log.Printf("Health check failed: Elasticsearch ping error: %v", err)
+		routesLogger.Error("health check failed: Elasticsearch ping error", logger.Fields{
+			"error": err.Error(),
+		})
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Elasticsearch connection error",
@@ -91,7 +111,9 @@ func (s *FiberServer) healthHandler(c *fiber.Ctx) error {
 	}
 	defer pingResp.Body.Close()
 	if pingResp.IsError() {
-		log.Printf("Health check failed: Elasticsearch ping returned error status: %s", pingResp.String())
+		routesLogger.Error("health check failed: Elasticsearch ping returned error status", logger.Fields{
+			"response": pingResp.String(),
+		})
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Elasticsearch service unavailable",

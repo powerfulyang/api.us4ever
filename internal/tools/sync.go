@@ -2,13 +2,25 @@ package tools
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 
 	"api.us4ever/internal/config"
+	"api.us4ever/internal/logger"
 	_ "github.com/lib/pq"
 )
+
+var (
+	syncLogger *logger.Logger
+)
+
+func init() {
+	var err error
+	syncLogger, err = logger.New("sync")
+	if err != nil {
+		panic("failed to initialize sync logger: " + err.Error())
+	}
+}
 
 // SyncSchema 从数据库同步结构到 ENT schema
 func SyncSchema() error {
@@ -32,7 +44,9 @@ func SyncSchema() error {
 	// 构建 DSN
 	dsn := dbConfig.GetDSN()
 
-	log.Printf("使用 DSN: %s", dsn)
+	syncLogger.Info("using DSN for schema sync", logger.Fields{
+		"dsn": dsn,
+	})
 
 	cmd := exec.Command(
 		"go", "run",
@@ -49,6 +63,6 @@ func SyncSchema() error {
 		return fmt.Errorf("failed to run entimport: %v", err)
 	}
 
-	log.Printf("ENT schema generated successfully")
+	syncLogger.Info("ENT schema generated successfully")
 	return nil
 }

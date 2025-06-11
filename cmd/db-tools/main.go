@@ -2,12 +2,24 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
+	"api.us4ever/internal/logger"
 	"api.us4ever/internal/tools"
 	_ "github.com/lib/pq"
 )
+
+var (
+	dbToolsLogger *logger.Logger
+)
+
+func init() {
+	var err error
+	dbToolsLogger, err = logger.New("db-tools")
+	if err != nil {
+		panic("failed to initialize db-tools logger: " + err.Error())
+	}
+}
 
 func main() {
 	if len(os.Args) < 2 {
@@ -22,11 +34,13 @@ func main() {
 		syncSchema()
 	case "import-moments":
 		if len(os.Args) < 3 {
-			log.Fatal("请指定 CSV 文件路径")
+			dbToolsLogger.Fatal("please specify CSV file path")
 		}
 		importMoments(os.Args[2])
 	default:
-		log.Printf("未知命令: %s", command)
+		dbToolsLogger.Error("unknown command", logger.Fields{
+			"command": command,
+		})
 		printUsage()
 		os.Exit(1)
 	}
@@ -39,21 +53,28 @@ func printUsage() {
 }
 
 func syncSchema() {
-	log.Println("正在从数据库同步结构...")
+	dbToolsLogger.Info("syncing database schema")
 
 	if err := tools.SyncSchema(); err != nil {
-		log.Fatalf("同步数据库结构失败: %v", err)
+		dbToolsLogger.Fatal("failed to sync database schema", logger.Fields{
+			"error": err.Error(),
+		})
 	}
 
-	log.Println("数据库结构同步成功！")
+	dbToolsLogger.Info("database schema synced successfully")
 }
 
 func importMoments(csvPath string) {
-	log.Println("正在从 CSV 导入数据到 moment 表...")
+	dbToolsLogger.Info("importing data from CSV to moment table", logger.Fields{
+		"csv_path": csvPath,
+	})
 
 	if err := tools.ImportMomentsFromCSV(csvPath); err != nil {
-		log.Fatalf("导入数据失败: %v", err)
+		dbToolsLogger.Fatal("failed to import data", logger.Fields{
+			"error":    err.Error(),
+			"csv_path": csvPath,
+		})
 	}
 
-	log.Println("数据导入成功！")
+	dbToolsLogger.Info("data imported successfully")
 }

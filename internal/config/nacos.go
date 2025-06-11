@@ -2,11 +2,11 @@ package config
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"sync"
 
+	"api.us4ever/internal/logger"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
@@ -61,7 +61,9 @@ func InitNacosClient() config_client.IConfigClient {
 		})
 
 		if err != nil {
-			log.Fatalf("初始化Nacos配置中心客户端失败: %v", err)
+			configLogger.Fatal("failed to initialize Nacos config client", logger.Fields{
+				"error": err.Error(),
+			})
 		}
 
 		nacosClient = client
@@ -95,7 +97,10 @@ func ListenConfig(dataID, group string, callback func(string)) error {
 		DataId: dataID,
 		Group:  group,
 		OnChange: func(namespace, group, dataId, data string) {
-			log.Printf("配置发生变化 - dataId: %s, group: %s", dataId, group)
+			configLogger.Info("configuration changed", logger.Fields{
+				"data_id": dataId,
+				"group":   group,
+			})
 			callback(data)
 		},
 	})

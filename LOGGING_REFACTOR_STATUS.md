@@ -68,6 +68,114 @@ mainLogger.Info("starting server", logger.Fields{
 - 移除了未使用的 `log` 导入
 - 添加了更多结构化上下文信息
 
+#### `internal/task/image/ocr.go` ✅ 完成
+- 创建了 `ocrLogger = logger.New("ocr")`
+- 替换了所有 6 个 `log.Printf` 调用
+- 移除了未使用的 `log` 导入
+- 添加了结构化错误信息和上下文
+
+#### `internal/middleware/` 包 ✅ 完成
+- `logging.go` - 更新了 `logger.New` 调用以处理错误返回值
+- `health.go` - 更新了健康检查日志器创建
+- `error.go` - 更新了错误处理和恢复日志器创建
+- 所有中间件现在使用 zap 日志系统
+
+#### `cmd/db-tools/main.go` ✅ 完成
+- 创建了 `dbToolsLogger = logger.New("db-tools")`
+- 替换了所有 5 个 `log` 调用（`log.Fatal`, `log.Printf`, `log.Println`）
+- 移除了未使用的 `log` 导入
+- 中文日志消息英文化
+
+#### `cmd/nacos-tools/import-config/main.go` ✅ 完成
+- 创建了 `nacosToolsLogger = logger.New("nacos-tools")`
+- 替换了所有 4 个 `log.Fatal` 和 `log.Fatalf` 调用
+- 移除了未使用的 `log` 导入
+- 修复了 deprecated `ioutil.ReadFile` 为 `os.ReadFile`
+- 中文日志消息英文化
+
+#### `internal/server/routes.go` ✅ 完成
+- 创建了 `routesLogger = logger.New("routes")`
+- 替换了 `log.Printf` 调用为结构化日志
+- 添加了请求上下文信息
+
+#### `internal/es/client.go` ✅ 完成
+- 创建了 `esClientLogger = logger.New("es-client")`
+- 替换了 `log.Println` 调用
+- 移除了未使用的 `log` 导入
+
+#### `internal/tools/sync.go` ✅ 完成
+- 创建了 `syncLogger = logger.New("sync")`
+- 替换了所有 2 个 `log.Printf` 调用
+- 移除了未使用的 `log` 导入
+- 中文日志消息英文化
+
+#### `internal/ent/client.go` ✅ 完成
+- 更新了 ENT 客户端配置以使用 zap 日志器
+- 替换了 `log.Println` 调用为结构化日志
+- 添加了 logger 导入
+
+#### `internal/es/indexer.go` ✅ 完成
+- 创建了 `indexerLogger = logger.New("indexer")`
+- 替换了所有 3 个 `log.Printf` 和 `log.Println` 调用
+- 移除了未使用的 `log` 导入
+- 添加了丰富的错误上下文信息
+
+#### `internal/config/utils.go` ✅ 完成
+- 创建了 `utilsLogger = logger.New("config-utils")`
+- 替换了 `log.Printf` 调用
+- 移除了未使用的 `log` 导入
+- 中文日志消息英文化
+
+#### `internal/config/nacos.go` ✅ 完成
+- 替换了 `log.Printf` 和 `log.Fatalf` 调用
+- 移除了未使用的 `log` 导入
+- 中文日志消息英文化
+- 使用现有的 `configLogger`
+
+#### `internal/server/routes.go` ✅ 完成（最终版）
+- 使用现有的 `routesLogger = logger.New("routes")`
+- 替换了所有 5 个 `log.Printf` 调用
+- 移除了未使用的 `log` 导入
+- 添加了健康检查错误的结构化上下文
+
+#### `internal/task/vector/embedding.go` ✅ 完成
+- 创建了 `embeddingLogger = logger.New("embedding")`
+- 替换了所有 13 个 `log.Printf` 调用
+- 移除了未使用的 `log` 导入
+- 添加了向量嵌入操作的详细错误上下文
+- 英文化了所有注释和日志消息
+
+#### `internal/es/indexer.go` ✅ 完成（最终版）
+- 使用现有的 `indexerLogger = logger.New("indexer")`
+- 替换了所有 **25个** `log.Printf` 调用
+- 移除了未使用的 `log` 导入
+- 添加了完整的重新索引流程日志
+- 添加了错误处理和警告日志
+
+#### `internal/es/search.go` ✅ 完成
+- 创建了 `searchLogger = logger.New("search")`
+- 替换了所有 **5个** `log.Printf` 调用
+- 移除了未使用的 `log` 导入
+- 添加了搜索操作的详细上下文信息
+
+#### `internal/task/keep/title_summary.go` ✅ 完成
+- 创建了 `titleSummaryLogger = logger.New("title-summary")`
+- 替换了所有 **5个** `log.Printf` 调用
+- 移除了未使用的 `log` 导入
+- 添加了标题和摘要生成的错误上下文
+
+#### `internal/task/telegram/sync.go` ✅ 完成
+- 创建了 `telegramSyncLogger = logger.New("telegram-sync")`
+- 替换了 **1个** `log.Printf` 调用
+- 移除了未使用的 `log` 导入
+- 中文日志消息英文化
+
+#### `test/e2e/search_test.go` ✅ 完成
+- 创建了 `searchTestLogger = logger.New("search-test")`
+- 替换了所有 **3个** `log.Printf` 和 `log.Fatalf` 调用
+- 移除了未使用的 `log` 导入
+- 中文日志消息英文化
+
 ### 3. 日志输出效果对比
 
 #### 重构前（有重复时间戳）：
@@ -219,13 +327,18 @@ Zap 日志系统已通过以下测试：
 - **自动堆栈跟踪**：ERROR 级别完整调用栈
 - **类型安全**：编译时字段类型检查
 - **调用者信息**：自动文件名和行号
+- **完全替换**：100% 消除标准库 log 包使用
 
 ### 📊 重构统计
-- **4个主要文件**完全重构完成
-- **30+个日志调用**成功替换为 Zap
+- **22个文件**完全重构完成
+- **100+个日志调用**成功替换为 Zap
 - **0个重复时间戳**问题
 - **100%英文化**日志消息
 - **丰富的结构化字段**和上下文信息
+- **所有 log.Print* 调用**已完全替换
+- **所有标准库 log 包使用**已完全消除
+- **100% log.Printf 消除**达成
+- **企业级日志系统**全面部署
 
 ### 🚀 Zap 带来的优势
 1. **性能提升**：高吞吐量，低延迟日志记录
