@@ -27,7 +27,7 @@ func (s *FiberServer) RegisterFiberRoutes() {
 	s.App.Use(middleware.CORSMiddleware())
 	s.App.Use(middleware.RequestIDMiddleware())
 	s.App.Use(middleware.NewLoggingMiddleware())
-	s.App.Use(middleware.NewPathBasedRateLimiter(1))
+	s.App.Use(middleware.NewPathBasedRateLimiter(100))
 
 	// Apply error handling middleware
 	s.App.Use(middleware.RecoveryMiddleware())
