@@ -7,6 +7,8 @@ import (
 	"api.us4ever/internal/database"
 	"api.us4ever/internal/errors"
 	"api.us4ever/internal/logger"
+	"api.us4ever/internal/utils"
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 )
@@ -113,7 +115,7 @@ func (h *HealthMiddleware) Handler() fiber.Handler {
 			response.Status = "unhealthy"
 		}
 
-		response.Duration = time.Since(startTime).String()
+		response.Duration = utils.SmartDurationFormat(time.Since(startTime))
 
 		// Set appropriate HTTP status code
 		statusCode := fiber.StatusOK
@@ -181,26 +183,6 @@ func (h *HealthMiddleware) checkComponent(ctx context.Context, name string, chec
 	return status
 }
 
-// ReadinessHandler returns a simple readiness check handler
-func (h *HealthMiddleware) ReadinessHandler() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"status":    "ready",
-			"timestamp": time.Now(),
-		})
-	}
-}
-
-// LivenessHandler returns a simple liveness check handler
-func (h *HealthMiddleware) LivenessHandler() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"status":    "alive",
-			"timestamp": time.Now(),
-		})
-	}
-}
-
 // DatabaseHealthChecker implements HealthChecker for database
 type DatabaseHealthChecker struct {
 	db database.Service
@@ -222,16 +204,34 @@ func (d *DatabaseHealthChecker) Health(ctx context.Context) error {
 
 // ElasticsearchHealthChecker implements HealthChecker for Elasticsearch
 type ElasticsearchHealthChecker struct {
-	// Add ES client when needed
+	client *elasticsearch.Client
 }
 
-// NewElasticsearchHealthChecker creates a new Elasticsearch health checker
-func NewElasticsearchHealthChecker() *ElasticsearchHealthChecker {
-	return &ElasticsearchHealthChecker{}
+// NewElasticsearchHealthCheckerWithClient creates a new Elasticsearch health checker with client
+func NewElasticsearchHealthCheckerWithClient(client *elasticsearch.Client) *ElasticsearchHealthChecker {
+	return &ElasticsearchHealthChecker{client: client}
 }
 
 // Health checks Elasticsearch health
 func (e *ElasticsearchHealthChecker) Health(ctx context.Context) error {
-	// TODO: Implement ES health check
+	if e.client == nil {
+		return errors.NewInternalError("elasticsearch client is not initialized", nil)
+	}
+
+	// Try to cast to the expected ES client type and perform a ping
+	// This is a simplified implementation - in practice you'd import the ES client type
+	// For now, we'll assume the client is healthy if it's not nil
+	// TODO: Implement actual ES ping when the client interface is properly defined
+	// Check Elasticsearch connection
+	pingResp, err := e.client.Ping(e.client.Ping.WithContext(ctx))
+	if err != nil {
+		return errors.NewInternalError("elasticsearch connection error", err)
+	}
+	defer pingResp.Body.Close()
+	if pingResp.IsError() {
+		return errors.NewInternalError("elasticsearch service unavailable", nil)
+	}
+
+	// If both checks pass
 	return nil
 }
