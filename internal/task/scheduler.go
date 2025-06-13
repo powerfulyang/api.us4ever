@@ -8,8 +8,10 @@ import (
 
 	"api.us4ever/internal/logger"
 	"api.us4ever/internal/server"
+	"api.us4ever/internal/utils"
 	"github.com/panjf2000/ants/v2"
 	"github.com/robfig/cron/v3"
+	"go.uber.org/zap"
 )
 
 // Scheduler represents a task scheduler with cron jobs and worker pool
@@ -53,9 +55,9 @@ func NewScheduler() (*Scheduler, error) {
 		running: false,
 	}
 
-	taskLogger.Info("task scheduler created successfully", logger.Fields{
-		"pool_size": defaultPoolSize,
-	})
+	taskLogger.Info("task scheduler created successfully",
+		zap.Int("pool_size", defaultPoolSize),
+	)
 
 	return scheduler, nil
 }
@@ -72,7 +74,6 @@ func (s *Scheduler) Start() {
 
 	s.cron.Start()
 	s.running = true
-	s.logger.Info("task scheduler started")
 }
 
 // Stop stops the task scheduler gracefully
@@ -136,41 +137,38 @@ func (s *Scheduler) AddTask(name, spec string, task FuncWithoutServer) error {
 		submitErr := s.pool.Submit(func() {
 			// Try to acquire lock, skip if task is already running
 			if !s.locks[name].TryLock() {
-				s.logger.Warn("task is already running, skipping execution", logger.Fields{
-					"task": name,
-				})
+				s.logger.Warn("task is already running, skipping execution",
+					zap.String("task", name),
+				)
 				return
 			}
 			defer s.locks[name].Unlock()
 
 			startTime := time.Now()
-			s.logger.Debug("starting task execution", logger.Fields{
-				"task": name,
-			})
 
 			count, taskErr := task()
 			duration := time.Since(startTime)
 
 			if taskErr != nil {
-				s.logger.Error("task execution failed", logger.Fields{
-					"task":     name,
-					"duration": duration,
-					"error":    taskErr.Error(),
-				})
-			} else {
-				s.logger.Info("task execution completed", logger.Fields{
-					"task":     name,
-					"duration": duration,
-					"count":    count,
-				})
+				s.logger.Error("task execution failed",
+					zap.String("task", name),
+					zap.Duration("duration", duration),
+					zap.Error(taskErr),
+				)
+			} else if count > 0 {
+				s.logger.Info("task execution completed",
+					zap.String("task", name),
+					zap.Duration("duration", duration),
+					zap.Int("count", count),
+				)
 			}
 		})
 
 		if submitErr != nil {
-			s.logger.Error("failed to submit task to worker pool", logger.Fields{
-				"task":  name,
-				"error": submitErr.Error(),
-			})
+			s.logger.Error("failed to submit task to worker pool",
+				zap.String("task", name),
+				zap.Error(submitErr),
+			)
 		}
 	})
 
@@ -180,10 +178,10 @@ func (s *Scheduler) AddTask(name, spec string, task FuncWithoutServer) error {
 	}
 
 	s.tasks[name] = id
-	s.logger.Info("task added successfully", logger.Fields{
-		"task": name,
-		"spec": spec,
-	})
+	s.logger.Info("task added successfully",
+		zap.String("task", name),
+		zap.String("spec", spec),
+	)
 
 	return nil
 }
@@ -219,41 +217,39 @@ func (s *Scheduler) AddTaskWithServer(name, spec string, task FuncWithServer, fi
 		submitErr := s.pool.Submit(func() {
 			// Try to acquire lock, skip if task is already running
 			if !s.locks[name].TryLock() {
-				s.logger.Warn("task is already running, skipping execution", logger.Fields{
-					"task": name,
-				})
+				s.logger.Warn("task is already running, skipping execution",
+					zap.String("task", name),
+				)
 				return
 			}
 			defer s.locks[name].Unlock()
 
 			startTime := time.Now()
-			s.logger.Debug("starting task execution with server", logger.Fields{
-				"task": name,
-			})
 
 			count, taskErr := task(fiberServer)
 			duration := time.Since(startTime)
+			formatted := utils.SmartDurationFormat(duration)
 
 			if taskErr != nil {
-				s.logger.Error("task execution failed", logger.Fields{
-					"task":     name,
-					"duration": duration,
-					"error":    taskErr.Error(),
-				})
-			} else {
-				s.logger.Info("task execution completed", logger.Fields{
-					"task":     name,
-					"duration": duration,
-					"count":    count,
-				})
+				s.logger.Error("task execution failed",
+					zap.String("task", name),
+					zap.String("duration", formatted),
+					zap.Error(taskErr),
+				)
+			} else if count > 0 {
+				s.logger.Info("task execution completed",
+					zap.String("task", name),
+					zap.String("duration", formatted),
+					zap.Int("count", count),
+				)
 			}
 		})
 
 		if submitErr != nil {
-			s.logger.Error("failed to submit task to worker pool", logger.Fields{
-				"task":  name,
-				"error": submitErr.Error(),
-			})
+			s.logger.Error("failed to submit task to worker pool",
+				zap.String("task", name),
+				zap.Error(submitErr),
+			)
 		}
 	})
 
@@ -263,10 +259,10 @@ func (s *Scheduler) AddTaskWithServer(name, spec string, task FuncWithServer, fi
 	}
 
 	s.tasks[name] = id
-	s.logger.Info("task with server added successfully", logger.Fields{
-		"task": name,
-		"spec": spec,
-	})
+	s.logger.Info("task with server added successfully",
+		zap.String("task", name),
+		zap.String("spec", spec),
+	)
 
 	return nil
 }
@@ -289,9 +285,9 @@ func (s *Scheduler) RemoveTask(name string) error {
 	delete(s.tasks, name)
 	delete(s.locks, name)
 
-	s.logger.Info("task removed successfully", logger.Fields{
-		"task": name,
-	})
+	s.logger.Info("task removed successfully",
+		zap.String("task", name),
+	)
 
 	return nil
 }

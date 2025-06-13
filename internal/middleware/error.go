@@ -1,11 +1,13 @@
 package middleware
 
 import (
+	sErrors "errors"
 	"fmt"
 
 	"api.us4ever/internal/errors"
 	"api.us4ever/internal/logger"
 	"github.com/gofiber/fiber/v2"
+	"go.uber.org/zap"
 )
 
 // ErrorResponse represents a standardized error response
@@ -73,7 +75,7 @@ func NewErrorHandler(config ...ErrorHandlerConfig) fiber.ErrorHandler {
 		}
 
 		// Get request ID for tracing
-		requestID := getRequestID(c)
+		requestID := GetRequestID(c)
 
 		// Log the error with context
 		logError(cfg.Logger, err, c, requestID)
@@ -89,56 +91,44 @@ func NewErrorHandler(config ...ErrorHandlerConfig) fiber.ErrorHandler {
 	}
 }
 
-// getRequestID extracts request ID from context
-func getRequestID(c *fiber.Ctx) string {
-	if requestID := c.Locals("request_id"); requestID != nil {
-		if id, ok := requestID.(string); ok {
-			return id
-		}
-	}
-
-	// Fallback to header
-	return c.Get("X-Request-ID")
-}
-
 // logError logs the error with appropriate context
 func logError(log *logger.Logger, err error, c *fiber.Ctx, requestID string) {
-	fields := logger.Fields{
-		"error":      err.Error(),
-		"method":     c.Method(),
-		"path":       c.Path(),
-		"ip":         c.IP(),
-		"user_agent": c.Get("User-Agent"),
+	fields := []zap.Field{
+		zap.Error(err),
+		zap.String("method", c.Method()),
+		zap.String("path", c.Path()),
+		zap.String("ip", c.IP()),
+		zap.String("user_agent", c.Get("User-Agent")),
 	}
 
 	if requestID != "" {
-		fields["request_id"] = requestID
+		fields = append(fields, zap.String("request_id", requestID))
 	}
 
 	// Add query parameters if present
 	if queryString := c.Context().QueryArgs().String(); queryString != "" {
-		fields["query"] = queryString
+		fields = append(fields, zap.String("query", queryString))
 	}
 
 	// Check if it's an application error
 	if appErr := errors.GetAppError(err); appErr != nil {
-		fields["error_type"] = appErr.Type
+		fields = append(fields, zap.String("error_type", appErr.Type))
 		if appErr.Code > 0 {
-			fields["error_code"] = appErr.Code
+			fields = append(fields, zap.Int("error_code", appErr.Code))
 		}
 
 		// Log at appropriate level based on error type
 		switch appErr.Type {
 		case "ValidationError", "NotFoundError":
-			log.Warn("client error occurred", fields)
+			log.Warn("client error occurred", fields...)
 		case "DatabaseError", "ElasticsearchError":
-			log.Error("external service error occurred", fields)
+			log.Error("external service error occurred", fields...)
 		default:
-			log.Error("application error occurred", fields)
+			log.Error("application error occurred", fields...)
 		}
 	} else {
 		// Log as error for unknown error types
-		log.Error("unhandled error occurred", fields)
+		log.Error("unhandled error occurred", fields...)
 	}
 }
 
@@ -165,7 +155,8 @@ func buildErrorResponse(err error, cfg ErrorHandlerConfig, requestID string) Err
 	}
 
 	// Handle Fiber errors
-	if fiberErr, ok := err.(*fiber.Error); ok {
+	var fiberErr *fiber.Error
+	if sErrors.As(err, &fiberErr) {
 		response.Error = ErrorDetail{
 			Type:    "HTTPError",
 			Message: fiberErr.Message,
@@ -208,7 +199,8 @@ func determineStatusCode(err error) int {
 	}
 
 	// Handle Fiber errors
-	if fiberErr, ok := err.(*fiber.Error); ok {
+	var fiberErr *fiber.Error
+	if sErrors.As(err, &fiberErr) {
 		return fiberErr.Code
 	}
 
@@ -226,16 +218,16 @@ func RecoveryMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		defer func() {
 			if r := recover(); r != nil {
-				requestID := getRequestID(c)
+				requestID := GetRequestID(c)
 
 				// Log the panic
-				recoveryLogger.Error("panic recovered", logger.Fields{
-					"panic":      fmt.Sprintf("%v", r),
-					"request_id": requestID,
-					"method":     c.Method(),
-					"path":       c.Path(),
-					"ip":         c.IP(),
-				})
+				recoveryLogger.Error("panic recovered",
+					zap.String("panic", fmt.Sprintf("%v", r)),
+					zap.String("request_id", requestID),
+					zap.String("method", c.Method()),
+					zap.String("path", c.Path()),
+					zap.String("ip", c.IP()),
+				)
 
 				// Create error response
 				response := ErrorResponse{
@@ -249,7 +241,10 @@ func RecoveryMiddleware() fiber.Handler {
 
 				// Send error response
 				c.Set(fiber.HeaderContentType, fiber.MIMEApplicationJSON)
-				c.Status(fiber.StatusInternalServerError).JSON(response)
+				err := c.Status(fiber.StatusInternalServerError).JSON(response)
+				if err != nil {
+					return
+				}
 			}
 		}()
 
@@ -260,7 +255,7 @@ func RecoveryMiddleware() fiber.Handler {
 // NotFoundHandler handles 404 errors
 func NotFoundHandler() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		requestID := getRequestID(c)
+		requestID := GetRequestID(c)
 
 		response := ErrorResponse{
 			Error: ErrorDetail{
@@ -278,7 +273,7 @@ func NotFoundHandler() fiber.Handler {
 // MethodNotAllowedHandler handles 405 errors
 func MethodNotAllowedHandler() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		requestID := getRequestID(c)
+		requestID := GetRequestID(c)
 
 		response := ErrorResponse{
 			Error: ErrorDetail{

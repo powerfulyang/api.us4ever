@@ -7,6 +7,7 @@ import (
 
 	"api.us4ever/internal/logger"
 	"github.com/gofiber/fiber/v2"
+	"go.uber.org/zap"
 	"golang.org/x/time/rate"
 )
 
@@ -14,16 +15,16 @@ import (
 type RateLimitConfig struct {
 	// RequestsPerSecond defines the rate limit
 	RequestsPerSecond int
-	
+
 	// BurstSize defines the burst capacity
 	BurstSize int
-	
+
 	// KeyGenerator generates the key for rate limiting (e.g., by IP, user ID)
 	KeyGenerator func(*fiber.Ctx) string
-	
+
 	// OnLimitReached is called when rate limit is exceeded
 	OnLimitReached func(*fiber.Ctx) error
-	
+
 	// Logger for rate limit events
 	Logger *logger.Logger
 }
@@ -42,19 +43,19 @@ func NewRateLimitMiddleware(config RateLimitConfig) fiber.Handler {
 	if config.RequestsPerSecond <= 0 {
 		config.RequestsPerSecond = 10 // Default: 10 requests per second
 	}
-	
+
 	if config.BurstSize <= 0 {
 		config.BurstSize = config.RequestsPerSecond * 2 // Default: 2x the rate
 	}
-	
+
 	if config.KeyGenerator == nil {
 		config.KeyGenerator = defaultKeyGenerator
 	}
-	
+
 	if config.OnLimitReached == nil {
 		config.OnLimitReached = defaultLimitReachedHandler
 	}
-	
+
 	if config.Logger == nil {
 		var err error
 		config.Logger, err = logger.New("ratelimit")
@@ -62,50 +63,50 @@ func NewRateLimitMiddleware(config RateLimitConfig) fiber.Handler {
 			panic("failed to create rate limit logger: " + err.Error())
 		}
 	}
-	
+
 	limiter := &RateLimiter{
 		config: config,
 		logger: config.Logger,
 	}
-	
+
 	// Start cleanup goroutine
 	go limiter.cleanup()
-	
+
 	return limiter.Handler
 }
 
 // Handler is the fiber middleware handler
 func (rl *RateLimiter) Handler(c *fiber.Ctx) error {
 	key := rl.config.KeyGenerator(c)
-	
+
 	// Get or create limiter for this key
 	limiterInterface, _ := rl.limiters.LoadOrStore(key, rate.NewLimiter(
 		rate.Limit(rl.config.RequestsPerSecond),
 		rl.config.BurstSize,
 	))
-	
+
 	limiter := limiterInterface.(*rate.Limiter)
-	
+
 	// Check if request is allowed
 	if !limiter.Allow() {
-		rl.logger.Warn("rate limit exceeded", logger.Fields{
-			"key":    key,
-			"ip":     c.IP(),
-			"method": c.Method(),
-			"path":   c.Path(),
-		})
-		
+		rl.logger.Warn("rate limit exceeded",
+			zap.String("key", key),
+			zap.String("ip", c.IP()),
+			zap.String("method", c.Method()),
+			zap.String("path", c.Path()),
+		)
+
 		return rl.config.OnLimitReached(c)
 	}
-	
+
 	// Log successful requests (debug level)
-	rl.logger.Debug("request allowed", logger.Fields{
-		"key":    key,
-		"ip":     c.IP(),
-		"method": c.Method(),
-		"path":   c.Path(),
-	})
-	
+	rl.logger.Debug("request allowed",
+		zap.String("key", key),
+		zap.String("ip", c.IP()),
+		zap.String("method", c.Method()),
+		zap.String("path", c.Path()),
+	)
+
 	return c.Next()
 }
 
@@ -113,20 +114,20 @@ func (rl *RateLimiter) Handler(c *fiber.Ctx) error {
 func (rl *RateLimiter) cleanup() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
-	
+
 	for range ticker.C {
 		rl.limiters.Range(func(key, value interface{}) bool {
 			limiter := value.(*rate.Limiter)
-			
+
 			// Remove limiter if it hasn't been used recently
 			// This is a simple heuristic - in production you might want more sophisticated cleanup
 			if limiter.Tokens() == float64(rl.config.BurstSize) {
 				rl.limiters.Delete(key)
-				rl.logger.Debug("cleaned up unused rate limiter", logger.Fields{
-					"key": key,
-				})
+				rl.logger.Debug("cleaned up unused rate limiter",
+					zap.Any("key", key),
+				)
 			}
-			
+
 			return true
 		})
 	}
@@ -166,7 +167,7 @@ func NewUserRateLimiter(requestsPerSecond int) fiber.Handler {
 			if userID := c.Locals("user_id"); userID != nil {
 				return fmt.Sprintf("user:%v", userID)
 			}
-			
+
 			// Fallback to IP if no user ID
 			return fmt.Sprintf("ip:%s", c.IP())
 		},
@@ -174,44 +175,13 @@ func NewUserRateLimiter(requestsPerSecond int) fiber.Handler {
 }
 
 // NewPathBasedRateLimiter creates different rate limits for different paths
-func NewPathBasedRateLimiter(pathLimits map[string]int, defaultLimit int) fiber.Handler {
+func NewPathBasedRateLimiter(requestsPerSecond int) fiber.Handler {
 	return NewRateLimitMiddleware(RateLimitConfig{
-		RequestsPerSecond: defaultLimit,
+		RequestsPerSecond: requestsPerSecond,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			path := c.Path()
-			
-			// Check if there's a specific limit for this path
-			if limit, exists := pathLimits[path]; exists {
-				return fmt.Sprintf("%s:%s:%d", c.IP(), path, limit)
-			}
-			
-			return fmt.Sprintf("%s:default:%d", c.IP(), defaultLimit)
-		},
-	})
-}
-
-// NewSearchRateLimiter creates a specialized rate limiter for search endpoints
-func NewSearchRateLimiter() fiber.Handler {
-	return NewRateLimitMiddleware(RateLimitConfig{
-		RequestsPerSecond: 5, // More restrictive for search
-		BurstSize:         10,
-		KeyGenerator: func(c *fiber.Ctx) string {
-			// Combine IP and search query for more granular limiting
-			query := c.Query("q", "")
-			if len(query) > 50 {
-				query = query[:50] // Truncate long queries
-			}
-			return fmt.Sprintf("search:%s:%s", c.IP(), query)
-		},
-		OnLimitReached: func(c *fiber.Ctx) error {
-			return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{
-				"error": fiber.Map{
-					"type":    "SearchRateLimitError",
-					"message": "Search rate limit exceeded. Please wait before searching again.",
-					"code":    429,
-				},
-				"retry_after": "12s", // Shorter retry for search
-			})
+			method := c.Method()
+			return fmt.Sprintf("ip:%s,method:%s,path:%s", c.IP(), method, path)
 		},
 	})
 }

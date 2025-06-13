@@ -6,10 +6,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"reflect"
 
 	"api.us4ever/internal/ent/migrate"
-	"api.us4ever/internal/logger"
 
 	"api.us4ever/internal/ent/bucket"
 	"api.us4ever/internal/ent/file"
@@ -103,21 +103,7 @@ type (
 
 // newConfig creates a new config for the client.
 func newConfig(opts ...Option) config {
-	// Create a logger for ENT client
-	entLogger, err := logger.New("ent")
-	if err != nil {
-		panic("failed to create ent logger: " + err.Error())
-	}
-
-	cfg := config{
-		log: func(args ...any) {
-			entLogger.Debug("ent operation", logger.Fields{
-				"details": fmt.Sprint(args...),
-			})
-		},
-		hooks: &hooks{},
-		inters: &inters{},
-	}
+	cfg := config{log: log.Println, hooks: &hooks{}, inters: &inters{}}
 	cfg.options(opts...)
 	return cfg
 }

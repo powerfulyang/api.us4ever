@@ -2,11 +2,11 @@ package server
 
 import (
 	"net/http"
-	"time"
 
 	"api.us4ever/internal/logger"
+	"api.us4ever/internal/middleware"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
+	"go.uber.org/zap"
 )
 
 var (
@@ -21,50 +21,38 @@ func init() {
 	}
 }
 
-// requestTimerMiddleware logs the time taken for each request.
-func requestTimerMiddleware(c *fiber.Ctx) error {
-	start := time.Now()
-
-	// Process request
-	err := c.Next()
-
-	duration := time.Since(start)
-
-	// Log details
-	// Use c.Response().StatusCode() which is available after c.Next()
-	routesLogger.Info("request completed", logger.Fields{
-		"method":   c.Method(),
-		"path":     c.Path(),
-		"status":   c.Response().StatusCode(),
-		"duration": duration.String(),
-	})
-
-	return err // Return the error reported by handlers
-}
-
 func (s *FiberServer) RegisterFiberRoutes() {
-	// Apply CORS middleware
-	s.App.Use(cors.New(cors.Config{
-		AllowOrigins:     "*",
-		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS,PATCH",
-		AllowHeaders:     "Accept,Authorization,Content-Type",
-		AllowCredentials: false, // credentials require explicit origins
-		MaxAge:           300,
-	}))
 
-	// Apply Request Timer middleware
-	s.App.Use(requestTimerMiddleware)
+	// Apply middleware from middleware package
+	s.App.Use(middleware.CORSMiddleware())
+	s.App.Use(middleware.RequestIDMiddleware())
+	s.App.Use(middleware.NewLoggingMiddleware())
+	s.App.Use(middleware.NewPathBasedRateLimiter(1))
+
+	// Apply error handling middleware
+	s.App.Use(middleware.RecoveryMiddleware())
 
 	s.App.Get("/", s.HelloWorldHandler)
+	s.App.Get("/err", s.ErrorHandler)
 	internal := s.Group("/internal")
 
+	// Health endpoint without rate limiting
 	internal.Get("/health", s.healthHandler)
 	internal.Get("/app-config", s.AppConfigHandler)
 	internal.Get("/user/list", s.UserListHandler)
-	// Add the route for searching keeps
+
+	// Search endpoints with enhanced validation and rate limiting
+	searchGroup := internal.Group("/search")
+
+	// Search routes with new paths
+	searchGroup.Get("/keeps", s.searchKeepsHandler)
+	searchGroup.Get("/moments", s.searchMomentsHandler)
+
+	// Keep old routes for backward compatibility
 	internal.Get("/keeps/search", s.searchKeepsHandler)
-	// Add the route for searching moments
 	internal.Get("/moments/search", s.searchMomentsHandler)
+
+	// Reindex endpoints
 	internal.Post("/keeps/reindex", s.reindexKeepsHandler)
 	internal.Post("/moments/reindex", s.reindexMomentsHandler)
 }
@@ -77,12 +65,16 @@ func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {
 	return c.JSON(resp)
 }
 
+func (s *FiberServer) ErrorHandler(c *fiber.Ctx) error {
+	panic("error")
+}
+
 func (s *FiberServer) healthHandler(c *fiber.Ctx) error {
 	// Check database connection
 	if err := s.DbClient.Health(c.Context()); err != nil {
-		routesLogger.Error("health check failed: database connection error", logger.Fields{
-			"error": err.Error(),
-		})
+		routesLogger.Error("health check failed: database connection error",
+			zap.Error(err),
+		)
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Database connection error",
@@ -100,9 +92,9 @@ func (s *FiberServer) healthHandler(c *fiber.Ctx) error {
 	}
 	pingResp, err := s.EsClient.Ping(s.EsClient.Ping.WithContext(c.Context()))
 	if err != nil {
-		routesLogger.Error("health check failed: Elasticsearch ping error", logger.Fields{
-			"error": err.Error(),
-		})
+		routesLogger.Error("health check failed: Elasticsearch ping error",
+			zap.Error(err),
+		)
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Elasticsearch connection error",
@@ -111,9 +103,9 @@ func (s *FiberServer) healthHandler(c *fiber.Ctx) error {
 	}
 	defer pingResp.Body.Close()
 	if pingResp.IsError() {
-		routesLogger.Error("health check failed: Elasticsearch ping returned error status", logger.Fields{
-			"response": pingResp.String(),
-		})
+		routesLogger.Error("health check failed: Elasticsearch ping returned error status",
+			zap.String("response", pingResp.String()),
+		)
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"status":  "error",
 			"message": "Elasticsearch service unavailable",

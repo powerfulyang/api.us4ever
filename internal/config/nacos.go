@@ -6,11 +6,11 @@ import (
 	"strconv"
 	"sync"
 
-	"api.us4ever/internal/logger"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
+	"go.uber.org/zap"
 
 	_ "github.com/joho/godotenv/autoload"
 )
@@ -61,9 +61,9 @@ func InitNacosClient() config_client.IConfigClient {
 		})
 
 		if err != nil {
-			configLogger.Fatal("failed to initialize Nacos config client", logger.Fields{
-				"error": err.Error(),
-			})
+			configLogger.Fatal("failed to initialize Nacos config client",
+				zap.Error(err),
+			)
 		}
 
 		nacosClient = client
@@ -82,7 +82,11 @@ func GetConfig(dataID, group string) (string, error) {
 	})
 
 	if err != nil {
-		fmt.Println("获取Nacos配置失败: ", err)
+		configLogger.Error("failed to get config from Nacos",
+			zap.String("data_id", dataID),
+			zap.String("group", group),
+			zap.Error(err),
+		)
 		return "", err
 	}
 
@@ -97,10 +101,10 @@ func ListenConfig(dataID, group string, callback func(string)) error {
 		DataId: dataID,
 		Group:  group,
 		OnChange: func(namespace, group, dataId, data string) {
-			configLogger.Info("configuration changed", logger.Fields{
-				"data_id": dataId,
-				"group":   group,
-			})
+			configLogger.Info("configuration changed",
+				zap.String("data_id", dataId),
+				zap.String("group", group),
+			)
 			callback(data)
 		},
 	})

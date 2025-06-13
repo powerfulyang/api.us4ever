@@ -8,6 +8,7 @@ import (
 
 	"api.us4ever/internal/logger"
 	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 )
 
 type ChangeCallback func(newConfig *AppConfig)
@@ -110,9 +111,7 @@ func LoadConfig() (*AppConfig, error) {
 
 	// Load environment variables if not in container environment
 	if err := loadEnvironmentFile(); err != nil {
-		configLogger.Warn("failed to load .env file", logger.Fields{
-			"error": err.Error(),
-		})
+		configLogger.Warn("failed to load .env file", zap.Error(err))
 	}
 
 	// Load configuration from Nacos
@@ -150,8 +149,16 @@ func loadEnvironmentFile() error {
 		return nil
 	}
 
-	// Try to load from parent directory
-	if err := godotenv.Load("../../.env"); err != nil {
+	if err := godotenv.Load("../.env"); err == nil {
+		return nil
+	}
+
+	// Try to load .env file from current directory first
+	if err := godotenv.Load("../../.env"); err == nil {
+		return nil
+	}
+
+	if err := godotenv.Load("../../../.env"); err != nil {
 		return fmt.Errorf("failed to load .env file: %w", err)
 	}
 
@@ -179,9 +186,7 @@ func loadFromNacos() (*AppConfig, error) {
 func GetAppConfig() *AppConfig {
 	config, err := LoadConfig()
 	if err != nil {
-		configLogger.Error("failed to load configuration", logger.Fields{
-			"error": err.Error(),
-		})
+		configLogger.Error("failed to load configuration", zap.Error(err))
 		return nil
 	}
 	return config
@@ -192,9 +197,7 @@ func GetAppConfig() *AppConfig {
 func MustGetAppConfig() *AppConfig {
 	config, err := LoadConfig()
 	if err != nil {
-		configLogger.Fatal("failed to load configuration", logger.Fields{
-			"error": err.Error(),
-		})
+		configLogger.Fatal("failed to load configuration", zap.Error(err))
 	}
 	return config
 }
@@ -207,17 +210,13 @@ func setupConfigListener(dataID, group string) {
 
 		newConfig := &AppConfig{}
 		if err := json.Unmarshal([]byte(content), newConfig); err != nil {
-			configLogger.Error("failed to parse updated configuration", logger.Fields{
-				"error": err.Error(),
-			})
+			configLogger.Error("failed to parse updated configuration", zap.Error(err))
 			return
 		}
 
 		// Validate the new configuration
 		if err := newConfig.Validate(); err != nil {
-			configLogger.Error("updated configuration validation failed", logger.Fields{
-				"error": err.Error(),
-			})
+			configLogger.Error("updated configuration validation failed", zap.Error(err))
 			return
 		}
 
@@ -230,9 +229,7 @@ func setupConfigListener(dataID, group string) {
 	})
 
 	if err != nil {
-		configLogger.Error("failed to setup configuration listener", logger.Fields{
-			"error": err.Error(),
-		})
+		configLogger.Error("failed to setup configuration listener", zap.Error(err))
 	}
 }
 

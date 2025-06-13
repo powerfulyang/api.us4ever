@@ -9,6 +9,7 @@ import (
 
 	"api.us4ever/internal/logger"
 	"github.com/elastic/go-elasticsearch/v8"
+	"go.uber.org/zap"
 )
 
 var (
@@ -166,9 +167,9 @@ func SearchKeeps(ctx context.Context, client *elasticsearch.Client, indexAlias s
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			searchLogger.Error("error closing response body", logger.Fields{
-				"error": err.Error(),
-			})
+			searchLogger.Error("error closing response body",
+				zap.Error(err),
+			)
 		}
 	}(res.Body)
 
@@ -178,11 +179,11 @@ func SearchKeeps(ctx context.Context, client *elasticsearch.Client, indexAlias s
 			return nilResult, fmt.Errorf("error parsing the response body: %w", err)
 		} else {
 			// Print the error response body for debugging.
-			searchLogger.Error("elasticsearch search error", logger.Fields{
-				"status": res.Status(),
-				"type":   e["error"].(map[string]interface{})["type"],
-				"reason": e["error"].(map[string]interface{})["reason"],
-			})
+			searchLogger.Error("elasticsearch search error",
+				zap.String("status", res.Status()),
+				zap.Any("type", e["error"].(map[string]interface{})["type"]),
+				zap.Any("reason", e["error"].(map[string]interface{})["reason"]),
+			)
 			return nilResult, fmt.Errorf("elasticsearch search error: [%s] %s", res.Status(), e["error"].(map[string]interface{})["reason"])
 		}
 	}
@@ -192,11 +193,11 @@ func SearchKeeps(ctx context.Context, client *elasticsearch.Client, indexAlias s
 		return nilResult, fmt.Errorf("error parsing the response body: %w", err)
 	}
 
-	searchLogger.Info("search completed", logger.Fields{
-		"status":     res.Status(),
-		"hits_count": len(r.Hits.Hits),
-		"total":      r.Hits.Total.Value,
-	})
+	searchLogger.Info("search completed",
+		zap.String("status", res.Status()),
+		zap.Int("hits_count", len(r.Hits.Hits)),
+		zap.Int("total", r.Hits.Total.Value),
+	)
 
 	return r, nil
 }
@@ -299,9 +300,9 @@ func SearchMoments(ctx context.Context, client *elasticsearch.Client, indexAlias
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			searchLogger.Error("error closing response body", logger.Fields{
-				"error": err.Error(),
-			})
+			searchLogger.Error("error closing response body",
+				zap.Error(err),
+			)
 		}
 	}(res.Body)
 
@@ -311,11 +312,11 @@ func SearchMoments(ctx context.Context, client *elasticsearch.Client, indexAlias
 			return nilResult, fmt.Errorf("error parsing the response body: %w", err)
 		} else {
 			// Print the error response body for debugging.
-			searchLogger.Error("elasticsearch search error for moments", logger.Fields{
-				"status": res.Status(),
-				"type":   e["error"].(map[string]interface{})["type"],
-				"reason": e["error"].(map[string]interface{})["reason"],
-			})
+			searchLogger.Error("elasticsearch search error for moments",
+				zap.String("status", res.Status()),
+				zap.Any("type", e["error"].(map[string]interface{})["type"]),
+				zap.Any("reason", e["error"].(map[string]interface{})["reason"]),
+			)
 			return nilResult, fmt.Errorf("elasticsearch search error: [%s] %s", res.Status(), e["error"].(map[string]interface{})["reason"])
 		}
 	}
@@ -325,11 +326,11 @@ func SearchMoments(ctx context.Context, client *elasticsearch.Client, indexAlias
 		return nilResult, fmt.Errorf("error parsing the response body: %w", err)
 	}
 
-	searchLogger.Info("moments search completed", logger.Fields{
-		"status":     res.Status(),
-		"hits_count": len(r.Hits.Hits),
-		"total":      r.Hits.Total.Value,
-	})
+	searchLogger.Info("moments search completed",
+		zap.String("status", res.Status()),
+		zap.Int("hits_count", len(r.Hits.Hits)),
+		zap.Int("total", r.Hits.Total.Value),
+	)
 
 	return r, nil
 }

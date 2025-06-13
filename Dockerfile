@@ -20,7 +20,7 @@ COPY . .
 RUN just build
 
 # Compress the binary with UPX
-RUN upx --lzma main
+#RUN upx --lzma main
 
 # Start a new stage from distroless
 FROM gcr.io/distroless/static AS runner

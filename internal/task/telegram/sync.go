@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"api.us4ever/internal/config"
-
 	"api.us4ever/internal/logger"
+	"go.uber.org/zap"
 )
 
 var (
@@ -39,9 +39,9 @@ func TriggerSyncTelegram() (int, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			telegramSyncLogger.Error("failed to close response body", logger.Fields{
-				"error": err.Error(),
-			})
+			telegramSyncLogger.Error("failed to close response body",
+				zap.Error(err),
+			)
 		}
 	}(resp.Body)
 

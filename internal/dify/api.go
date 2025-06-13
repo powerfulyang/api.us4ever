@@ -11,7 +11,21 @@ import (
 	"bufio"
 
 	"api.us4ever/internal/config"
+	"api.us4ever/internal/logger"
+	"go.uber.org/zap"
 )
+
+var (
+	difyLogger *logger.Logger
+)
+
+func init() {
+	var err error
+	difyLogger, err = logger.New("dify")
+	if err != nil {
+		panic("failed to initialize dify logger: " + err.Error())
+	}
+}
 
 type ResponseMode string
 
@@ -138,7 +152,9 @@ func CallWorkflow(req *WorkflowRequest) (*WorkflowResult, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			fmt.Printf("关闭响应体失败: %v", err)
+			difyLogger.Warn("failed to close response body",
+				zap.Error(err),
+			)
 		}
 	}(resp.Body)
 

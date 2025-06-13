@@ -21,6 +21,7 @@ import (
 	"api.us4ever/internal/ent"
 	"api.us4ever/internal/ent/image"
 	"api.us4ever/internal/logger"
+	"go.uber.org/zap"
 )
 
 var (
@@ -103,16 +104,16 @@ func ProcessImageOCR(fiberServer *server.FiberServer) (int, error) {
 		All(ctx)
 
 	if err != nil {
-		ocrLogger.Error("error querying images for OCR check", logger.Fields{
-			"error": err.Error(),
-		})
+		ocrLogger.Error("error querying images for OCR check",
+			zap.Error(err),
+		)
 		return 0, err
 	}
 
 	if len(imagesToCheck) > 0 {
-		ocrLogger.Info("found images to process", logger.Fields{
-			"count": len(imagesToCheck),
-		})
+		ocrLogger.Info("found images to process",
+			zap.Int("count", len(imagesToCheck)),
+		)
 	}
 
 	// 遍历检查的图片
@@ -123,10 +124,10 @@ func ProcessImageOCR(fiberServer *server.FiberServer) (int, error) {
 
 		err := ProcessSingleImageOCR(ctx, db, img.ID)
 		if err != nil {
-			ocrLogger.Error("failed to process image", logger.Fields{
-				"image_id": img.ID,
-				"error":    err.Error(),
-			})
+			ocrLogger.Error("failed to process image",
+				zap.String("image_id", img.ID),
+				zap.Error(err),
+			)
 			continue
 		}
 	}
@@ -138,10 +139,10 @@ func ProcessImageOCR(fiberServer *server.FiberServer) (int, error) {
 func needsOCRProcessing(img *ent.Image) bool {
 	var currentExtraData map[string]interface{}
 	if err := json.Unmarshal(img.ExtraData, &currentExtraData); err != nil {
-		ocrLogger.Warn("failed to unmarshal existing ExtraData for checking, assuming needs processing", logger.Fields{
-			"image_id": img.ID,
-			"error":    err.Error(),
-		})
+		ocrLogger.Warn("failed to unmarshal existing ExtraData for checking, assuming needs processing",
+			zap.String("image_id", img.ID),
+			zap.Error(err),
+		)
 		return true // Error unmarshalling, assume it needs processing to be safe
 	}
 
@@ -158,9 +159,9 @@ func downloadImage(url string) ([]byte, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			ocrLogger.Warn("failed to close response body", logger.Fields{
-				"error": err.Error(),
-			})
+			ocrLogger.Warn("failed to close response body",
+				zap.Error(err),
+			)
 		}
 	}(resp.Body)
 
@@ -201,9 +202,9 @@ func callOCRAPI(base64Image string) (*OCRResponse, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			ocrLogger.Warn("failed to close OCR API response body", logger.Fields{
-				"error": err.Error(),
-			})
+			ocrLogger.Warn("failed to close OCR API response body",
+				zap.Error(err),
+			)
 		}
 	}(resp.Body)
 
@@ -245,11 +246,11 @@ func updateImageExtraData(ctx context.Context, db database.Service, img *ent.Ima
 	if len(img.ExtraData) > 0 {
 		if err := json.Unmarshal(img.ExtraData, &currentExtraData); err != nil {
 			// If unmarshalling fails, log it but proceed with a new map
-			ocrLogger.Warn("failed to unmarshal existing ExtraData, overwriting with new data", logger.Fields{
-				"image_id":   img.ID,
-				"extra_data": string(img.ExtraData),
-				"error":      err.Error(),
-			})
+			ocrLogger.Warn("failed to unmarshal existing ExtraData, overwriting with new data",
+				zap.String("image_id", img.ID),
+				zap.String("extra_data", string(img.ExtraData)),
+				zap.Error(err),
+			)
 			currentExtraData = make(map[string]interface{}) // Initialize if unmarshal fails
 		}
 	} else {

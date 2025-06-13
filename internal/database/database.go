@@ -64,7 +64,7 @@ func (db *Database) Health(ctx context.Context) error {
 
 	// Test database connectivity by performing a simple query
 	// This is more reliable than trying to access the underlying sql.DB
-	_, err := db.client.User.Query().Count(healthCtx)
+	_, err := db.client.User.Query().FirstID(healthCtx)
 	if err != nil {
 		return fmt.Errorf("database health check failed: %w", err)
 	}

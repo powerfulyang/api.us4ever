@@ -52,7 +52,7 @@ func main() {
 	// 读取配置文件
 	content, err := os.ReadFile(*filePath)
 	if err != nil {
-		nacosToolsLogger.Fatal("failed to read config file", logger.Fields{
+		nacosToolsLogger.Fatal("failed to read config file", logger.LogFields{
 			"file_path": *filePath,
 			"error":     err.Error(),
 		})
@@ -64,7 +64,7 @@ func main() {
 	// 发布配置到 Nacos
 	success, err := config.PublishConfig(*dataID, *group, string(content))
 	if err != nil {
-		nacosToolsLogger.Fatal("failed to publish config", logger.Fields{
+		nacosToolsLogger.Fatal("failed to publish config", logger.LogFields{
 			"data_id": *dataID,
 			"group":   *group,
 			"error":   err.Error(),
@@ -72,13 +72,13 @@ func main() {
 	}
 
 	if success {
-		nacosToolsLogger.Info("config published successfully to Nacos", logger.Fields{
+		nacosToolsLogger.Info("config published successfully to Nacos", logger.LogFields{
 			"data_id": *dataID,
 			"group":   *group,
 		})
 		fmt.Printf("配置已成功发布到 Nacos (DataID: %s, Group: %s)\n", *dataID, *group)
 	} else {
-		nacosToolsLogger.Error("failed to publish config to Nacos", logger.Fields{
+		nacosToolsLogger.Error("failed to publish config to Nacos", logger.LogFields{
 			"data_id": *dataID,
 			"group":   *group,
 		})

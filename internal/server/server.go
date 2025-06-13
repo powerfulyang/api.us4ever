@@ -14,6 +14,7 @@ import (
 	"api.us4ever/internal/logger"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/gofiber/fiber/v2"
+	"go.uber.org/zap"
 )
 
 type FiberServer struct {
@@ -59,9 +60,9 @@ func New() *FiberServer {
 	// Initialize database service
 	dbClient, err := database.New()
 	if err != nil {
-		serverLogger.Fatal("failed to initialize database", logger.Fields{
-			"error": err.Error(),
-		})
+		serverLogger.Fatal("failed to initialize database",
+			zap.Error(err),
+		)
 	}
 
 	// Initialize Elasticsearch client
@@ -70,9 +71,9 @@ func New() *FiberServer {
 		esClient, err = es.NewClient(appConfig.ES)
 		if err != nil {
 			// Log the error but allow the server to start without ES if needed
-			esLogger.Error("failed to initialize Elasticsearch client", logger.Fields{
-				"error": err.Error(),
-			})
+			esLogger.Error("failed to initialize Elasticsearch client",
+				zap.Error(err),
+			)
 			esClient = nil
 		}
 	} else {
@@ -107,14 +108,25 @@ func New() *FiberServer {
 	// Trigger initial indexing in the background if ES client is available
 	if server.EsClient != nil {
 		go func() {
+			// check index already exist, ignore create if exists
+			ctx := context.Background()
+			_, err := server.EsClient.Indices.Exists([]string{server.KeepEsIndexAlias}, server.EsClient.Indices.Exists.WithContext(ctx))
+			if err != nil {
+				esLogger.Error("failed to check index existence",
+					zap.Error(err),
+				)
+			} else {
+				esLogger.Info(fmt.Sprintf("%s already exists, skipping initial indexing", server.KeepEsIndexAlias))
+				return
+			}
+
 			// Create a background context for the initial indexing
 			// Use context.Background() as this is not tied to a specific request
-			ctx := context.Background()
 			esLogger.Info("starting initial Elasticsearch indexing for keeps")
 			if err := es.IndexKeeps(ctx, server.EsClient, server.DbClient, server.KeepEsIndexAlias); err != nil {
-				esLogger.Error("initial Elasticsearch indexing for keeps failed", logger.Fields{
-					"error": err.Error(),
-				})
+				esLogger.Error("initial Elasticsearch indexing for keeps failed",
+					zap.Error(err),
+				)
 			} else {
 				esLogger.Info("initial Elasticsearch indexing for keeps completed successfully")
 			}
@@ -122,13 +134,22 @@ func New() *FiberServer {
 
 		// Start a separate goroutine for indexing moments
 		go func() {
-			// Create a background context for the initial indexing
 			ctx := context.Background()
+			_, err := server.EsClient.Indices.Exists([]string{server.MomentEsIndexAlias}, server.EsClient.Indices.Exists.WithContext(ctx))
+			if err != nil {
+				esLogger.Error("failed to check index existence",
+					zap.Error(err),
+				)
+			} else {
+				esLogger.Info(fmt.Sprintf("%s already exists, skipping initial indexing", server.MomentEsIndexAlias))
+				return
+			}
+
 			esLogger.Info("starting initial Elasticsearch indexing for moments")
 			if err := es.IndexMoments(ctx, server.EsClient, server.DbClient, server.MomentEsIndexAlias); err != nil {
-				esLogger.Error("initial Elasticsearch indexing for moments failed", logger.Fields{
-					"error": err.Error(),
-				})
+				esLogger.Error("initial Elasticsearch indexing for moments failed",
+					zap.Error(err),
+				)
 			} else {
 				esLogger.Info("initial Elasticsearch indexing for moments completed successfully")
 			}
@@ -162,9 +183,9 @@ func (s *FiberServer) handleConfigChange(newConfig *config.AppConfig) {
 	if dbConfigChanged {
 		configLogger.Info("database configuration changed, updating database connection")
 		if err := s.refreshDatabase(); err != nil {
-			configLogger.Error("failed to update database connection", logger.Fields{
-				"error": err.Error(),
-			})
+			configLogger.Error("failed to update database connection",
+				zap.Error(err),
+			)
 		} else {
 			configLogger.Info("database connection updated successfully")
 		}
@@ -176,9 +197,9 @@ func (s *FiberServer) handleConfigChange(newConfig *config.AppConfig) {
 	if esConfigChanged {
 		esLogger.Info("Elasticsearch configuration changed, updating ES client")
 		if err := s.refreshESClient(); err != nil {
-			esLogger.Error("failed to update Elasticsearch client", logger.Fields{
-				"error": err.Error(),
-			})
+			esLogger.Error("failed to update Elasticsearch client",
+				zap.Error(err),
+			)
 		} else {
 			esLogger.Info("Elasticsearch client updated successfully")
 		}
@@ -198,9 +219,9 @@ func (s *FiberServer) refreshDatabase() error {
 	// Close old connection if exists
 	if s.DbClient != nil {
 		if err := s.DbClient.Close(); err != nil {
-			serverLogger.Warn("error closing previous database connection", logger.Fields{
-				"error": err.Error(),
-			})
+			serverLogger.Warn("error closing previous database connection",
+				zap.Error(err),
+			)
 		}
 	}
 
@@ -240,20 +261,20 @@ func (s *FiberServer) reindexKeepsHandler(c *fiber.Ctx) error {
 	go func() {
 		// Use a background context detached from the HTTP request
 		ctx := context.Background()
-		esLogger.Info("starting background re-indexing process", logger.Fields{
-			"index_type":  "keeps",
-			"index_alias": s.KeepEsIndexAlias,
-		})
+		esLogger.Info("starting background re-indexing process",
+			zap.String("index_type", "keeps"),
+			zap.String("index_alias", s.KeepEsIndexAlias),
+		)
 		if err := es.IndexKeeps(ctx, s.EsClient, s.DbClient, s.KeepEsIndexAlias); err != nil {
-			esLogger.Error("background re-indexing failed", logger.Fields{
-				"error":      err.Error(),
-				"index_type": "keeps",
-			})
+			esLogger.Error("background re-indexing failed",
+				zap.Error(err),
+				zap.String("index_type", "keeps"),
+			)
 			// Consider adding monitoring/alerting here
 		} else {
-			esLogger.Info("background re-indexing completed successfully", logger.Fields{
-				"index_type": "keeps",
-			})
+			esLogger.Info("background re-indexing completed successfully",
+				zap.String("index_type", "keeps"),
+			)
 		}
 	}()
 
@@ -265,73 +286,234 @@ func (s *FiberServer) reindexKeepsHandler(c *fiber.Ctx) error {
 
 // searchKeepsHandler handles requests to search keeps in Elasticsearch
 func (s *FiberServer) searchKeepsHandler(c *fiber.Ctx) error {
+	start := time.Now()
+
 	// Get the search query from the query parameter 'q'
 	query := c.Query("q")
+	limit := c.QueryInt("limit", 10)
+	offset := c.QueryInt("offset", 0)
+
+	// Basic input validation
 	if query == "" {
+		esLogger.Warn("search request with empty query",
+			zap.String("ip", c.IP()),
+		)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Missing search query parameter 'q'",
+			"error": fiber.Map{
+				"type":    "ValidationError",
+				"message": "Missing search query parameter 'q'",
+				"code":    400,
+			},
+		})
+	}
+
+	// Validate query length
+	if len(query) > 200 {
+		esLogger.Warn("search request with query too long",
+			zap.String("ip", c.IP()),
+			zap.Int("query_length", len(query)),
+		)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": fiber.Map{
+				"type":    "ValidationError",
+				"message": "Search query too long (max 200 characters)",
+				"code":    400,
+			},
+		})
+	}
+
+	// Validate limit
+	if limit < 1 || limit > 100 {
+		limit = 10 // Set default
+	}
+
+	// Validate offset
+	if offset < 0 {
+		offset = 0
+	}
+
+	// Basic sanitization - remove dangerous patterns
+	if containsDangerousPatterns(query) {
+		esLogger.Warn("search request with potentially dangerous content",
+			zap.String("ip", c.IP()),
+			zap.String("query", query),
+		)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": fiber.Map{
+				"type":    "SecurityError",
+				"message": "Search query contains invalid content",
+				"code":    400,
+			},
 		})
 	}
 
 	// Check if the ES client is available
 	if s.EsClient == nil {
-		esLogger.Warn("Elasticsearch client is not available for search", logger.Fields{
-			"handler": "searchKeeps",
-		})
+		esLogger.Warn("Elasticsearch client is not available for search",
+			zap.String("handler", "searchKeeps"),
+		)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Search service is temporarily unavailable",
+			"error": fiber.Map{
+				"type":    "ServiceError",
+				"message": "Search service is temporarily unavailable",
+				"code":    503,
+			},
 		})
 	}
 
 	// Perform the search using the es package, passing the server's client and alias
-	// The function now returns []es.KeepSearchResult
 	keeps, err := es.SearchKeeps(c.Context(), s.EsClient, s.KeepEsIndexAlias, query)
 	if err != nil {
-		esLogger.Error("error searching keeps in Elasticsearch", logger.Fields{
-			"error": err.Error(),
-			"query": query,
-		})
+		duration := time.Since(start)
+		esLogger.Error("error searching keeps in Elasticsearch",
+			zap.Error(err),
+			zap.String("query", query),
+			zap.Duration("duration", duration),
+		)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to search keeps",
+			"error": fiber.Map{
+				"type":    "SearchError",
+				"message": "Failed to search keeps",
+				"code":    500,
+			},
 		})
 	}
 
-	return c.JSON(keeps) // Return the results (including score)
+	// Log successful search
+	duration := time.Since(start)
+	esLogger.Info("search keeps completed",
+		zap.String("query", query),
+		zap.Int("results", len(keeps.Hits.Hits)),
+		zap.Int("total", keeps.Hits.Total.Value),
+		zap.Duration("duration", duration),
+		zap.Int("limit", limit),
+		zap.Int("offset", offset),
+	)
+
+	return c.JSON(fiber.Map{
+		"query":    query,
+		"total":    keeps.Hits.Total.Value,
+		"results":  keeps.Hits.Hits,
+		"duration": duration.Milliseconds(),
+		"limit":    limit,
+		"offset":   offset,
+	})
 }
 
 // searchMomentsHandler handles requests to search moments in Elasticsearch
 func (s *FiberServer) searchMomentsHandler(c *fiber.Ctx) error {
+	start := time.Now()
+
 	// Get the search query from the query parameter 'q'
 	query := c.Query("q")
+	limit := c.QueryInt("limit", 10)
+	offset := c.QueryInt("offset", 0)
+
+	// Basic input validation
 	if query == "" {
+		esLogger.Warn("search request with empty query",
+			zap.String("ip", c.IP()),
+		)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Missing search query parameter 'q'",
+			"error": fiber.Map{
+				"type":    "ValidationError",
+				"message": "Missing search query parameter 'q'",
+				"code":    400,
+			},
+		})
+	}
+
+	// Validate query length
+	if len(query) > 200 {
+		esLogger.Warn("search request with query too long",
+			zap.String("ip", c.IP()),
+			zap.Int("query_length", len(query)),
+		)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": fiber.Map{
+				"type":    "ValidationError",
+				"message": "Search query too long (max 200 characters)",
+				"code":    400,
+			},
+		})
+	}
+
+	// Validate limit
+	if limit < 1 || limit > 100 {
+		limit = 10 // Set default
+	}
+
+	// Validate offset
+	if offset < 0 {
+		offset = 0
+	}
+
+	// Basic sanitization - remove dangerous patterns
+	if containsDangerousPatterns(query) {
+		esLogger.Warn("search request with potentially dangerous content",
+			zap.String("ip", c.IP()),
+			zap.String("query", query),
+		)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": fiber.Map{
+				"type":    "SecurityError",
+				"message": "Search query contains invalid content",
+				"code":    400,
+			},
 		})
 	}
 
 	// Check if the ES client is available
 	if s.EsClient == nil {
-		esLogger.Warn("Elasticsearch client is not available for search", logger.Fields{
-			"handler": "searchMoments",
-		})
+		esLogger.Warn("Elasticsearch client is not available for search",
+			zap.String("handler", "searchMoments"),
+		)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Search service is temporarily unavailable",
+			"error": fiber.Map{
+				"type":    "ServiceError",
+				"message": "Search service is temporarily unavailable",
+				"code":    503,
+			},
 		})
 	}
 
 	// Perform the search using the es package, passing the server's client and alias
 	moments, err := es.SearchMoments(c.Context(), s.EsClient, s.MomentEsIndexAlias, query)
 	if err != nil {
-		esLogger.Error("error searching moments in Elasticsearch", logger.Fields{
-			"error": err.Error(),
-			"query": query,
-		})
+		duration := time.Since(start)
+		esLogger.Error("error searching moments in Elasticsearch",
+			zap.Error(err),
+			zap.String("query", query),
+			zap.Duration("duration", duration),
+		)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to search moments",
+			"error": fiber.Map{
+				"type":    "SearchError",
+				"message": "Failed to search moments",
+				"code":    500,
+			},
 		})
 	}
 
-	return c.JSON(moments) // Return the results (including score)
+	// Log successful search
+	duration := time.Since(start)
+	esLogger.Info("search moments completed",
+		zap.String("query", query),
+		zap.Int("results", len(moments.Hits.Hits)),
+		zap.Int("total", moments.Hits.Total.Value),
+		zap.Duration("duration", duration),
+		zap.Int("limit", limit),
+		zap.Int("offset", offset),
+	)
+
+	return c.JSON(fiber.Map{
+		"query":    query,
+		"total":    moments.Hits.Total.Value,
+		"results":  moments.Hits.Hits,
+		"duration": duration.Milliseconds(),
+		"limit":    limit,
+		"offset":   offset,
+	})
 }
 
 // reindexMomentsHandler handles requests to re-index moments in Elasticsearch
@@ -348,20 +530,20 @@ func (s *FiberServer) reindexMomentsHandler(c *fiber.Ctx) error {
 	go func() {
 		// Use a background context detached from the HTTP request
 		ctx := context.Background()
-		esLogger.Info("starting background re-indexing process", logger.Fields{
-			"index_type":  "moments",
-			"index_alias": s.MomentEsIndexAlias,
-		})
+		esLogger.Info("starting background re-indexing process",
+			zap.String("index_type", "moments"),
+			zap.String("index_alias", s.MomentEsIndexAlias),
+		)
 		if err := es.IndexMoments(ctx, s.EsClient, s.DbClient, s.MomentEsIndexAlias); err != nil {
-			esLogger.Error("background re-indexing failed", logger.Fields{
-				"error":      err.Error(),
-				"index_type": "moments",
-			})
+			esLogger.Error("background re-indexing failed",
+				zap.Error(err),
+				zap.String("index_type", "moments"),
+			)
 			// Consider adding monitoring/alerting here
 		} else {
-			esLogger.Info("background re-indexing completed successfully", logger.Fields{
-				"index_type": "moments",
-			})
+			esLogger.Info("background re-indexing completed successfully",
+				zap.String("index_type", "moments"),
+			)
 		}
 	}()
 
@@ -369,4 +551,30 @@ func (s *FiberServer) reindexMomentsHandler(c *fiber.Ctx) error {
 	return c.Status(http.StatusAccepted).JSON(fiber.Map{
 		"message": "Re-indexing process for moments started in the background.",
 	})
+}
+
+// containsDangerousPatterns checks if the query contains potentially dangerous patterns
+func containsDangerousPatterns(query string) bool {
+	// List of dangerous patterns to check for
+	dangerousPatterns := []string{
+		"<script",
+		"javascript:",
+		"onload=",
+		"onerror=",
+		"eval(",
+		"document.",
+		"window.",
+		".innerHTML",
+		".outerHTML",
+	}
+
+	lowerQuery := strings.ToLower(query)
+
+	for _, pattern := range dangerousPatterns {
+		if strings.Contains(lowerQuery, strings.ToLower(pattern)) {
+			return true
+		}
+	}
+
+	return false
 }

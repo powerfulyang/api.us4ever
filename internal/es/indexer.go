@@ -14,6 +14,7 @@ import (
 	"api.us4ever/internal/logger"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/tidwall/gjson"
+	"go.uber.org/zap"
 )
 
 var (
@@ -47,15 +48,15 @@ func IndexKeeps(ctx context.Context, client *elasticsearch.Client, dbService dat
 		return fmt.Errorf("index alias name is required")
 	}
 
-	indexerLogger.Info("starting re-indexing process", logger.Fields{
-		"alias": aliasName,
-	})
+	indexerLogger.Info("starting re-indexing process",
+		zap.String("alias", aliasName),
+	)
 
 	// 1. Create a new index with a timestamp
 	newIndexName := fmt.Sprintf("%s_%s", aliasName, time.Now().Format("20060102150405"))
-	indexerLogger.Info("creating new index", logger.Fields{
-		"index_name": newIndexName,
-	})
+	indexerLogger.Info("creating new index",
+		zap.String("index_name", newIndexName),
+	)
 
 	mapping := map[string]any{
 		"settings": map[string]any{
@@ -116,17 +117,17 @@ func IndexKeeps(ctx context.Context, client *elasticsearch.Client, dbService dat
 		defer func(Body io.ReadCloser) {
 			err := Body.Close()
 			if err != nil {
-				indexerLogger.Error("error closing response body", logger.Fields{
-					"error": err.Error(),
-				})
+				indexerLogger.Error("error closing response body",
+					zap.Error(err),
+				)
 			}
 		}(res.Body)
 		bodyBytes, _ := io.ReadAll(res.Body)
 		return fmt.Errorf("cannot create index %s: [%s] %s", newIndexName, res.Status(), string(bodyBytes))
 	}
-	indexerLogger.Info("index created successfully", logger.Fields{
-		"index_name": newIndexName,
-	})
+	indexerLogger.Info("index created successfully",
+		zap.String("index_name", newIndexName),
+	)
 	err = res.Body.Close()
 	if err != nil {
 		return err
@@ -139,63 +140,63 @@ func IndexKeeps(ctx context.Context, client *elasticsearch.Client, dbService dat
 		// Consider deleting the newly created index if DB fetch fails
 		_, delErr := client.Indices.Delete([]string{newIndexName}, client.Indices.Delete.WithContext(ctx))
 		if delErr != nil {
-			indexerLogger.Error("failed to delete temporary index after DB error", logger.Fields{
-				"index_name": newIndexName,
-				"error":      delErr.Error(),
-			})
+			indexerLogger.Error("failed to delete temporary index after DB error",
+				zap.String("index_name", newIndexName),
+				zap.Error(delErr),
+			)
 		}
 		return fmt.Errorf("failed to fetch keeps from database: %w", err)
 	}
-	indexerLogger.Info("fetched keeps from database", logger.Fields{
-		"count": len(keeps),
-	})
+	indexerLogger.Info("fetched keeps from database",
+		zap.Int("count", len(keeps)),
+	)
 
 	// 3. Bulk index the data
-	indexerLogger.Info("starting bulk indexing", logger.Fields{
-		"index_name": newIndexName,
-	})
+	indexerLogger.Info("starting bulk indexing",
+		zap.String("index_name", newIndexName),
+	)
 	if err := bulkIndexKeeps(ctx, client, newIndexName, keeps); err != nil {
 		// Consider deleting the newly created index if bulk indexing fails
 		_, delErr := client.Indices.Delete([]string{newIndexName}, client.Indices.Delete.WithContext(ctx))
 		if delErr != nil {
-			indexerLogger.Error("failed to delete temporary index after bulk index error", logger.Fields{
-				"index_name": newIndexName,
-				"error":      delErr.Error(),
-			})
+			indexerLogger.Error("failed to delete temporary index after bulk index error",
+				zap.String("index_name", newIndexName),
+				zap.Error(delErr),
+			)
 		}
 		return fmt.Errorf("bulk indexing failed: %w", err)
 	}
-	indexerLogger.Info("bulk indexing completed successfully", logger.Fields{
-		"index_name": newIndexName,
-	})
+	indexerLogger.Info("bulk indexing completed successfully",
+		zap.String("index_name", newIndexName),
+	)
 
 	// 4. Atomically update the alias
-	indexerLogger.Info("updating alias to point to new index", logger.Fields{
-		"alias":      aliasName,
-		"index_name": newIndexName,
-	})
+	indexerLogger.Info("updating alias to point to new index",
+		zap.String("alias", aliasName),
+		zap.String("index_name", newIndexName),
+	)
 	if err := updateAlias(ctx, client, aliasName, newIndexName); err != nil {
 		// If alias update fails, the new index is orphaned but searchable directly.
 		// Consider manual cleanup or retry logic.
 		return fmt.Errorf("failed to update alias %s: %w", aliasName, err)
 	}
-	indexerLogger.Info("alias updated successfully", logger.Fields{
-		"alias": aliasName,
-	})
+	indexerLogger.Info("alias updated successfully",
+		zap.String("alias", aliasName),
+	)
 
 	// 5. Delete old indices (run in background, log errors)
 	go func() {
 		if err := deleteOldIndices(context.Background(), client, aliasName, newIndexName); err != nil {
 			// Error is already logged within deleteOldIndices or the function returned nil on logged error
-			indexerLogger.Error("background deletion of old indices encountered an issue", logger.Fields{
-				"error": err.Error(),
-			}) // Log any unexpected error return
+			indexerLogger.Error("background deletion of old indices encountered an issue",
+				zap.Error(err),
+			) // Log any unexpected error return
 		}
 	}()
 
-	indexerLogger.Info("re-indexing process completed successfully", logger.Fields{
-		"alias": aliasName,
-	})
+	indexerLogger.Info("re-indexing process completed successfully",
+		zap.String("alias", aliasName),
+	)
 	return nil
 }
 
@@ -233,10 +234,10 @@ func bulkIndexKeeps(ctx context.Context, client *elasticsearch.Client, indexName
 		}
 		data, err := json.Marshal(doc)
 		if err != nil {
-			indexerLogger.Error("error marshalling keep document", logger.Fields{
-				"keep_id": keep.ID,
-				"error":   err.Error(),
-			})
+			indexerLogger.Error("error marshalling keep document",
+				zap.String("keep_id", keep.ID),
+				zap.Error(err),
+			)
 			buf.Reset() // Clear the buffer for this item
 			continue
 		}
@@ -264,10 +265,10 @@ func bulkIndexKeeps(ctx context.Context, client *elasticsearch.Client, indexName
 	// Refresh the index to make changes searchable immediately
 	_, err := client.Indices.Refresh(client.Indices.Refresh.WithContext(ctx), client.Indices.Refresh.WithIndex(indexName))
 	if err != nil {
-		indexerLogger.Warn("failed to refresh index after bulk indexing", logger.Fields{
-			"index_name": indexName,
-			"error":      err.Error(),
-		})
+		indexerLogger.Warn("failed to refresh index after bulk indexing",
+			zap.String("index_name", indexName),
+			zap.Error(err),
+		)
 		// Don't fail the whole process, but log the warning
 	}
 
@@ -284,9 +285,9 @@ func flushBulkBuffer(ctx context.Context, client *elasticsearch.Client, buf *byt
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			indexerLogger.Error("error closing response body", logger.Fields{
-				"error": err.Error(),
-			})
+			indexerLogger.Error("error closing response body",
+				zap.Error(err),
+			)
 		}
 	}(res.Body)
 
@@ -306,13 +307,13 @@ func flushBulkBuffer(ctx context.Context, client *elasticsearch.Client, buf *byt
 		gjson.Get(jsonResponse, "items").ForEach(func(key, value gjson.Result) bool {
 			if value.Get("index.error").Exists() {
 				errorCount++
-				indexerLogger.Error("bulk index item error", logger.Fields{
-					"index":  value.Get("index._index").String(),
-					"id":     value.Get("index._id").String(),
-					"status": value.Get("index.status").Int(),
-					"type":   value.Get("index.error.type").String(),
-					"reason": value.Get("index.error.reason").String(),
-				})
+				indexerLogger.Error("bulk index item error",
+					zap.String("index", value.Get("index._index").String()),
+					zap.String("id", value.Get("index._id").String()),
+					zap.Int64("status", value.Get("index.status").Int()),
+					zap.String("type", value.Get("index.error.type").String()),
+					zap.String("reason", value.Get("index.error.reason").String()),
+				)
 			}
 			return true // continue iterating
 		})
@@ -354,9 +355,9 @@ func updateAlias(ctx context.Context, client *elasticsearch.Client, aliasName, n
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			indexerLogger.Error("error closing response body", logger.Fields{
-				"error": err.Error(),
-			})
+			indexerLogger.Error("error closing response body",
+				zap.Error(err),
+			)
 		}
 	}(res.Body)
 
@@ -374,10 +375,10 @@ func updateAlias(ctx context.Context, client *elasticsearch.Client, aliasName, n
 
 // deleteOldIndices finds and deletes indices matching the alias pattern, excluding the currently active one.
 func deleteOldIndices(ctx context.Context, client *elasticsearch.Client, aliasName, currentIndexName string) error {
-	indexerLogger.Info("starting cleanup of old indices", logger.Fields{
-		"alias":              aliasName,
-		"current_index_name": currentIndexName,
-	})
+	indexerLogger.Info("starting cleanup of old indices",
+		zap.String("alias", aliasName),
+		zap.String("current_index_name", currentIndexName),
+	)
 
 	// Pattern to match indices for this alias
 	indexPattern := fmt.Sprintf("%s_*", aliasName)
@@ -413,10 +414,10 @@ func deleteOldIndices(ctx context.Context, client *elasticsearch.Client, aliasNa
 		return nil
 	}
 
-	indexerLogger.Info("found old indices to delete", logger.Fields{
-		"count":   len(indicesToDelete),
-		"indices": indicesToDelete,
-	})
+	indexerLogger.Info("found old indices to delete",
+		zap.Int("count", len(indicesToDelete)),
+		zap.Strings("indices", indicesToDelete),
+	)
 
 	// Delete the old indices
 	delRes, err := client.Indices.Delete(indicesToDelete, client.Indices.Delete.WithContext(ctx), client.Indices.Delete.WithIgnoreUnavailable(true))
@@ -428,16 +429,16 @@ func deleteOldIndices(ctx context.Context, client *elasticsearch.Client, aliasNa
 	if delRes.IsError() {
 		delBodyBytes, _ := io.ReadAll(delRes.Body)
 		// Log error but don't fail the whole indexing process just because cleanup failed
-		indexerLogger.Warn("failed to delete old indices", logger.Fields{
-			"status":   delRes.Status(),
-			"response": string(delBodyBytes),
-		})
+		indexerLogger.Warn("failed to delete old indices",
+			zap.String("status", delRes.Status()),
+			zap.String("response", string(delBodyBytes)),
+		)
 		return nil // Don't return error, just log it
 	}
 
-	indexerLogger.Info("successfully deleted old indices", logger.Fields{
-		"count": len(indicesToDelete),
-	})
+	indexerLogger.Info("successfully deleted old indices",
+		zap.Int("count", len(indicesToDelete)),
+	)
 	return nil
 }
 
@@ -454,9 +455,9 @@ func IndexMoments(ctx context.Context, client *elasticsearch.Client, dbService d
 		return fmt.Errorf("index alias name is required")
 	}
 
-	indexerLogger.Info("starting re-indexing process for moments", logger.Fields{
-		"alias": aliasName,
-	})
+	indexerLogger.Info("starting re-indexing process for moments",
+		zap.String("alias", aliasName),
+	)
 
 	// 1. Create a new index with a timestamp
 	newIndexName := fmt.Sprintf("%s_%s", aliasName, time.Now().Format("20060102150405"))
@@ -506,9 +507,9 @@ func IndexMoments(ctx context.Context, client *elasticsearch.Client, dbService d
 
 	body, _ := json.Marshal(mapping)
 
-	indexerLogger.Info("creating new index for moments", logger.Fields{
-		"index_name": newIndexName,
-	})
+	indexerLogger.Info("creating new index for moments",
+		zap.String("index_name", newIndexName),
+	)
 	res, err := client.Indices.Create(
 		newIndexName,
 		client.Indices.Create.WithContext(ctx),
@@ -521,17 +522,17 @@ func IndexMoments(ctx context.Context, client *elasticsearch.Client, dbService d
 		defer func(Body io.ReadCloser) {
 			err := Body.Close()
 			if err != nil {
-				indexerLogger.Error("error closing response body", logger.Fields{
-					"error": err.Error(),
-				})
+				indexerLogger.Error("error closing response body",
+					zap.Error(err),
+				)
 			}
 		}(res.Body)
 		bodyBytes, _ := io.ReadAll(res.Body)
 		return fmt.Errorf("cannot create index %s: [%s] %s", newIndexName, res.Status(), string(bodyBytes))
 	}
-	indexerLogger.Info("index created successfully for moments", logger.Fields{
-		"index_name": newIndexName,
-	})
+	indexerLogger.Info("index created successfully for moments",
+		zap.String("index_name", newIndexName),
+	)
 	err = res.Body.Close()
 	if err != nil {
 		return err
@@ -544,16 +545,16 @@ func IndexMoments(ctx context.Context, client *elasticsearch.Client, dbService d
 		// 如果获取失败，删除刚创建的索引
 		_, delErr := client.Indices.Delete([]string{newIndexName}, client.Indices.Delete.WithContext(ctx))
 		if delErr != nil {
-			indexerLogger.Error("failed to delete temporary index after DB error", logger.Fields{
-				"index_name": newIndexName,
-				"error":      delErr.Error(),
-			})
+			indexerLogger.Error("failed to delete temporary index after DB error",
+				zap.String("index_name", newIndexName),
+				zap.Error(delErr),
+			)
 		}
 		return fmt.Errorf("failed to fetch moments from database: %w", err)
 	}
-	indexerLogger.Info("fetched moments from the database", logger.Fields{
-		"count": len(moments),
-	})
+	indexerLogger.Info("fetched moments from the database",
+		zap.Int("count", len(moments)),
+	)
 
 	// 3. Index the data
 	indexerLogger.Info("indexing moments into the new index")
@@ -561,39 +562,39 @@ func IndexMoments(ctx context.Context, client *elasticsearch.Client, dbService d
 		// 如果批量索引失败，删除刚创建的索引
 		_, delErr := client.Indices.Delete([]string{newIndexName}, client.Indices.Delete.WithContext(ctx))
 		if delErr != nil {
-			indexerLogger.Error("failed to delete temporary index after bulk index error", logger.Fields{
-				"index_name": newIndexName,
-				"error":      delErr.Error(),
-			})
+			indexerLogger.Error("failed to delete temporary index after bulk index error",
+				zap.String("index_name", newIndexName),
+				zap.Error(delErr),
+			)
 		}
 		return fmt.Errorf("failed to index moments: %w", err)
 	}
 
 	// 4. Update alias to point to new index
-	indexerLogger.Info("updating alias to point to new index", logger.Fields{
-		"alias":      aliasName,
-		"index_name": newIndexName,
-	})
+	indexerLogger.Info("updating alias to point to new index",
+		zap.String("alias", aliasName),
+		zap.String("index_name", newIndexName),
+	)
 	// 使用封装的 updateAlias 函数替代自定义实现
 	if err := updateAlias(ctx, client, aliasName, newIndexName); err != nil {
 		return fmt.Errorf("failed to update alias %s: %w", aliasName, err)
 	}
-	indexerLogger.Info("alias updated successfully for moments", logger.Fields{
-		"alias": aliasName,
-	})
+	indexerLogger.Info("alias updated successfully for moments",
+		zap.String("alias", aliasName),
+	)
 
 	// 5. Delete old indices (run in background, log errors)
 	go func() {
 		if err := deleteOldIndices(context.Background(), client, aliasName, newIndexName); err != nil {
-			indexerLogger.Error("background deletion of old moment indices encountered an issue", logger.Fields{
-				"error": err.Error(),
-			})
+			indexerLogger.Error("background deletion of old moment indices encountered an issue",
+				zap.Error(err),
+			)
 		}
 	}()
 
-	indexerLogger.Info("re-indexing process for moments completed successfully", logger.Fields{
-		"alias": aliasName,
-	})
+	indexerLogger.Info("re-indexing process for moments completed successfully",
+		zap.String("alias", aliasName),
+	)
 	return nil
 }
 
@@ -637,10 +638,10 @@ func bulkIndexMoments(ctx context.Context, client *elasticsearch.Client, indexNa
 		}
 		data, err := json.Marshal(doc)
 		if err != nil {
-			indexerLogger.Error("error marshalling moment document", logger.Fields{
-				"moment_id": moment.ID,
-				"error":     err.Error(),
-			})
+			indexerLogger.Error("error marshalling moment document",
+				zap.String("moment_id", moment.ID),
+				zap.Error(err),
+			)
 			buf.Reset() // Clear the buffer for this item
 			continue
 		}
@@ -668,10 +669,10 @@ func bulkIndexMoments(ctx context.Context, client *elasticsearch.Client, indexNa
 	// Refresh the index to make changes searchable immediately
 	_, err := client.Indices.Refresh(client.Indices.Refresh.WithIndex(indexName))
 	if err != nil {
-		indexerLogger.Warn("failed to refresh index after bulk indexing", logger.Fields{
-			"index_name": indexName,
-			"error":      err.Error(),
-		})
+		indexerLogger.Warn("failed to refresh index after bulk indexing",
+			zap.String("index_name", indexName),
+			zap.Error(err),
+		)
 		// Don't fail the whole process, but log the warning
 	}
 

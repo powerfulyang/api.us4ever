@@ -8,6 +8,7 @@ import (
 	"api.us4ever/internal/errors"
 	"api.us4ever/internal/logger"
 	"github.com/gofiber/fiber/v2"
+	"go.uber.org/zap"
 )
 
 // HealthChecker defines the interface for health checking
@@ -54,26 +55,26 @@ func NewHealthMiddleware() *HealthMiddleware {
 // AddChecker adds a health checker
 func (h *HealthMiddleware) AddChecker(name string, checker HealthChecker) {
 	if name == "" || checker == nil {
-		h.logger.Warn("invalid health checker", logger.Fields{
-			"name":    name,
-			"checker": checker != nil,
-		})
+		h.logger.Warn("invalid health checker",
+			zap.String("name", name),
+			zap.Bool("checker", checker != nil),
+		)
 		return
 	}
 
 	h.checkers[name] = checker
-	h.logger.Info("health checker added", logger.Fields{
-		"name": name,
-	})
+	h.logger.Info("health checker added",
+		zap.String("name", name),
+	)
 }
 
 // SetTimeout sets the timeout for health checks
 func (h *HealthMiddleware) SetTimeout(timeout time.Duration) {
 	if timeout <= 0 {
-		h.logger.Warn("invalid timeout, using default", logger.Fields{
-			"timeout": timeout,
-			"default": h.timeout,
-		})
+		h.logger.Warn("invalid timeout, using default",
+			zap.Duration("timeout", timeout),
+			zap.Duration("default", h.timeout),
+		)
 		return
 	}
 	h.timeout = timeout
@@ -121,11 +122,11 @@ func (h *HealthMiddleware) Handler() fiber.Handler {
 		}
 
 		// Log health check result
-		h.logger.Info("health check completed", logger.Fields{
-			"status":     response.Status,
-			"duration":   response.Duration,
-			"components": len(response.Components),
-		})
+		h.logger.Info("health check completed",
+			zap.String("status", response.Status),
+			zap.String("duration", response.Duration),
+			zap.Int("components", len(response.Components)),
+		)
 
 		return c.Status(statusCode).JSON(response)
 	}
@@ -158,23 +159,23 @@ func (h *HealthMiddleware) checkComponent(ctx context.Context, name string, chec
 			status.Status = "unhealthy"
 			status.Error = err.Error()
 
-			h.logger.Error("component health check failed", logger.Fields{
-				"component": name,
-				"error":     err.Error(),
-			})
+			h.logger.Error("component health check failed",
+				zap.String("component", name),
+				zap.Error(err),
+			)
 		} else {
-			h.logger.Debug("component health check passed", logger.Fields{
-				"component": name,
-			})
+			h.logger.Debug("component health check passed",
+				zap.String("component", name),
+			)
 		}
 	case <-ctx.Done():
 		status.Status = "unhealthy"
 		status.Error = "health check timeout"
 
-		h.logger.Error("component health check timeout", logger.Fields{
-			"component": name,
-			"timeout":   h.timeout,
-		})
+		h.logger.Error("component health check timeout",
+			zap.String("component", name),
+			zap.Duration("timeout", h.timeout),
+		)
 	}
 
 	return status

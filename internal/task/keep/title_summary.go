@@ -10,6 +10,7 @@ import (
 	"api.us4ever/internal/dify"
 	"api.us4ever/internal/ent/keep"
 	"api.us4ever/internal/logger"
+	"go.uber.org/zap"
 )
 
 var (
@@ -47,9 +48,9 @@ func GenerateTitleAndSummary(fiberServer *server.FiberServer) (int, error) {
 	}
 
 	if len(keeps) > 0 {
-		titleSummaryLogger.Info("found keeps to process for title/summary generation", logger.Fields{
-			"count": len(keeps),
-		})
+		titleSummaryLogger.Info("found keeps to process for title/summary generation",
+			zap.Int("count", len(keeps)),
+		)
 	}
 
 	// 处理每条记录
@@ -58,10 +59,10 @@ func GenerateTitleAndSummary(fiberServer *server.FiberServer) (int, error) {
 		if k.Title == "" {
 			title, err := generateTitle(k.Content)
 			if err != nil {
-				titleSummaryLogger.Error("error generating title", logger.Fields{
-					"keep_id": k.ID,
-					"error":   err.Error(),
-				})
+				titleSummaryLogger.Error("error generating title",
+					zap.String("keep_id", k.ID),
+					zap.Error(err),
+				)
 				continue
 			}
 
@@ -72,10 +73,10 @@ func GenerateTitleAndSummary(fiberServer *server.FiberServer) (int, error) {
 				Save(ctx)
 
 			if err != nil {
-				titleSummaryLogger.Error("error updating title", logger.Fields{
-					"keep_id": k.ID,
-					"error":   err.Error(),
-				})
+				titleSummaryLogger.Error("error updating title",
+					zap.String("keep_id", k.ID),
+					zap.Error(err),
+				)
 				continue
 			}
 		}
@@ -84,10 +85,10 @@ func GenerateTitleAndSummary(fiberServer *server.FiberServer) (int, error) {
 		if k.Summary == "" {
 			summary, err := generateSummary(k.Content)
 			if err != nil {
-				titleSummaryLogger.Error("error generating summary", logger.Fields{
-					"keep_id": k.ID,
-					"error":   err.Error(),
-				})
+				titleSummaryLogger.Error("error generating summary",
+					zap.String("keep_id", k.ID),
+					zap.Error(err),
+				)
 				continue
 			}
 
@@ -98,10 +99,10 @@ func GenerateTitleAndSummary(fiberServer *server.FiberServer) (int, error) {
 				Save(ctx)
 
 			if err != nil {
-				titleSummaryLogger.Error("error updating summary", logger.Fields{
-					"keep_id": k.ID,
-					"error":   err.Error(),
-				})
+				titleSummaryLogger.Error("error updating summary",
+					zap.String("keep_id", k.ID),
+					zap.Error(err),
+				)
 				continue
 			}
 		}

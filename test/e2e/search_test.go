@@ -36,7 +36,7 @@ func TestSearchKeeps(t *testing.T) {
 
 	client, err := es.NewClient(appConfig.ES)
 	if err != nil {
-		searchTestLogger.Fatal("failed to initialize Elasticsearch client", logger.Fields{
+		searchTestLogger.Fatal("failed to initialize Elasticsearch client", logger.LogFields{
 			"error": err.Error(),
 		})
 	}
@@ -45,7 +45,7 @@ func TestSearchKeeps(t *testing.T) {
 
 	searchQuery := "测试"
 
-	searchTestLogger.Info("performing search test", logger.Fields{
+	searchTestLogger.Info("performing search test", logger.LogFields{
 		"index_alias":  indexAlias,
 		"search_query": searchQuery,
 	})
@@ -54,5 +54,5 @@ func TestSearchKeeps(t *testing.T) {
 	total := results.Hits.Total.Value
 
 	// 7. 输出结果
-	fmt.Printf("搜索结果总数: %d\n", total)
+	logger.Debug(fmt.Sprintf("搜索结果总数: %d\n", total))
 }

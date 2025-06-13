@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"api.us4ever/internal/logger"
+	"go.uber.org/zap"
 )
 
 var (
@@ -44,9 +45,10 @@ func ImportConfigToNacos(filePath, dataID, group string) error {
 		return fmt.Errorf("发布配置到Nacos未成功")
 	}
 
-	utilsLogger.Info("successfully imported config to Nacos", logger.Fields{
-		"data_id": dataID,
-		"group":   group,
-	})
+	utilsLogger.Info(
+		"successfully imported config to Nacos",
+		zap.String("data_id", dataID),
+		zap.String("group", group),
+	)
 	return nil
 }

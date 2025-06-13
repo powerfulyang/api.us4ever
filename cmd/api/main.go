@@ -13,6 +13,7 @@ import (
 	"api.us4ever/internal/logger"
 	"api.us4ever/internal/server"
 	"api.us4ever/internal/task"
+	"go.uber.org/zap"
 )
 
 const (
@@ -65,9 +66,9 @@ func gracefulShutdown(fiberServer *server.FiberServer, scheduler *task.Scheduler
 
 	// Shutdown the fiber server
 	if err := fiberServer.ShutdownWithContext(shutdownCtx); err != nil {
-		shutdownLogger.Error("server forced to shutdown with error", logger.Fields{
-			"error": err.Error(),
-		})
+		shutdownLogger.Error("server forced to shutdown with error",
+			zap.Error(err),
+		)
 	}
 
 	// Stop the task scheduler
@@ -110,17 +111,17 @@ func getListenAddress(appConfig *config.AppConfig, port int) string {
 func initializeScheduler(fiberServer *server.FiberServer) *task.Scheduler {
 	scheduler, err := task.NewScheduler()
 	if err != nil {
-		schedulerLogger.Error("failed to initialize task scheduler", logger.Fields{
-			"error": err.Error(),
-		})
+		schedulerLogger.Error("failed to initialize task scheduler",
+			zap.Error(err),
+		)
 		return nil
 	}
 
 	// Register tasks
 	if err := task.RegisterTasks(scheduler, fiberServer); err != nil {
-		schedulerLogger.Error("failed to register tasks", logger.Fields{
-			"error": err.Error(),
-		})
+		schedulerLogger.Error("failed to register tasks",
+			zap.Error(err),
+		)
 		scheduler.Stop() // Clean up if registration fails
 		return nil
 	}
@@ -158,13 +159,13 @@ func main() {
 		port := getPort(appConfig)
 		listenAddr := getListenAddress(appConfig, port)
 
-		mainLogger.Info("starting server", logger.Fields{
-			"address": listenAddr,
-		})
+		mainLogger.Info("starting server",
+			zap.String("address", listenAddr),
+		)
 		if err := fiberServer.Listen(listenAddr); err != nil {
-			mainLogger.Fatal("failed to start server", logger.Fields{
-				"error": err.Error(),
-			})
+			mainLogger.Fatal("failed to start server",
+				zap.Error(err),
+			)
 		}
 	}()
 

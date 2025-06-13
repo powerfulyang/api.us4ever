@@ -34,21 +34,8 @@ clean:
 
 # 实时重载
 watch:
-    #!/usr/bin/env powershell
-    if (Get-Command air -ErrorAction SilentlyContinue) {
-        air
-        Write-Output 'Watching...'
-    } else {
-        Write-Output 'Installing air...'
-        go install github.com/air-verse/air@latest
-        air
-        Write-Output 'Watching...'
-    }
-
-# 导入 Nacos 配置
-import-nacos-config:
-    @echo "导入配置到Nacos..."
-    go run cmd/nacos-tools/import-config/main.go -file=config/api.us4ever.json
+    @echo "Starting..."
+    air
 
 # 打印 Nacos 配置
 print-nacos-config:

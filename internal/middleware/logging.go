@@ -1,12 +1,13 @@
 package middleware
 
 import (
-	"strconv"
 	"time"
 
 	"api.us4ever/internal/logger"
+	"api.us4ever/internal/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 // LoggingConfig defines the configuration for logging middleware
@@ -41,8 +42,8 @@ func DefaultLoggingConfig() LoggingConfig {
 		Logger:                 httpLogger,
 		SkipPaths:              []string{"/health", "/metrics", "/favicon.ico"},
 		SkipSuccessfulRequests: false,
-		LogRequestBody:         false,
-		LogResponseBody:        false,
+		LogRequestBody:         true,
+		LogResponseBody:        true,
 		MaxBodySize:            1024, // 1KB
 	}
 }
@@ -73,43 +74,36 @@ func NewLoggingMiddleware(config ...LoggingConfig) fiber.Handler {
 		}
 
 		// Generate request ID if not present
-		requestID := c.Get("X-Request-ID")
-		if requestID == "" {
-			requestID = uuid.New().String()
-			c.Set("X-Request-ID", requestID)
-		}
-
-		// Store request ID in context for other middleware/handlers
-		c.Locals("request_id", requestID)
+		requestID := GetRequestID(c)
 
 		start := time.Now()
 
 		// Prepare request fields
-		requestFields := logger.Fields{
-			"request_id": requestID,
-			"method":     c.Method(),
-			"path":       path,
-			"ip":         c.IP(),
-			"user_agent": c.Get("User-Agent"),
+		requestFields := []zap.Field{
+			zap.String("request_id", requestID),
+			zap.String("method", c.Method()),
+			zap.String("path", path),
+			zap.String("ip", c.IP()),
+			zap.String("user_agent", c.Get("User-Agent")),
 		}
 
 		// Add query parameters if present
 		if queryString := c.Context().QueryArgs().String(); queryString != "" {
-			requestFields["query"] = queryString
+			requestFields = append(requestFields, zap.String("query", queryString))
 		}
 
 		// Log request body if enabled
 		if cfg.LogRequestBody && len(c.Body()) > 0 {
 			body := c.Body()
 			if len(body) > cfg.MaxBodySize {
-				requestFields["request_body"] = string(body[:cfg.MaxBodySize]) + "...[truncated]"
+				requestFields = append(requestFields, zap.String("request_body", string(body[:cfg.MaxBodySize])+"...[truncated]"))
 			} else {
-				requestFields["request_body"] = string(body)
+				requestFields = append(requestFields, zap.String("request_body", string(body)))
 			}
 		}
 
 		// Log incoming request
-		cfg.Logger.Info("incoming request", requestFields)
+		cfg.Logger.Info("incoming request", requestFields...)
 
 		// Process request
 		err := c.Next()
@@ -119,27 +113,27 @@ func NewLoggingMiddleware(config ...LoggingConfig) fiber.Handler {
 		status := c.Response().StatusCode()
 
 		// Prepare response fields
-		responseFields := logger.Fields{
-			"request_id": requestID,
-			"method":     c.Method(),
-			"path":       path,
-			"status":     status,
-			"duration":   duration.String(),
-			"size":       len(c.Response().Body()),
+		responseFields := []zap.Field{
+			zap.String("request_id", requestID),
+			zap.String("method", c.Method()),
+			zap.String("path", path),
+			zap.Int("status", status),
+			zap.String("duration", utils.SmartDurationFormat(duration)),
+			zap.Int("size", len(c.Response().Body())),
 		}
 
 		// Add error information if present
 		if err != nil {
-			responseFields["error"] = err.Error()
+			responseFields = append(responseFields, zap.Error(err))
 		}
 
 		// Log response body if enabled
 		if cfg.LogResponseBody && len(c.Response().Body()) > 0 {
 			body := c.Response().Body()
 			if len(body) > cfg.MaxBodySize {
-				responseFields["response_body"] = string(body[:cfg.MaxBodySize]) + "...[truncated]"
+				responseFields = append(responseFields, zap.String("response_body", string(body[:cfg.MaxBodySize])+"...[truncated]"))
 			} else {
-				responseFields["response_body"] = string(body)
+				responseFields = append(responseFields, zap.String("response_body", string(body)))
 			}
 		}
 
@@ -149,13 +143,13 @@ func NewLoggingMiddleware(config ...LoggingConfig) fiber.Handler {
 		// Log response
 		switch logLevel {
 		case "debug":
-			cfg.Logger.Debug("request completed", responseFields)
+			cfg.Logger.Debug("request completed", responseFields...)
 		case "info":
-			cfg.Logger.Info("request completed", responseFields)
+			cfg.Logger.Info("request completed", responseFields...)
 		case "warn":
-			cfg.Logger.Warn("request completed with warning", responseFields)
+			cfg.Logger.Warn("request completed with warning", responseFields...)
 		case "error":
-			cfg.Logger.Error("request completed with error", responseFields)
+			cfg.Logger.Error("request completed with error", responseFields...)
 		}
 
 		return err
@@ -199,80 +193,14 @@ func RequestIDMiddleware() fiber.Handler {
 	}
 }
 
-// CorrelationIDMiddleware adds correlation ID support for distributed tracing
-func CorrelationIDMiddleware() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		correlationID := c.Get("X-Correlation-ID")
-		if correlationID == "" {
-			// Use request ID as correlation ID if not provided
-			if requestID := c.Get("X-Request-ID"); requestID != "" {
-				correlationID = requestID
-			} else {
-				correlationID = uuid.New().String()
-			}
-			c.Set("X-Correlation-ID", correlationID)
+// GetRequestID extracts request ID from context
+func GetRequestID(c *fiber.Ctx) string {
+	if requestID := c.Locals("request_id"); requestID != nil {
+		if id, ok := requestID.(string); ok {
+			return id
 		}
-
-		// Store in locals for easy access
-		c.Locals("correlation_id", correlationID)
-
-		return c.Next()
 	}
-}
 
-// MetricsMiddleware provides basic request metrics
-func MetricsMiddleware() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		start := time.Now()
-
-		err := c.Next()
-
-		duration := time.Since(start)
-		status := c.Response().StatusCode()
-
-		// Log metrics (in a real application, you might send these to a metrics system)
-		logger.Info("request metrics", logger.Fields{
-			"method":   c.Method(),
-			"path":     c.Path(),
-			"status":   status,
-			"duration": duration.Milliseconds(),
-			"size":     len(c.Response().Body()),
-		})
-
-		return err
-	}
-}
-
-// SecurityHeadersMiddleware adds common security headers
-func SecurityHeadersMiddleware() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		// Add security headers
-		c.Set("X-Content-Type-Options", "nosniff")
-		c.Set("X-Frame-Options", "DENY")
-		c.Set("X-XSS-Protection", "1; mode=block")
-		c.Set("Referrer-Policy", "strict-origin-when-cross-origin")
-
-		// Add cache control for API responses
-		if c.Path() != "/health" && c.Path() != "/metrics" {
-			c.Set("Cache-Control", "no-cache, no-store, must-revalidate")
-			c.Set("Pragma", "no-cache")
-			c.Set("Expires", "0")
-		}
-
-		return c.Next()
-	}
-}
-
-// RateLimitInfo represents rate limit information
-type RateLimitInfo struct {
-	Limit     int
-	Remaining int
-	Reset     time.Time
-}
-
-// AddRateLimitHeaders adds rate limit headers to the response
-func AddRateLimitHeaders(c *fiber.Ctx, info RateLimitInfo) {
-	c.Set("X-RateLimit-Limit", strconv.Itoa(info.Limit))
-	c.Set("X-RateLimit-Remaining", strconv.Itoa(info.Remaining))
-	c.Set("X-RateLimit-Reset", strconv.FormatInt(info.Reset.Unix(), 10))
+	// Fallback to header
+	return c.Get("X-Request-ID")
 }
