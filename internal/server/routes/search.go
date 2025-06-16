@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 type SearchRoutes struct {
@@ -27,12 +27,12 @@ func (r *SearchRoutes) Register() {
 	internal.Get("/moments/search", r.searchMomentsHandler)
 }
 
-func (r *SearchRoutes) searchKeepsHandler(c *fiber.Ctx) error {
+func (r *SearchRoutes) searchKeepsHandler(c fiber.Ctx) error {
 	// TODO: 实现搜索逻辑
 	return c.SendString("Search keeps endpoint")
 }
 
-func (r *SearchRoutes) searchMomentsHandler(c *fiber.Ctx) error {
+func (r *SearchRoutes) searchMomentsHandler(c fiber.Ctx) error {
 	// TODO: 实现搜索逻辑
 	return c.SendString("Search moments endpoint")
 }

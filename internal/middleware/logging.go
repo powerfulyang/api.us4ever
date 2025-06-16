@@ -1,12 +1,13 @@
 package middleware
 
 import (
+	"fmt"
 	"time"
 
 	"api.us4ever/internal/logger"
 	"api.us4ever/internal/utils"
-	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/requestid"
 	"go.uber.org/zap"
 )
 
@@ -64,7 +65,7 @@ func NewLoggingMiddleware(config ...LoggingConfig) fiber.Handler {
 		cfg.Logger = httpLogger
 	}
 
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		// Skip logging for specified paths
 		path := c.Path()
 		for _, skipPath := range cfg.SkipPaths {
@@ -88,8 +89,12 @@ func NewLoggingMiddleware(config ...LoggingConfig) fiber.Handler {
 		}
 
 		// Add query parameters if present
-		if queryString := c.Context().QueryArgs().String(); queryString != "" {
-			requestFields = append(requestFields, zap.String("query", queryString))
+		// Add query parameters if present
+		if allQueries := c.Queries(); len(allQueries) > 0 {
+			for key, value := range allQueries {
+				queryString := fmt.Sprintf("key=%s, value=%s", key, value)
+				requestFields = append(requestFields, zap.String("query", queryString))
+			}
 		}
 
 		// Log request body if enabled
@@ -149,7 +154,7 @@ func NewLoggingMiddleware(config ...LoggingConfig) fiber.Handler {
 		case "warn":
 			cfg.Logger.Warn("request completed with warning", responseFields...)
 		case "error":
-			cfg.Logger.Error("request completed with error", responseFields...)
+			cfg.Logger.Warn("request completed with error", responseFields...)
 		}
 
 		return err
@@ -177,30 +182,7 @@ func getLogLevel(status int, err error, skipSuccessful bool) string {
 	}
 }
 
-// RequestIDMiddleware adds a request ID to each request if not present
-func RequestIDMiddleware() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		requestID := c.Get("X-Request-ID")
-		if requestID == "" {
-			requestID = uuid.New().String()
-			c.Set("X-Request-ID", requestID)
-		}
-
-		// Store in locals for easy access
-		c.Locals("request_id", requestID)
-
-		return c.Next()
-	}
-}
-
 // GetRequestID extracts request ID from context
-func GetRequestID(c *fiber.Ctx) string {
-	if requestID := c.Locals("request_id"); requestID != nil {
-		if id, ok := requestID.(string); ok {
-			return id
-		}
-	}
-
-	// Fallback to header
-	return c.Get("X-Request-ID")
+func GetRequestID(c fiber.Ctx) string {
+	return requestid.FromContext(c)
 }

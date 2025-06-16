@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"api.us4ever/internal/logger"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
@@ -128,9 +128,9 @@ var (
 
 // MetricsMiddleware creates a Fiber middleware for collecting HTTP metrics
 func MetricsMiddleware() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		start := time.Now()
-		
+
 		// Record request size
 		if c.Request().Header.ContentLength() > 0 {
 			httpRequestSize.WithLabelValues(
@@ -144,10 +144,10 @@ func MetricsMiddleware() fiber.Handler {
 
 		// Calculate duration
 		duration := time.Since(start).Seconds()
-		
+
 		// Get status code
 		status := strconv.Itoa(c.Response().StatusCode())
-		
+
 		// Record metrics
 		httpRequestsTotal.WithLabelValues(
 			c.Method(),
@@ -241,7 +241,7 @@ func (mc *MetricsCollector) collectSystemMetrics() {
 
 // GetMetricsHandler returns a Fiber handler for the /metrics endpoint
 func GetMetricsHandler() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		// In a real implementation, you would use promhttp.Handler()
 		// For now, return a simple response
 		return c.SendString("# Metrics endpoint - integrate with Prometheus\n")

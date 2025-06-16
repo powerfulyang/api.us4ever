@@ -1,31 +1,31 @@
 package server
 
 import (
-	"api.us4ever/internal/logger"
+	"time"
+
 	"api.us4ever/internal/middleware"
 	"api.us4ever/internal/server/routes"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3/middleware/cors"
+	"github.com/gofiber/fiber/v3/middleware/limiter"
+	"github.com/gofiber/fiber/v3/middleware/requestid"
 )
-
-var (
-	routesLogger *logger.Logger
-)
-
-func init() {
-	var err error
-	routesLogger, err = logger.New("routes")
-	if err != nil {
-		panic("failed to initialize routes logger: " + err.Error())
-	}
-}
 
 func (s *FiberServer) RegisterFiberRoutes() {
 	// 应用中间件
-	s.App.Use(middleware.CORSMiddleware())
-	s.App.Use(middleware.RequestIDMiddleware())
+	s.App.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
+		AllowHeaders: []string{"Accept", "Authorization", "Content-Type"},
+		MaxAge:       3600,
+	}))
+	s.App.Use(requestid.New())
 	s.App.Use(middleware.NewLoggingMiddleware())
-	s.App.Use(middleware.NewPathBasedRateLimiter(100))
 	s.App.Use(middleware.RecoveryMiddleware())
+	s.App.Use(limiter.New(limiter.Config{
+		Max:               30,
+		Expiration:        30 * time.Second,
+		LimiterMiddleware: limiter.SlidingWindow{},
+	}))
 
 	// 注册基础路由
 	routes.RegisterBaseRoutes(s.App)
@@ -41,30 +41,4 @@ func (s *FiberServer) RegisterFiberRoutes() {
 	// 注册重索引路由
 	reindexRoutes := routes.NewReindexRoutes(s.App)
 	reindexRoutes.Register()
-}
-
-func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {
-	resp := fiber.Map{
-		"message": "Hello World",
-	}
-
-	return c.JSON(resp)
-}
-
-func (s *FiberServer) ErrorHandler(c *fiber.Ctx) error {
-	panic("error")
-}
-
-func (s *FiberServer) AppConfigHandler(c *fiber.Ctx) error {
-	return c.JSON(s.cfg)
-}
-
-func (s *FiberServer) UserListHandler(c *fiber.Ctx) error {
-	users, err := s.DbClient.Client().User.Query().All(c.Context())
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-	return c.JSON(users)
 }

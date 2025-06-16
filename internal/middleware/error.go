@@ -6,7 +6,7 @@ import (
 
 	"api.us4ever/internal/errors"
 	"api.us4ever/internal/logger"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"go.uber.org/zap"
 )
 
@@ -69,7 +69,7 @@ func NewErrorHandler(config ...ErrorHandlerConfig) fiber.ErrorHandler {
 		cfg.Logger = errorLogger
 	}
 
-	return func(c *fiber.Ctx, err error) error {
+	return func(c fiber.Ctx, err error) error {
 		if err == nil {
 			return nil
 		}
@@ -92,7 +92,7 @@ func NewErrorHandler(config ...ErrorHandlerConfig) fiber.ErrorHandler {
 }
 
 // logError logs the error with appropriate context
-func logError(log *logger.Logger, err error, c *fiber.Ctx, requestID string) {
+func logError(log *logger.Logger, err error, c fiber.Ctx, requestID string) {
 	fields := []zap.Field{
 		zap.Error(err),
 		zap.String("method", c.Method()),
@@ -103,11 +103,6 @@ func logError(log *logger.Logger, err error, c *fiber.Ctx, requestID string) {
 
 	if requestID != "" {
 		fields = append(fields, zap.String("request_id", requestID))
-	}
-
-	// Add query parameters if present
-	if queryString := c.Context().QueryArgs().String(); queryString != "" {
-		fields = append(fields, zap.String("query", queryString))
 	}
 
 	// Check if it's an application error
@@ -122,13 +117,13 @@ func logError(log *logger.Logger, err error, c *fiber.Ctx, requestID string) {
 		case "ValidationError", "NotFoundError":
 			log.Warn("client error occurred", fields...)
 		case "DatabaseError", "ElasticsearchError":
-			log.Error("external service error occurred", fields...)
+			log.Warn("external service error occurred", fields...)
 		default:
-			log.Error("application error occurred", fields...)
+			log.Warn("application error occurred", fields...)
 		}
 	} else {
 		// Log as error for unknown error types
-		log.Error("unhandled error occurred", fields...)
+		log.Warn("unhandled error occurred", fields...)
 	}
 }
 
@@ -215,7 +210,7 @@ func RecoveryMiddleware() fiber.Handler {
 		panic("failed to create recovery logger: " + err.Error())
 	}
 
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		defer func() {
 			if r := recover(); r != nil {
 				requestID := GetRequestID(c)
@@ -249,41 +244,5 @@ func RecoveryMiddleware() fiber.Handler {
 		}()
 
 		return c.Next()
-	}
-}
-
-// NotFoundHandler handles 404 errors
-func NotFoundHandler() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		requestID := GetRequestID(c)
-
-		response := ErrorResponse{
-			Error: ErrorDetail{
-				Type:    "NotFoundError",
-				Message: fmt.Sprintf("Route '%s %s' not found", c.Method(), c.Path()),
-				Code:    404,
-			},
-			TraceID: requestID,
-		}
-
-		return c.Status(fiber.StatusNotFound).JSON(response)
-	}
-}
-
-// MethodNotAllowedHandler handles 405 errors
-func MethodNotAllowedHandler() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		requestID := GetRequestID(c)
-
-		response := ErrorResponse{
-			Error: ErrorDetail{
-				Type:    "MethodNotAllowedError",
-				Message: fmt.Sprintf("Method '%s' not allowed for route '%s'", c.Method(), c.Path()),
-				Code:    405,
-			},
-			TraceID: requestID,
-		}
-
-		return c.Status(fiber.StatusMethodNotAllowed).JSON(response)
 	}
 }

@@ -12,8 +12,9 @@ import (
 	"api.us4ever/internal/database"
 	"api.us4ever/internal/es"
 	"api.us4ever/internal/logger"
+	"api.us4ever/internal/middleware"
 	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"go.uber.org/zap"
 )
 
@@ -87,12 +88,9 @@ func New() *FiberServer {
 
 	server := &FiberServer{
 		App: fiber.New(fiber.Config{
-			ServerHeader:     appConfig.AppName,
-			AppName:          appConfig.AppName,
-			DisableKeepalive: false,
-			ReadTimeout:      30 * time.Second,
-			WriteTimeout:     30 * time.Second,
-			IdleTimeout:      60 * time.Second,
+			ServerHeader: appConfig.AppName,
+			AppName:      appConfig.AppName,
+			ErrorHandler: middleware.NewErrorHandler(),
 		}),
 
 		DbClient:           dbClient,
@@ -248,7 +246,7 @@ func (s *FiberServer) refreshESClient() error {
 }
 
 // reindexKeepsHandler triggers the re-indexing process for keeps.
-func (s *FiberServer) reindexKeepsHandler(c *fiber.Ctx) error {
+func (s *FiberServer) reindexKeepsHandler(c fiber.Ctx) error {
 	esLogger.Info("received request to re-index keeps")
 	if s.EsClient == nil {
 		esLogger.Warn("Elasticsearch client is not available for re-indexing")
@@ -285,13 +283,13 @@ func (s *FiberServer) reindexKeepsHandler(c *fiber.Ctx) error {
 }
 
 // searchKeepsHandler handles requests to search keeps in Elasticsearch
-func (s *FiberServer) searchKeepsHandler(c *fiber.Ctx) error {
+func (s *FiberServer) searchKeepsHandler(c fiber.Ctx) error {
 	start := time.Now()
 
 	// Get the search query from the query parameter 'q'
 	query := c.Query("q")
-	limit := c.QueryInt("limit", 10)
-	offset := c.QueryInt("offset", 0)
+	limit := fiber.Query[int](c, "limit", 10)
+	offset := fiber.Query[int](c, "offset", 0)
 
 	// Basic input validation
 	if query == "" {
@@ -401,13 +399,13 @@ func (s *FiberServer) searchKeepsHandler(c *fiber.Ctx) error {
 }
 
 // searchMomentsHandler handles requests to search moments in Elasticsearch
-func (s *FiberServer) searchMomentsHandler(c *fiber.Ctx) error {
+func (s *FiberServer) searchMomentsHandler(c fiber.Ctx) error {
 	start := time.Now()
 
 	// Get the search query from the query parameter 'q'
 	query := c.Query("q")
-	limit := c.QueryInt("limit", 10)
-	offset := c.QueryInt("offset", 0)
+	limit := fiber.Query[int](c, "limit", 10)
+	offset := fiber.Query[int](c, "offset", 0)
 
 	// Basic input validation
 	if query == "" {
@@ -517,7 +515,7 @@ func (s *FiberServer) searchMomentsHandler(c *fiber.Ctx) error {
 }
 
 // reindexMomentsHandler handles requests to re-index moments in Elasticsearch
-func (s *FiberServer) reindexMomentsHandler(c *fiber.Ctx) error {
+func (s *FiberServer) reindexMomentsHandler(c fiber.Ctx) error {
 	esLogger.Info("received request to re-index moments")
 	if s.EsClient == nil {
 		esLogger.Warn("Elasticsearch client is not available for re-indexing")

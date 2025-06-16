@@ -159,9 +159,6 @@ func main() {
 		port := getPort(appConfig)
 		listenAddr := getListenAddress(appConfig, port)
 
-		mainLogger.Info("starting server",
-			zap.String("address", listenAddr),
-		)
 		if err := fiberServer.Listen(listenAddr); err != nil {
 			mainLogger.Fatal("failed to start server",
 				zap.Error(err),

@@ -5,39 +5,16 @@ import (
 	"fmt"
 )
 
-// Error types for different categories of errors
-var (
-	// ErrInvalidConfig indicates configuration validation failed
-	ErrInvalidConfig = errors.New("invalid configuration")
-
-	// ErrDatabaseConnection indicates database connection failed
-	ErrDatabaseConnection = errors.New("database connection failed")
-
-	// ErrElasticsearchConnection indicates Elasticsearch connection failed
-	ErrElasticsearchConnection = errors.New("elasticsearch connection failed")
-
-	// ErrTaskScheduler indicates task scheduler error
-	ErrTaskScheduler = errors.New("task scheduler error")
-
-	// ErrServerStartup indicates server startup failed
-	ErrServerStartup = errors.New("server startup failed")
-
-	// ErrResourceNotFound indicates requested resource was not found
-	ErrResourceNotFound = errors.New("resource not found")
-
-	// ErrInvalidInput indicates invalid input parameters
-	ErrInvalidInput = errors.New("invalid input")
-
-	// ErrInternalServer indicates internal server error
-	ErrInternalServer = errors.New("internal server error")
-)
-
 // AppError represents an application-specific error with context
 type AppError struct {
 	Type    string `json:"type"`
 	Message string `json:"message"`
 	Cause   error  `json:"-"`
 	Code    int    `json:"code,omitempty"`
+}
+
+func New(text string) error {
+	return errors.New(text)
 }
 
 // Error implements the error interface

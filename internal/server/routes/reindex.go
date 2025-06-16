@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 type ReindexRoutes struct {
@@ -22,12 +22,12 @@ func (r *ReindexRoutes) Register() {
 	internal.Post("/moments/reindex", r.reindexMomentsHandler)
 }
 
-func (r *ReindexRoutes) reindexKeepsHandler(c *fiber.Ctx) error {
+func (r *ReindexRoutes) reindexKeepsHandler(c fiber.Ctx) error {
 	// TODO: 实现重索引逻辑
 	return c.SendString("Reindex keeps endpoint")
 }
 
-func (r *ReindexRoutes) reindexMomentsHandler(c *fiber.Ctx) error {
+func (r *ReindexRoutes) reindexMomentsHandler(c fiber.Ctx) error {
 	// TODO: 实现重索引逻辑
 	return c.SendString("Reindex moments endpoint")
 }

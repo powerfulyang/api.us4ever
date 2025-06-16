@@ -9,7 +9,7 @@ import (
 	"api.us4ever/internal/logger"
 	"api.us4ever/internal/utils"
 	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"go.uber.org/zap"
 )
 
@@ -84,7 +84,7 @@ func (h *HealthMiddleware) SetTimeout(timeout time.Duration) {
 
 // Handler returns the health check handler
 func (h *HealthMiddleware) Handler() fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		startTime := time.Now()
 
 		// Create context with timeout
