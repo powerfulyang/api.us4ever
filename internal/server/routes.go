@@ -54,10 +54,13 @@ func (s *FiberServer) RegisterFiberRoutes() {
 	internalRoutes.Register()
 
 	// 注册搜索路由
-	searchRoutes := routes.NewSearchRoutes(s.App)
+	searchRoutes := routes.NewSearchRoutes(s.App, s.EsClient, s.DbClient, s.KeepEsIndexAlias, s.MomentEsIndexAlias)
 	searchRoutes.Register()
 
 	// 注册重索引路由
-	reindexRoutes := routes.NewReindexRoutes(s.App)
+	reindexRoutes := routes.NewReindexRoutes(s.App, s.EsClient, s.DbClient, s.KeepEsIndexAlias, s.MomentEsIndexAlias)
 	reindexRoutes.Register()
+
+	// 注册 Prometheus 指标端点
+	s.App.Get("/metrics", metrics.GetMetricsHandler())
 }
