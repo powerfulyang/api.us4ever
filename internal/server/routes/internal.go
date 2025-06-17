@@ -44,7 +44,4 @@ func (r *InternalRoutes) Register() {
 
 	// 健康检查端点
 	internal.Get("/health", healthMiddleware.Handler())
-	internal.Get("/app-config", func(c fiber.Ctx) error {
-		return c.JSON(r.cfg)
-	})
 }
