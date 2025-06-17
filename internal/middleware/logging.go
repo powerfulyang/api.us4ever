@@ -77,6 +77,7 @@ func NewLoggingMiddleware(config ...LoggingConfig) fiber.Handler {
 		// Generate request ID if not present
 		requestID := GetRequestID(c)
 
+		// Record start time
 		start := time.Now()
 
 		// Prepare request fields
@@ -88,7 +89,6 @@ func NewLoggingMiddleware(config ...LoggingConfig) fiber.Handler {
 			zap.String("user_agent", c.Get("User-Agent")),
 		}
 
-		// Add query parameters if present
 		// Add query parameters if present
 		if allQueries := c.Queries(); len(allQueries) > 0 {
 			for key, value := range allQueries {
@@ -110,11 +110,14 @@ func NewLoggingMiddleware(config ...LoggingConfig) fiber.Handler {
 		// Log incoming request
 		cfg.Logger.Info("incoming request", requestFields...)
 
-		// Process request
+		// Store the original handler to be executed after our middleware
 		err := c.Next()
 
-		// Calculate duration
+		// Calculate duration after request processing
 		duration := time.Since(start)
+
+		// 重要：在所有处理（包括错误处理）完成后获取最终的状态码
+		// 这将确保获取到的是经过错误处理后的真实状态码
 		status := c.Response().StatusCode()
 
 		// Prepare response fields
@@ -142,10 +145,10 @@ func NewLoggingMiddleware(config ...LoggingConfig) fiber.Handler {
 			}
 		}
 
-		// Determine log level based on status code and configuration
+		// Determine log level based on final status code and configuration
 		logLevel := getLogLevel(status, err, cfg.SkipSuccessfulRequests)
 
-		// Log response
+		// Log response with appropriate level based on the final status code
 		switch logLevel {
 		case "debug":
 			cfg.Logger.Debug("request completed", responseFields...)
@@ -154,7 +157,7 @@ func NewLoggingMiddleware(config ...LoggingConfig) fiber.Handler {
 		case "warn":
 			cfg.Logger.Warn("request completed with warning", responseFields...)
 		case "error":
-			cfg.Logger.Warn("request completed with error", responseFields...)
+			cfg.Logger.Error("request completed with error", responseFields...)
 		}
 
 		return err

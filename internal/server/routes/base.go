@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"api.us4ever/internal/logger"
+	"api.us4ever/internal/metrics"
 	"github.com/gofiber/fiber/v3"
 )
 
@@ -39,4 +40,7 @@ func RegisterBaseRoutes(app *fiber.App) {
 
 		return c.SendString("Request accepted for: " + msg)
 	})
+
+	// 添加Prometheus指标端点
+	app.Get("/metrics", metrics.GetMetricsHandler())
 }

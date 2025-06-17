@@ -28,12 +28,6 @@ type ErrorHandlerConfig struct {
 	// Logger instance to use
 	Logger *logger.Logger
 
-	// IncludeStackTrace includes stack trace in development mode
-	IncludeStackTrace bool
-
-	// CustomErrorMap maps specific errors to custom responses
-	CustomErrorMap map[error]ErrorResponse
-
 	// DefaultErrorMessage is used when error message should be hidden
 	DefaultErrorMessage string
 }
@@ -47,8 +41,6 @@ func DefaultErrorHandlerConfig() ErrorHandlerConfig {
 
 	return ErrorHandlerConfig{
 		Logger:              errorLogger,
-		IncludeStackTrace:   false,
-		CustomErrorMap:      make(map[error]ErrorResponse),
 		DefaultErrorMessage: "An internal error occurred",
 	}
 }
@@ -77,9 +69,6 @@ func NewErrorHandler(config ...ErrorHandlerConfig) fiber.ErrorHandler {
 		// Get request ID for tracing
 		requestID := GetRequestID(c)
 
-		// Log the error with context
-		logError(cfg.Logger, err, c, requestID)
-
 		// Determine response based on error type
 		response := buildErrorResponse(err, cfg, requestID)
 		statusCode := determineStatusCode(err)
@@ -91,50 +80,50 @@ func NewErrorHandler(config ...ErrorHandlerConfig) fiber.ErrorHandler {
 	}
 }
 
-// logError logs the error with appropriate context
-func logError(log *logger.Logger, err error, c fiber.Ctx, requestID string) {
-	fields := []zap.Field{
-		zap.Error(err),
-		zap.String("method", c.Method()),
-		zap.String("path", c.Path()),
-		zap.String("ip", c.IP()),
-		zap.String("user_agent", c.Get("User-Agent")),
+// NewErrorMiddleware 创建一个错误处理中间件，用于在路由中注册
+// 与 NewErrorHandler 不同的是，这个函数返回的是一个中间件处理函数
+func NewErrorMiddleware(config ...ErrorHandlerConfig) fiber.Handler {
+	cfg := DefaultErrorHandlerConfig()
+	if len(config) > 0 {
+		cfg = config[0]
 	}
 
-	if requestID != "" {
-		fields = append(fields, zap.String("request_id", requestID))
+	// Ensure logger is set
+	if cfg.Logger == nil {
+		errorLogger, err := logger.New("error")
+		if err != nil {
+			panic("failed to create error logger: " + err.Error())
+		}
+		cfg.Logger = errorLogger
 	}
 
-	// Check if it's an application error
-	if appErr := errors.GetAppError(err); appErr != nil {
-		fields = append(fields, zap.String("error_type", appErr.Type))
-		if appErr.Code > 0 {
-			fields = append(fields, zap.Int("error_code", appErr.Code))
+	return func(c fiber.Ctx) error {
+		// 先调用下一个处理函数
+		err := c.Next()
+
+		// 如果有错误，则处理它
+		if err != nil {
+			// Get request ID for tracing
+			requestID := GetRequestID(c)
+
+			// Determine response based on error type
+			response := buildErrorResponse(err, cfg, requestID)
+			statusCode := determineStatusCode(err)
+
+			// Set content type
+			c.Set(fiber.HeaderContentType, fiber.MIMEApplicationJSON)
+
+			// 返回JSON响应并设置状态码
+			return c.Status(statusCode).JSON(response)
 		}
 
-		// Log at appropriate level based on error type
-		switch appErr.Type {
-		case "ValidationError", "NotFoundError":
-			log.Warn("client error occurred", fields...)
-		case "DatabaseError", "ElasticsearchError":
-			log.Warn("external service error occurred", fields...)
-		default:
-			log.Warn("application error occurred", fields...)
-		}
-	} else {
-		// Log as error for unknown error types
-		log.Warn("unhandled error occurred", fields...)
+		// 没有错误，返回nil
+		return nil
 	}
 }
 
 // buildErrorResponse constructs the error response
 func buildErrorResponse(err error, cfg ErrorHandlerConfig, requestID string) ErrorResponse {
-	// Check for custom error mapping first
-	if customResponse, exists := cfg.CustomErrorMap[err]; exists {
-		customResponse.TraceID = requestID
-		return customResponse
-	}
-
 	response := ErrorResponse{
 		TraceID: requestID,
 	}
@@ -203,8 +192,8 @@ func determineStatusCode(err error) int {
 	return fiber.StatusInternalServerError
 }
 
-// RecoveryMiddleware provides panic recovery
-func RecoveryMiddleware() fiber.Handler {
+// NewRecoveryMiddleware provides panic recovery
+func NewRecoveryMiddleware() fiber.Handler {
 	recoveryLogger, err := logger.New("recovery")
 	if err != nil {
 		panic("failed to create recovery logger: " + err.Error())

@@ -11,6 +11,7 @@ import (
 
 	"api.us4ever/internal/config"
 	"api.us4ever/internal/logger"
+	"api.us4ever/internal/metrics"
 	"api.us4ever/internal/server"
 	"api.us4ever/internal/task"
 	"go.uber.org/zap"
@@ -28,6 +29,7 @@ var (
 	mainLogger      *logger.Logger
 	shutdownLogger  *logger.Logger
 	schedulerLogger *logger.Logger
+	metricsLogger   *logger.Logger
 )
 
 func init() {
@@ -46,6 +48,11 @@ func init() {
 	schedulerLogger, err = logger.New("scheduler")
 	if err != nil {
 		panic("failed to initialize scheduler logger: " + err.Error())
+	}
+
+	metricsLogger, err = logger.New("metrics")
+	if err != nil {
+		panic("failed to initialize metrics logger: " + err.Error())
 	}
 }
 
@@ -132,6 +139,20 @@ func initializeScheduler(fiberServer *server.FiberServer) *task.Scheduler {
 	return scheduler
 }
 
+// initializeMetrics initializes the metrics collection
+func initializeMetrics() {
+	// 初始化指标收集器但不需要保存返回值
+	_, err := metrics.StartMetricsCollection()
+	if err != nil {
+		metricsLogger.Error("failed to initialize metrics collector",
+			zap.Error(err),
+		)
+		return
+	}
+
+	metricsLogger.Info("metrics collection started successfully")
+}
+
 func main() {
 	// Initialize configuration
 	appConfig := config.GetAppConfig()
@@ -144,6 +165,9 @@ func main() {
 	if fiberServer == nil {
 		mainLogger.Fatal("failed to initialize fiber server")
 	}
+
+	// Initialize metrics collection
+	initializeMetrics()
 
 	// Initialize task scheduler
 	scheduler := initializeScheduler(fiberServer)

@@ -12,7 +12,6 @@ import (
 	"api.us4ever/internal/database"
 	"api.us4ever/internal/es"
 	"api.us4ever/internal/logger"
-	"api.us4ever/internal/middleware"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/gofiber/fiber/v3"
 	"go.uber.org/zap"
@@ -90,7 +89,6 @@ func New() *FiberServer {
 		App: fiber.New(fiber.Config{
 			ServerHeader: appConfig.AppName,
 			AppName:      appConfig.AppName,
-			ErrorHandler: middleware.NewErrorHandler(),
 		}),
 
 		DbClient:           dbClient,
@@ -330,21 +328,6 @@ func (s *FiberServer) searchKeepsHandler(c fiber.Ctx) error {
 		offset = 0
 	}
 
-	// Basic sanitization - remove dangerous patterns
-	if containsDangerousPatterns(query) {
-		esLogger.Warn("search request with potentially dangerous content",
-			zap.String("ip", c.IP()),
-			zap.String("query", query),
-		)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": fiber.Map{
-				"type":    "SecurityError",
-				"message": "Search query contains invalid content",
-				"code":    400,
-			},
-		})
-	}
-
 	// Check if the ES client is available
 	if s.EsClient == nil {
 		esLogger.Warn("Elasticsearch client is not available for search",
@@ -446,21 +429,6 @@ func (s *FiberServer) searchMomentsHandler(c fiber.Ctx) error {
 		offset = 0
 	}
 
-	// Basic sanitization - remove dangerous patterns
-	if containsDangerousPatterns(query) {
-		esLogger.Warn("search request with potentially dangerous content",
-			zap.String("ip", c.IP()),
-			zap.String("query", query),
-		)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": fiber.Map{
-				"type":    "SecurityError",
-				"message": "Search query contains invalid content",
-				"code":    400,
-			},
-		})
-	}
-
 	// Check if the ES client is available
 	if s.EsClient == nil {
 		esLogger.Warn("Elasticsearch client is not available for search",
@@ -549,30 +517,4 @@ func (s *FiberServer) reindexMomentsHandler(c fiber.Ctx) error {
 	return c.Status(http.StatusAccepted).JSON(fiber.Map{
 		"message": "Re-indexing process for moments started in the background.",
 	})
-}
-
-// containsDangerousPatterns checks if the query contains potentially dangerous patterns
-func containsDangerousPatterns(query string) bool {
-	// List of dangerous patterns to check for
-	dangerousPatterns := []string{
-		"<script",
-		"javascript:",
-		"onload=",
-		"onerror=",
-		"eval(",
-		"document.",
-		"window.",
-		".innerHTML",
-		".outerHTML",
-	}
-
-	lowerQuery := strings.ToLower(query)
-
-	for _, pattern := range dangerousPatterns {
-		if strings.Contains(lowerQuery, strings.ToLower(pattern)) {
-			return true
-		}
-	}
-
-	return false
 }

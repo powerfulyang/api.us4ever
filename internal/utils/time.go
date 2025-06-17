@@ -65,7 +65,7 @@ var units = []timeUnit{
 func SmartDurationFormat(d time.Duration) string {
 	// Handle the zero-value case explicitly for clarity.
 	if d == 0 {
-		return "0s"
+		return "0"
 	}
 
 	// Case 1: Duration is less than a second.

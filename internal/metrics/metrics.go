@@ -6,8 +6,10 @@ import (
 
 	"api.us4ever/internal/logger"
 	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/adaptor"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var (
@@ -126,8 +128,8 @@ var (
 	)
 )
 
-// MetricsMiddleware creates a Fiber middleware for collecting HTTP metrics
-func MetricsMiddleware() fiber.Handler {
+// NewMiddleware creates a Fiber middleware for collecting HTTP metrics
+func NewMiddleware() fiber.Handler {
 	return func(c fiber.Ctx) error {
 		start := time.Now()
 
@@ -204,25 +206,25 @@ func RecordSearchRequest(searchType, status string, resultCount int) {
 	searchResultsCount.WithLabelValues(searchType).Observe(float64(resultCount))
 }
 
-// MetricsCollector provides methods to collect various application metrics
-type MetricsCollector struct {
+// Collector MetricsCollector provides methods to collect various application metrics
+type Collector struct {
 	logger *logger.Logger
 }
 
 // NewMetricsCollector creates a new metrics collector
-func NewMetricsCollector() (*MetricsCollector, error) {
+func NewMetricsCollector() (*Collector, error) {
 	metricsLogger, err := logger.New("metrics")
 	if err != nil {
 		return nil, err
 	}
 
-	return &MetricsCollector{
+	return &Collector{
 		logger: metricsLogger,
 	}, nil
 }
 
 // StartPeriodicCollection starts collecting metrics periodically
-func (mc *MetricsCollector) StartPeriodicCollection() {
+func (mc *Collector) StartPeriodicCollection() {
 	ticker := time.NewTicker(30 * time.Second)
 	go func() {
 		defer ticker.Stop()
@@ -233,7 +235,7 @@ func (mc *MetricsCollector) StartPeriodicCollection() {
 }
 
 // collectSystemMetrics collects system-level metrics
-func (mc *MetricsCollector) collectSystemMetrics() {
+func (mc *Collector) collectSystemMetrics() {
 	// This is a placeholder - in a real implementation, you would collect
 	// actual system metrics like memory usage, CPU usage, etc.
 	mc.logger.Debug("collecting system metrics")
@@ -242,8 +244,21 @@ func (mc *MetricsCollector) collectSystemMetrics() {
 // GetMetricsHandler returns a Fiber handler for the /metrics endpoint
 func GetMetricsHandler() fiber.Handler {
 	return func(c fiber.Ctx) error {
-		// In a real implementation, you would use promhttp.Handler()
-		// For now, return a simple response
-		return c.SendString("# Metrics endpoint - integrate with Prometheus\n")
+		// 使用fiber的adaptor中间件将promhttp.Handler转换为fiber.Handler
+		handler := adaptor.HTTPHandler(promhttp.Handler())
+		return handler(c)
 	}
+}
+
+// StartMetricsCollection 初始化并启动指标收集
+func StartMetricsCollection() (*Collector, error) {
+	collector, err := NewMetricsCollector()
+	if err != nil {
+		return nil, err
+	}
+
+	// 启动周期性收集
+	collector.StartPeriodicCollection()
+
+	return collector, nil
 }
