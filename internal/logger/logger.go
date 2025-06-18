@@ -19,6 +19,13 @@ type Logger struct {
 func New(prefix string) (*Logger, error) {
 	config := getLoggerConfig()
 
+	appEnv := os.Getenv("APP_ENV")
+	if appEnv == "local" {
+		config.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
+	} else {
+		config.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
+	}
+
 	zapLogger, err := config.Build(
 		zap.AddCallerSkip(1), // 跳过封装层
 	)
