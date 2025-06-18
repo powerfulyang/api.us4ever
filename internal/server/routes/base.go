@@ -26,6 +26,8 @@ func RegisterBaseRoutes(app *fiber.App) {
 	app.Get("/log/:message", func(c fiber.Ctx) error {
 		// 1. 从请求中获取参数
 		msg := c.Params("message")
+		// 正确用法
+		// msg := utils.CloneString(c.Params("message"))
 		baseLogger.Info(fmt.Sprintf("[Handler] Received message: %s", msg))
 
 		// 2. 在一个新的 goroutine 中处理这个消息
