@@ -106,7 +106,7 @@ func getPort(appConfig *config.AppConfig) int {
 
 // getListenAddress returns the appropriate listen address based on environment
 func getListenAddress(appConfig *config.AppConfig, port int) string {
-	if appConfig != nil && appConfig.AppEnv == "local" {
+	if appConfig != nil && logger.IsLocalDev(appConfig.AppEnv) {
 		// Local development environment listens on localhost
 		return fmt.Sprintf("localhost:%d", port)
 	}

@@ -294,13 +294,13 @@ func RecordSearchRequest(searchType, status string, resultCount int) {
 	searchResultsCount.WithLabelValues(searchType).Observe(float64(resultCount))
 }
 
-// 新增：记录索引大小和文档数量
+// RecordIndexStats 新增：记录索引大小和文档数量
 func RecordIndexStats(indexName string, sizeBytes int64, documentCount int) {
 	indexSizeBytes.WithLabelValues(indexName).Set(float64(sizeBytes))
 	indexDocumentCount.WithLabelValues(indexName).Set(float64(documentCount))
 }
 
-// 新增：记录搜索延迟百分位数
+// RecordSearchLatencyPercentile 新增：记录搜索延迟百分位数
 func RecordSearchLatencyPercentile(searchType string, percentile string, latency float64) {
 	searchLatencyPercentile.WithLabelValues(searchType, percentile).Set(latency)
 }

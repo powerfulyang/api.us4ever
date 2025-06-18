@@ -15,12 +15,16 @@ type Logger struct {
 	prefix string
 }
 
+func IsLocalDev(appEnv string) bool {
+	return appEnv == "local"
+}
+
 // New creates a new logger with the specified prefix
 func New(prefix string) (*Logger, error) {
 	config := getLoggerConfig()
 
 	appEnv := os.Getenv("APP_ENV")
-	if appEnv == "local" {
+	if IsLocalDev(appEnv) {
 		config.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	} else {
 		config.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
