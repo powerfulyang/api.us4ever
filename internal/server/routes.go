@@ -6,6 +6,7 @@ import (
 	"api.us4ever/internal/metrics"
 	"api.us4ever/internal/middleware"
 	"api.us4ever/internal/server/routes"
+	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/cors"
 	"github.com/gofiber/fiber/v3/middleware/limiter"
 	"github.com/gofiber/fiber/v3/middleware/requestid"
@@ -44,6 +45,9 @@ func (s *FiberServer) RegisterFiberRoutes() {
 		Max:               30,
 		Expiration:        30 * time.Second,
 		LimiterMiddleware: limiter.SlidingWindow{},
+		KeyGenerator: func(c fiber.Ctx) string {
+			return middleware.GetRealIP(c)
+		},
 	}))
 
 	// 注册基础路由

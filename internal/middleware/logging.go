@@ -85,7 +85,7 @@ func NewLoggingMiddleware(config ...LoggingConfig) fiber.Handler {
 			zap.String("request_id", requestID),
 			zap.String("method", c.Method()),
 			zap.String("path", path),
-			zap.String("ip", c.IP()),
+			zap.String("ip", GetRealIP(c)),
 			zap.String("user_agent", c.Get("User-Agent")),
 		}
 
@@ -157,7 +157,7 @@ func NewLoggingMiddleware(config ...LoggingConfig) fiber.Handler {
 		case "warn":
 			cfg.Logger.Warn("request completed with warning", responseFields...)
 		case "error":
-			cfg.Logger.Error("request completed with error", responseFields...)
+			cfg.Logger.Warn("request completed with error", responseFields...)
 		}
 
 		return err

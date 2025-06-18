@@ -210,7 +210,7 @@ func NewRecoveryMiddleware() fiber.Handler {
 					zap.String("request_id", requestID),
 					zap.String("method", c.Method()),
 					zap.String("path", c.Path()),
-					zap.String("ip", c.IP()),
+					zap.String("ip", GetRealIP(c)),
 				)
 
 				// Create error response

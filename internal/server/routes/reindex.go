@@ -44,8 +44,8 @@ func (r *ReindexRoutes) Register() {
 	internal := r.app.Group("/internal")
 
 	// 重索引端点
-	internal.Post("/keeps/reindex", r.reindexKeepsHandler)
-	internal.Post("/moments/reindex", r.reindexMomentsHandler)
+	internal.Get("/reindex/keeps", r.reindexKeepsHandler)
+	internal.Get("/reindex/moments", r.reindexMomentsHandler)
 }
 
 // reindexKeepsHandler triggers the re-indexing process for keeps.

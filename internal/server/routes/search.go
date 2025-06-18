@@ -4,6 +4,7 @@ import (
 	"api.us4ever/internal/database"
 	"api.us4ever/internal/es"
 	"api.us4ever/internal/logger"
+	"api.us4ever/internal/middleware"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/gofiber/fiber/v3"
 	"go.uber.org/zap"
@@ -44,10 +45,6 @@ func (r *SearchRoutes) Register() {
 	// 新的搜索路由
 	searchGroup.Get("/keeps", r.searchKeepsHandler)
 	searchGroup.Get("/moments", r.searchMomentsHandler)
-
-	// 保持向后兼容的旧路由
-	internal.Get("/keeps/search", r.searchKeepsHandler)
-	internal.Get("/moments/search", r.searchMomentsHandler)
 }
 
 // searchKeepsHandler handles requests to search keeps in Elasticsearch
@@ -59,7 +56,7 @@ func (r *SearchRoutes) searchKeepsHandler(c fiber.Ctx) error {
 	// Basic input validation
 	if query == "" {
 		esLogger.Warn("search request with empty query",
-			zap.String("ip", c.IP()),
+			zap.String("ip", middleware.GetRealIP(c)),
 		)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": fiber.Map{
@@ -119,7 +116,7 @@ func (r *SearchRoutes) searchMomentsHandler(c fiber.Ctx) error {
 	// Basic input validation
 	if query == "" {
 		esLogger.Warn("search request with empty query",
-			zap.String("ip", c.IP()),
+			zap.String("ip", middleware.GetRealIP(c)),
 		)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": fiber.Map{
