@@ -44,9 +44,7 @@ func ImportMomentsFromCSV(filePath string) error {
 	}
 	defer func() {
 		if closeErr := db.Close(); closeErr != nil {
-			toolsLogger.Warn("failed to close database connection", logger.LogFields{
-				"error": closeErr.Error(),
-			})
+			toolsLogger.Warnw("failed to close database connection", "error", closeErr)
 		}
 	}()
 
@@ -57,9 +55,7 @@ func ImportMomentsFromCSV(filePath string) error {
 	}
 	defer func() {
 		if closeErr := file.Close(); closeErr != nil {
-			toolsLogger.Warn("failed to close CSV file", logger.LogFields{
-				"error": closeErr.Error(),
-			})
+			toolsLogger.Warnw("failed to close CSV file", "error", closeErr)
 		}
 	}()
 
@@ -101,18 +97,16 @@ func ImportMomentsFromCSV(filePath string) error {
 			if err == io.EOF {
 				break // End of file
 			}
-			toolsLogger.Warn("error reading CSV record", logger.LogFields{
-				"error": err.Error(),
-			})
+			toolsLogger.Warnw("error reading CSV record", "error", err)
 			continue
 		}
 
 		// Validate record length
 		if contentIndex >= len(record) {
-			toolsLogger.Warn("skipping record with insufficient columns", logger.LogFields{
-				"expected_columns": contentIndex + 1,
-				"actual_columns":   len(record),
-			})
+			toolsLogger.Warnw("skipping record with insufficient columns",
+				"expected_columns", contentIndex+1,
+				"actual_columns", len(record),
+			)
 			continue
 		}
 
@@ -124,10 +118,10 @@ func ImportMomentsFromCSV(filePath string) error {
 		// Generate content vector
 		contentVector, err := es.Embed(ctx, content)
 		if err != nil {
-			toolsLogger.Warn("failed to generate embedding for content", logger.LogFields{
-				"error":   err.Error(),
-				"content": content[:min(50, len(content))], // Log first 50 chars
-			})
+			toolsLogger.Warnw("failed to generate embedding for content",
+				"error", err,
+				"content", content[:min(50, len(content))],
+			)
 			// Continue without vector if embedding fails
 			contentVector = nil
 		}
@@ -136,9 +130,7 @@ func ImportMomentsFromCSV(filePath string) error {
 		if contentVector != nil {
 			vectorJSON, err = json.Marshal(contentVector)
 			if err != nil {
-				toolsLogger.Warn("failed to marshal content vector", logger.LogFields{
-					"error": err.Error(),
-				})
+				toolsLogger.Warnw("failed to marshal content vector", "error", err)
 				vectorJSON = nil
 			}
 		}
@@ -168,15 +160,13 @@ func ImportMomentsFromCSV(filePath string) error {
 
 		processedCount++
 		if processedCount%100 == 0 {
-			toolsLogger.Info("processing progress", logger.LogFields{
-				"processed_count": processedCount,
-			})
+			toolsLogger.Infow("processing progress", "processed_count", processedCount)
 		}
 	}
 
-	toolsLogger.Info("CSV import completed successfully", logger.LogFields{
-		"total_processed": processedCount,
-		"file_path":       filePath,
-	})
+	toolsLogger.Infow("CSV import completed successfully",
+		"total_processed", processedCount,
+		"file_path", filePath,
+	)
 	return nil
 }

@@ -44,9 +44,7 @@ func SyncSchema() error {
 	// 构建 DSN
 	dsn := dbConfig.GetDSN()
 
-	syncLogger.Info("using DSN for schema sync", logger.LogFields{
-		"dsn": dsn,
-	})
+	syncLogger.Infow("using DSN for schema sync", "dsn", dsn)
 
 	cmd := exec.Command(
 		"go", "run",

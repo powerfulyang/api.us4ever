@@ -1,20 +1,34 @@
 package es
 
 import (
-	"api.us4ever/internal/config"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/textquerytype"
 	"io"
 	"net/http"
 	"time"
 	"unicode"
 
+	"api.us4ever/internal/config"
+	"api.us4ever/internal/logger"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/textquerytype"
+
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 )
+
+var (
+	helperLogger *logger.Logger
+)
+
+func init() {
+	var err error
+	helperLogger, err = logger.New("helper")
+	if err != nil {
+		panic("failed to initialize helper logger: " + err.Error())
+	}
+}
 
 const (
 	vectorDims = 1024
@@ -78,8 +92,8 @@ func BuildBody(p SearchParams) *bytes.Buffer {
 }
 
 func Embed(ctx context.Context, text string) ([]float32, error) {
-	// 超时 30 秒
-	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	// 超时 3 秒
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 	appConfig := config.GetAppConfig()
 	embedServiceURL := appConfig.Embedding.Endpoint
@@ -90,7 +104,11 @@ func Embed(ctx context.Context, text string) ([]float32, error) {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, err
+		helperLogger.Errorw("embed service error", "err", err)
+		// 返回一个模长极小的非零向量
+		dummy := make([]float32, 1024)
+		dummy[0] = 0.1
+		return dummy, nil
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()

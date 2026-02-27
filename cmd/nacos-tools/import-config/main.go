@@ -52,10 +52,10 @@ func main() {
 	// 读取配置文件
 	content, err := os.ReadFile(*filePath)
 	if err != nil {
-		nacosToolsLogger.Fatal("failed to read config file", logger.LogFields{
-			"file_path": *filePath,
-			"error":     err.Error(),
-		})
+		nacosToolsLogger.Fatalw("failed to read config file",
+			"file_path", *filePath,
+			"error", err,
+		)
 	}
 
 	// 初始化 Nacos 客户端
@@ -64,24 +64,24 @@ func main() {
 	// 发布配置到 Nacos
 	success, err := config.PublishConfig(*dataID, *group, string(content))
 	if err != nil {
-		nacosToolsLogger.Fatal("failed to publish config", logger.LogFields{
-			"data_id": *dataID,
-			"group":   *group,
-			"error":   err.Error(),
-		})
+		nacosToolsLogger.Fatalw("failed to publish config",
+			"data_id", *dataID,
+			"group", *group,
+			"error", err,
+		)
 	}
 
 	if success {
-		nacosToolsLogger.Info("config published successfully to Nacos", logger.LogFields{
-			"data_id": *dataID,
-			"group":   *group,
-		})
+		nacosToolsLogger.Infow("config published successfully to Nacos",
+			"data_id", *dataID,
+			"group", *group,
+		)
 		fmt.Printf("配置已成功发布到 Nacos (DataID: %s, Group: %s)\n", *dataID, *group)
 	} else {
-		nacosToolsLogger.Error("failed to publish config to Nacos", logger.LogFields{
-			"data_id": *dataID,
-			"group":   *group,
-		})
+		nacosToolsLogger.Errorw("failed to publish config to Nacos",
+			"data_id", *dataID,
+			"group", *group,
+		)
 		fmt.Println("发布配置失败")
 	}
 }

@@ -138,3 +138,44 @@ func (l *Logger) Fatal(msg string, fields ...zap.Field) {
 	}
 	l.zap.Fatal(msg, fields...)
 }
+
+// Debugw logs a debug message with key-value pairs (sugar style)
+func (l *Logger) Debugw(msg string, keysAndValues ...interface{}) {
+	if l.sugar == nil {
+		return
+	}
+	l.sugar.Debugw(msg, keysAndValues...)
+}
+
+// Infow logs an info message with key-value pairs (sugar style)
+func (l *Logger) Infow(msg string, keysAndValues ...interface{}) {
+	if l.sugar == nil {
+		return
+	}
+	l.sugar.Infow(msg, keysAndValues...)
+}
+
+// Warnw logs a warning message with key-value pairs (sugar style)
+func (l *Logger) Warnw(msg string, keysAndValues ...interface{}) {
+	if l.sugar == nil {
+		return
+	}
+	l.sugar.Warnw(msg, keysAndValues...)
+}
+
+// Errorw logs an error message with key-value pairs (sugar style)
+func (l *Logger) Errorw(msg string, keysAndValues ...interface{}) {
+	if l.sugar == nil {
+		return
+	}
+	l.sugar.Errorw(msg, keysAndValues...)
+}
+
+// Fatalw logs a fatal message with key-value pairs (sugar style) and exits
+func (l *Logger) Fatalw(msg string, keysAndValues ...interface{}) {
+	if l.sugar == nil {
+		os.Exit(1)
+		return
+	}
+	l.sugar.Fatalw(msg, keysAndValues...)
+}

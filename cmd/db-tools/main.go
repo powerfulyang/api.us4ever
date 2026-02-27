@@ -37,49 +37,43 @@ func main() {
 		}
 		importMoments(os.Args[2])
 	default:
-		dbToolsLogger.Error("unknown command", logger.LogFields{
-			"command": command,
-		})
+		dbToolsLogger.Errorw("unknown command", "command", command)
 		printUsage()
 		os.Exit(1)
 	}
 }
 
 func printUsage() {
-	dbToolsLogger.Info("db-tools usage information", logger.LogFields{
-		"commands": map[string]string{
+	dbToolsLogger.Infow("db-tools usage information",
+		"commands", map[string]string{
 			"sync":           "sync database schema from existing database",
 			"import-moments": "import data from CSV file to moment table",
 		},
-		"examples": []string{
+		"examples", []string{
 			"go run ./cmd/db-tools sync",
 			"go run ./cmd/db-tools import-moments <csv_file_path>",
 		},
-	})
+	)
 }
 
 func syncSchema() {
 	dbToolsLogger.Info("syncing database schema")
 
 	if err := tools.SyncSchema(); err != nil {
-		dbToolsLogger.Fatal("failed to sync database schema", logger.LogFields{
-			"error": err.Error(),
-		})
+		dbToolsLogger.Fatalw("failed to sync database schema", "error", err)
 	}
 
 	dbToolsLogger.Info("database schema synced successfully")
 }
 
 func importMoments(csvPath string) {
-	dbToolsLogger.Info("importing data from CSV to moment table", logger.LogFields{
-		"csv_path": csvPath,
-	})
+	dbToolsLogger.Infow("importing data from CSV to moment table", "csv_path", csvPath)
 
 	if err := tools.ImportMomentsFromCSV(csvPath); err != nil {
-		dbToolsLogger.Fatal("failed to import data", logger.LogFields{
-			"error":    err.Error(),
-			"csv_path": csvPath,
-		})
+		dbToolsLogger.Fatalw("failed to import data",
+			"error", err,
+			"csv_path", csvPath,
+		)
 	}
 
 	dbToolsLogger.Info("data imported successfully")

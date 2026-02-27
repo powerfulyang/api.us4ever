@@ -54,8 +54,8 @@ jobs:
           cd /root/applications
           docker pull ${{ env.DOCKER_REPOSITORY }}
           docker-compose up -d --force-recreate ${{ env.SERVICE_NAME }}
-          docker image prune -f
-          docker-compose up -d
+#          docker image prune -f
+#          docker-compose up -d
 
   build-and-deploy-on-self-host:
     if: false
