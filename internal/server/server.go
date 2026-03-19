@@ -41,7 +41,7 @@ func init() {
 		panic("failed to initialize server logger: " + err.Error())
 	}
 
-	esLogger, err = logger.New("elasticsearch")
+	esLogger, err = logger.New("Elasticsearch")
 	if err != nil {
 		panic("failed to initialize elasticsearch logger: " + err.Error())
 	}
@@ -100,11 +100,14 @@ func New() *FiberServer {
 	// Register configuration change callback
 	config.RegisterChangeCallback(server.handleConfigChange)
 
-	// Trigger initial indexing in the background if ES client is available
-	server.triggerInitialIndexing()
+	// Trigger initial indexing in the background if an ES client is available
+	//server.triggerInitialIndexing()
 
-	// Start metrics collection
-	metrics.StartMetricsCollection()
+	// Start a metrics collection
+	_, err = metrics.StartMetricsCollection()
+	if err != nil {
+		return nil
+	}
 
 	return server
 }
@@ -116,7 +119,7 @@ func (s *FiberServer) triggerInitialIndexing() {
 		return
 	}
 
-	// 为keeps创建索引
+	// 为 keeps 创建索引
 	go func() {
 		// check index already exist, ignore create if exists
 		ctx := context.Background()

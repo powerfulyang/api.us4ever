@@ -5,7 +5,6 @@ import (
 	"api.us4ever/internal/task/image"
 	"api.us4ever/internal/task/keep"
 	"api.us4ever/internal/task/telegram"
-	"api.us4ever/internal/task/vector"
 )
 
 // RegisterTasks 注册所有定时任务
@@ -29,17 +28,17 @@ func RegisterTasks(scheduler *Scheduler, fiberServer *server.FiberServer) error 
 		return err
 	}
 
-	// embedding moments task (runs every 60 seconds)
-	err = scheduler.AddTaskWithServer("embedding_moments", "0 * * * * *", vector.EmbeddingMoments, fiberServer)
-	if err != nil {
-		return err
-	}
+	// the embedding moment task (runs every 60 seconds)
+	//err = scheduler.AddTaskWithServer("embedding_moments", "0 * * * * *", vector.EmbeddingMoments, fiberServer)
+	//if err != nil {
+	//	return err
+	//}
 
-	// embedding keeps task (runs every 60 seconds)
-	err = scheduler.AddTaskWithServer("embedding_keeps", "0 * * * * *", vector.EmbeddingKeeps, fiberServer)
-	if err != nil {
-		return err
-	}
+	// the embedding keep task (runs every 60 seconds)
+	//err = scheduler.AddTaskWithServer("embedding_keeps", "0 * * * * *", vector.EmbeddingKeeps, fiberServer)
+	//if err != nil {
+	//	return err
+	//}
 
 	return nil
 }

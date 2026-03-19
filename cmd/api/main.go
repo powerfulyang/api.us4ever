@@ -164,6 +164,7 @@ func main() {
 	fiberServer := server.New()
 	if fiberServer == nil {
 		mainLogger.Fatal("failed to initialize fiber server")
+		return
 	}
 
 	// Initialize metrics collection
@@ -178,7 +179,7 @@ func main() {
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)
 
-	// Start server in a goroutine
+	// Start a server in a goroutine
 	go func() {
 		port := getPort(appConfig)
 		listenAddr := getListenAddress(appConfig, port)
